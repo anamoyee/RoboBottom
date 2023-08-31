@@ -169,7 +169,7 @@ class Console:
 console = Console()
 
 NEWLINE = '\n'; APOSTROPHE = '\''
-shelf_directory = p.Path('db')
+shelf_directory = './db' if os.name == 'nt' else '~/RoboBottomDB'; shelf_directory = p.Path(shelf_directory)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
 class Embeds:
