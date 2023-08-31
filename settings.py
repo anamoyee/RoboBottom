@@ -5,7 +5,7 @@ DEFAULT_ENABLED_GUILDS = ()
 DEV_ID    = 507642999992352779
 DEV_GUILD = 1145433323594842166
 
-VERSION = '1.0.41'
+VERSION = '1.0.5'
 
 class ALIASES:
   LIST = ['.', 'list', 'reminders', 'rems']
