@@ -169,13 +169,7 @@ class Console:
 console = Console()
 
 NEWLINE = '\n'; APOSTROPHE = '\''
-if os.name == 'nt':
-  SHELF_DIRECTORY = './db'
-else:
-  home_directory = p.Path.expanduser("~")
-  directory_path = p.Path(home_directory) / "RoboBottomDB"
-SHELF_DIRECTORY = p.Path(SHELF_DIRECTORY)
-SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
+SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../RoboBottomDB'); SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
 class Embeds:
