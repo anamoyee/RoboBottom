@@ -1,2 +1,2 @@
 # RoboBottom
-A remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop was originally made by **[Colon](https://gdcolon.com)**. <img src="https://cdn.discordapp.com/emojis/1132968267963715634.webp?size=64&name=fluff&quality=lossless"></img> I only remade the reminders part of that bot because of its shutdown on August 12th 2023. RIP RoboTop, You will be missed!
+A remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop was originally made by **[Colon](https://gdcolon.com)**. <img style="width: 25%; height: 25%;" src="https://cdn.discordapp.com/emojis/1132968267963715634.webp?size=64&name=fluff&quality=lossless"></img> I only remade the reminders part of that bot because of its shutdown on August 12th 2023. RIP RoboTop, You will be missed!
