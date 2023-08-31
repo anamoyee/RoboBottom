@@ -1,1 +1,2 @@
 # RoboBottom
+A remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop was originally made by **[Colon](https://gdcolon.com)**. <img src="https://gdcolon.com/assets/colon.png"></img> I only remade the reminders part of that bot because of its shutdown on August 12th 2023. RIP RoboTop, You will be missed!
