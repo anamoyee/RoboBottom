@@ -169,7 +169,7 @@ class Console:
 console = Console()
 
 NEWLINE = '\n'; APOSTROPHE = '\''
-os.chdir(os.path.join(__file__, '..'))  # noqa: PTH118
+os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
 SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB'); SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
