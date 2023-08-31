@@ -142,15 +142,15 @@ if True: # \/ Reminder Components
       unix = timestr_to_seconds(unix)
     except ValueError:
       await event.message.respond(EMBEDS.invalid_syntax_small())
-
-    if unix < S.LIMITS.MINIMAL_DURATION:
-      await event.message.respond(F':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!')
-      return
-
-    if schedule_reminder(event.author_id, text=text, unix=math.floor(time.time()+unix)):
-      await event.message.respond(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**")
     else:
-      await event.message.respond(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!')
+      if unix < S.LIMITS.MINIMAL_DURATION:
+        await event.message.respond(F':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!')
+        return
+
+      if schedule_reminder(event.author_id, text=text, unix=math.floor(time.time()+unix)):
+        await event.message.respond(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**")
+      else:
+        await event.message.respond(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!')
 
   async def r_wipe(event: hikari.DMMessageCreateEvent):
     async def func(btn: miru.Button, ctx: miru.Context, author_id=event.author_id):
