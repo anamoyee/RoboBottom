@@ -169,7 +169,13 @@ class Console:
 console = Console()
 
 NEWLINE = '\n'; APOSTROPHE = '\''
-shelf_directory = './db' if os.name == 'nt' else '~/RoboBottomDB'; shelf_directory = p.Path(shelf_directory); shelf_directory.mkdir(exist_ok=True, parents=True)
+if os.name == 'nt':
+  SHELF_DIRECTORY = './db'
+else:
+  home_directory = p.Path.expanduser("~")
+  directory_path = p.Path(home_directory) / "RoboBottomDB"
+SHELF_DIRECTORY = p.Path(SHELF_DIRECTORY)
+SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
 class Embeds:
@@ -356,23 +362,23 @@ def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:
 
 def wipe_reminders(user_id) -> None:
   user_id = str(user_id)
-  shelf_path = shelf_directory / "reminders"
+  shelf_path = SHELF_DIRECTORY / "reminders"
   with shelve.open(shelf_path, writeback=True) as shelf:
     if user_id in shelf: del shelf[user_id]
 
 def get_ALL_reminders() -> dict[str, list[Reminder]]:
-  shelf_path = shelf_directory / "reminders"
+  shelf_path = SHELF_DIRECTORY / "reminders"
   with shelve.open(shelf_path, writeback=True) as shelf:
     return dict(shelf).copy()
 
 def _get_reminders(key) -> list[Reminder]:
-  shelf_path = shelf_directory / "reminders"
+  shelf_path = SHELF_DIRECTORY / "reminders"
   with shelve.open(shelf_path, writeback=True) as shelf:
     return shelf.get(key, [])
 
 def append_reminder(user_id, reminder: Reminder) -> Reminder:
   user_id = str(user_id)
-  shelf_path = shelf_directory / "reminders"
+  shelf_path = SHELF_DIRECTORY / "reminders"
   with shelve.open(shelf_path, writeback=True) as shelf:
     if user_id in shelf:
       existing_values = shelf[user_id]
@@ -394,7 +400,7 @@ def get_reminders(user_id) -> list[Reminder]:
 
 def delete_reminder_by_idx(user_id, idx: int) -> Reminder:
   user_id = str(user_id)
-  shelf_path = shelf_directory / "reminders"
+  shelf_path = SHELF_DIRECTORY / "reminders"
   with shelve.open(shelf_path, writeback=True) as shelf:
     reminders = shelf.get(user_id) or []
     a = reminders[idx]
