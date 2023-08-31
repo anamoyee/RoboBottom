@@ -169,7 +169,8 @@ class Console:
 console = Console()
 
 NEWLINE = '\n'; APOSTROPHE = '\''
-SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../RoboBottomDB'); SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
+os.chdir(os.path.join(__file__, '..'))  # noqa: PTH118
+SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB'); SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
 class Embeds:
