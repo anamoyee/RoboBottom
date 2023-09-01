@@ -11,7 +11,7 @@ On **Non-Windows** it tries to go back two directories and create a `RoboBottomD
 pip install -r requirements.txt
 ```
 3. Go to `settings.py` and change your settings accordingly.
-4. Create an application on [Discord Developer Portal](https://discord.com/developers/applications) and grant it all priviliged gateway intents (I don't really know if they are needed but I just always grant them and I don't know if it will break something if it's not grantetd).
+4. Create an application on **[Discord Developer Portal](https://discord.com/developers/applications)** and grant it all priviliged gateway intents (I don't really know if they are needed but I just always grant them and I don't know if it will break something if it's not grantetd).
 5. The bot will try to find a file called `TOKEN.txt` up to two directories away (in cwd, parent & parent of parent). Create it and populate it with the bot's token.
 6. Run the bot with the following command
 ```
