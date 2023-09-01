@@ -150,7 +150,7 @@ class Console:
     out = str(out)
     if withprefix:
       out = F('D {str(datetime.datetime.now())[:-3].replace(".", ",")} ') + out
-    out = stylize(out, fg("#FF12FF") + attr('bold'))# + attr("underlined"))
+    out = stylize(out, fg("magenta") + attr('bold'))# + attr("underlined"))
     if returnonly:
       return out
     print(out)
