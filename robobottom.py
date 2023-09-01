@@ -70,7 +70,6 @@ f"""
   async def cmd_dev(ctx: lb.SlashContext):
     if ctx.author.id != S.DEV_ID: return await ctx.respond('You are not allowed to use this command', flags=hikari.MessageFlag.EPHEMERAL)
 
-    original_thing = ctx.options.thing
     thing: list[str] = ctx.options.thing.split('.')
     ephemeral        = ctx.options.ephemeral
 
@@ -83,27 +82,8 @@ f"""
         global GUILD_COUNT
         GUILD_COUNT = await get_guild_count(bot)
         await r(f'Updated the guild count, new guild count: `{GUILD_COUNT}`')
-      elif thing[0] in ['1', 'view']:
-        if not len(thing) >= 2 or not thing[1].isnumeric(): raise ValueError('Invalid or missing argument(s)')  # noqa: EM101
-        rems = get_reminders(thing[1])
-        name = await bot.rest.fetch_user(thing[1])
-        name = name.global_name or name.username
-        await r(EMBEDS.list_(rems, who=name), force_ephemeral=True)
-      elif thing[0] in ['2', 'cancel']:
-        if not len(thing) >= 3 or not thing[1].isnumeric() or not thing[2].isnumeric(): raise ValueError('Invalid or missing argument(s)')  # noqa: EM101
-        a, b = int(thing[1]), int(thing[2])
-        user_reminders = get_reminders(a)
-        if len(user_reminders) < b:
-          return await r(EMBEDS.invalid_syntax_cancel(n=len(user_reminders)), force_ephemeral=True)
-        reminder = delete_reminder_by_idx(a, b-1)
-        await r(EMBEDS.cancel_success(reminder.text))
-      elif thing[0] in ['3', 'remind', 'schedule']:
-        if not len(thing) >= 4 or not thing[1].isnumeric(): raise ValueError('Invalid or missing argument(s)')  # noqa: EM101
-        unix = timestr_to_seconds(thing[2])
-        if schedule_reminder(int(thing[1]), text=thing[3], unix=thing[2]):
-          await r(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**")
-        else:
-          await r(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!')
+      # elif ...:
+      #  ...
       else:
         msg = "Invalid option"
         raise ValueError(msg)
