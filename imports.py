@@ -160,7 +160,7 @@ class Console:
     out = reduce(lambda x, y: str(x) + sep + str(y), [*values, '']) + end
     if withprefix:
       out = F('C {str(datetime.datetime.now())[:-3].replace(".", ",")} ') + out
-    out = stylize(out, bg("#FF0000") + attr("bold"))
+    out = stylize(out, bg("red") + attr("bold"))
     if returnonly:
       return out
     print(out)
@@ -179,6 +179,7 @@ if not TOKEN_FILE.read_text(encoding='UTF-8'):
   console.error('The TOKEN.txt file is empty.')
   sys.exit(1)
 TOKEN = TOKEN_FILE.read_text(encoding='UTF-8')
+TOKEN = TOKEN.strip()
 
 NEWLINE = '\n'; APOSTROPHE = '\''
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
