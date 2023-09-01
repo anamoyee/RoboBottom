@@ -5,6 +5,7 @@ A remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop was or
 (You might want to know this if you want to host the bot yourself)\
 On **Windows** a `db` folder is created in the current directory which holds all reminder data.\
 On **Non-Windows** it tries to go back two directories and create a `RoboBottomDB` folder there.
+(Uh... and actually that's not really a database, it's just a 'shelf' aka a python variable that persists between relaunches, made with `shelve` module)
 
 ## How do I host it myself?
 1. Install **[Python](https://www.python.org/downloads/)** and add it to PATH during instalation.
