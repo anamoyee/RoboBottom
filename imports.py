@@ -20,7 +20,6 @@ if True: # \/ Imports
 
   import settings as S
   from imports import *
-  from secrets_ import TOKEN
 
 class Tz:
   def get_localzone(self):
@@ -167,6 +166,19 @@ class Console:
     print(out)
     return None
 console = Console()
+
+TOKEN_FILE = p.Path('TOKEN.txt')
+if not TOKEN_FILE.is_file():
+  TOKEN_FILE = '..' / TOKEN_FILE
+if not TOKEN_FILE.is_file():
+  TOKEN_FILE = '..' / TOKEN_FILE
+if not TOKEN_FILE.is_file():
+  console.error('Unable to find TOKEN.txt file')
+  sys.exit(1)
+if not TOKEN_FILE.read_text(encoding='UTF-8'):
+  console.error('The TOKEN.txt file is empty.')
+  sys.exit(1)
+TOKEN = TOKEN_FILE.read_text(encoding='UTF-8')
 
 NEWLINE = '\n'; APOSTROPHE = '\''
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100

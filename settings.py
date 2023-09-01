@@ -1,4 +1,4 @@
-DEFAULT_ENABLED_GUILDS = ()
+DEFAULT_ENABLED_GUILDS = () # Leave as empty tuple for slash commands to show up everywhere
 #   1145433323594842166,
 # )
 
