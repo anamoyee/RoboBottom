@@ -19,6 +19,27 @@ if True: # \/ Bot-dependant funcs
       footer=f'Sowwy fow sending thwis wemindeww {seconds_to_timestr(too_late)} too lwate!!! >.<' if too_late else None,
     ))
 
+  async def reminder_scheduler(content, responder, author_id, *, force_ephemeral=False):
+    flags = hikari.MessageFlag.NONE if not force_ephemeral else hikari.MessageFlag.EPHEMERAL
+    if not is_valid_reminder_syntax(content):
+      await responder(EMBEDS.invalid_syntax_small(), flags=flags)
+      return
+
+    unix, text = content.split(' ', maxsplit=1)
+    try:
+      unix = timestr_to_seconds(unix)
+    except ValueError:
+      await responder(EMBEDS.invalid_syntax_small(), flags=flags)
+    else:
+      if unix < S.LIMITS.MINIMAL_DURATION:
+        await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!', flags=flags)
+        return
+
+      if schedule_reminder(author_id, text=text, unix=math.floor(time.time()+unix)):
+        await responder(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**", flags=flags)
+      else:
+        await responder(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!', flags=flags)
+
 if True: # \/ Tasks
   @tasks.task(s=1)
   async def reminder_task():
@@ -41,6 +62,9 @@ f"""
 **Uptime:** {uptime()}
 **Servers:** {GUILD_COUNT} (May not be up to date)
 **Python version:** v{sys.version.split()[0]} (Hikari {hikari.__version__})
+**Running on:** {S.RUNNING_ON.LINUX if os.name != 'nt' else S.RUNNING_ON.WINDOWS}
+**Users with >0 reminders:** {get_stats(0)}
+**Total Reminders:** {get_stats(1)}
 **Memory usage:** {420.69}MB/s/√π
 **Gearbot's reminders:** suck
 """[1:-1],
@@ -107,26 +131,18 @@ f"""
     except Exception as e:
       await r(EMBEDS.e_generic_error(e), force_ephemeral=True)
 
+  @bot.command
+  @lb.option('text',  "The reminder's text",                                                  required=True, min_length=1, max_length=100, type=str)
+  @lb.option('delay', "The delay to remind you after, for example 6h56m, see /help for help", required=True, min_length=2, max_length=100, type=str)
+  @lb.command('remind', "Set a reminder!")
+  @lb.implements(lb.SlashCommand)
+  async def cmd_remind(ctx: lb.SlashContext):
+    content = ctx.options.delay + ' ' + ctx.options.text
+    await reminder_scheduler(content, ctx.respond, ctx.author.id, force_ephemeral=bool(ctx.guild_id is not None)) # Force ephemeral on server, such that there's no spam/unnecessary messages, but don't ephemeral in DMs
+
 if True: # \/ Reminder Components
   async def r_schedule(event: hikari.DMMessageCreateEvent, content: str):
-    if not is_valid_reminder_syntax(content):
-      await event.message.respond(EMBEDS.invalid_syntax_small())
-      return
-
-    unix, text = content.split(' ', maxsplit=1)
-    try:
-      unix = timestr_to_seconds(unix)
-    except ValueError:
-      await event.message.respond(EMBEDS.invalid_syntax_small())
-    else:
-      if unix < S.LIMITS.MINIMAL_DURATION:
-        await event.message.respond(F':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!')
-        return
-
-      if schedule_reminder(event.author_id, text=text, unix=math.floor(time.time()+unix)):
-        await event.message.respond(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**")
-      else:
-        await event.message.respond(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!')
+    await reminder_scheduler(content, event.message.respond, event.author_id)
 
   async def r_wipe(event: hikari.DMMessageCreateEvent):
     async def func(btn: miru.Button, ctx: miru.Context, author_id=event.author_id):

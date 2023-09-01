@@ -198,7 +198,7 @@ class Embeds:
   def invalid_syntax_small(self):
     return embed(
       "Invalid syntax",
-      "To view syntax guide use the </help:1146446941278965793> with section set to `Remind`",
+      "To view syntax guide use the </help:1146446941278965793> with section set to `Remind - Syntax`",
       color='#ff0000' if rng.randint(1, 100) != 1 else '#ff8000',
     )
   def invalid_syntax_big(self, _in_help=False):
@@ -272,10 +272,6 @@ HELPMSGS = {
       color='#00ccff',
       fields=[
         (
-          "Usage",
-          "Anything that starts with `cancel` is considered a canceling command",
-          False,
-        ),(
           "Example",
           "`cancel 1`",
           False,
@@ -319,13 +315,11 @@ HELPMSG_NONE = embed(
 """
 You don't need to use the robotop's prefix (`r!`) or any other prefix
 The bot is mainly usable in DMs where `r!remind ` prefix is implied
-Bot's credits and other statistics are available by using </botstatus:1146135130415579207>
+It can also be used on servers with `/cmds` but all messages are ephemeral
+Bot's status and other statistics are available by using </botstatus:1146135130415579207>
+View credits by using </help:1146216876779774012> with section set to `Credits`
 View </help:1146216876779774012> with section argument set to `remind` for usage
 """[1:-1],
-      False,
-    ),(
-      "Sections",
-      ', '.join('`' + x + '`' for x in HELPMSGS),
       False,
     ),
   ],
@@ -602,6 +596,12 @@ def random_sure() -> str:
     'Great!',
     'Gotcha!',
   }))
+
+def get_stats(a: int = 0) -> tuple[int, int]:
+  ALL_rems = get_ALL_reminders()
+  if a == 0: return len(ALL_rems)
+  return sum([len(x) for x in ALL_rems.values()])
+
 
 ### async funcs
 
