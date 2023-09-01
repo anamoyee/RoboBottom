@@ -89,7 +89,6 @@ f"""
         raise ValueError(msg)
     except Exception as e:
       await r(EMBEDS.e_generic_error(e), force_ephemeral=True)
-      raise
 
   @bot.command
   @lb.option('ephemeral', "Sneaky sneaky (True by default)", type=bool, required=False)
