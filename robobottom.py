@@ -23,12 +23,9 @@ if True: # \/ Tasks
   @tasks.task(s=1)
   async def reminder_task():
     for user_id, reminders in get_ALL_reminders().items():
-      for i, reminder in enumerate(reminders):
+      for reminder in reminders:
         if reminder.unix <= time.time():
-          delete_reminder_by_idx(user_id, i)
-          difference = abs(reminder.unix - time.time())
-          if difference < 10: difference = 0
-          await remind(user_id, reminder.text, difference)
+          await trigger_and_delete_reminder(user_id, reminder, remind)
 
 if True: # \/ Slash Commands
   @bot.command

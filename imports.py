@@ -352,6 +352,9 @@ class Reminder:
   def __str__(self) -> str:
     return f'**{self.text}** (<t:{self.unix}:R>)'
 
+  def __repr__(self) -> str:
+    return f'r\'{self.text}\''
+
 ### miru views
 
 def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:
@@ -416,6 +419,19 @@ def delete_reminder_by_idx(user_id, idx: int) -> Reminder:
     del reminders[idx]
     shelf[user_id] = reminders
   return a
+
+def delete_reminder_by_reminder(user_id, reminder: Reminder) -> None:
+  user_id = str(user_id)
+  shelf_path = SHELF_DIRECTORY / "reminders"
+  with shelve.open(shelf_path, writeback=True) as shelf:
+    reminders = shelf.get(user_id) or []
+    reminders_old = reminders
+    try:
+      reminders = [rem for rem in reminders if rem.unix != reminder.unix]
+      assert reminders_old != reminders
+    except (ValueError, AssertionError):
+      console.error(f'Unable to delete reminder {reminder!r} - It\'s not present')
+    shelf[user_id] = reminders
 
 def is_valid_reminder_syntax(input_string):
   return bool(regex.match(SYNTAX_REGEX, input_string))
@@ -592,7 +608,12 @@ def random_sure() -> str:
 async def get_guild_count(bot: lb.BotApp):
   return len(await bot.rest.fetch_my_guilds())
 
-
+async def trigger_and_delete_reminder(user_id: int | str, reminder: Reminder, remindfunc):
+  user_id = str(user_id)
+  delete_reminder_by_reminder(user_id, reminder)
+  difference = abs(reminder.unix - time.time())
+  if difference < 10: difference = 0
+  await remindfunc(user_id, reminder.text, difference)
 
 
 
