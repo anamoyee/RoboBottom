@@ -186,5 +186,7 @@ if True: # \/ Listeners
     reminder_task.start()
 
 if True: # \/ bot.run()
+  console.debug(TOKEN_FILE)
+  console.debug(TOKEN)
   bot.run()
   # bot.run(activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name="DMs"))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
