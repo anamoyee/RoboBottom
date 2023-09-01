@@ -411,6 +411,7 @@ def delete_reminder_by_idx(user_id, idx: int) -> Reminder:
   shelf_path = SHELF_DIRECTORY / "reminders"
   with shelve.open(shelf_path, writeback=True) as shelf:
     reminders = shelf.get(user_id) or []
+    if len(reminders)-1 < idx: return console.error(f'Tried to delete reminder #{idx+1} but only {len(reminders)}')
     a = reminders[idx]
     del reminders[idx]
     shelf[user_id] = reminders
