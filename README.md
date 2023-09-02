@@ -16,7 +16,7 @@ python robobottom.py
 ```
 
 # Database Logistical Notes
-(You might want to know this if you want to host the bot yourself)\
+(You might want to know this if you want to host the bot yourself)
 <details>
 <summary><b>Windows</b></summary>
 A <code>db</code> folder is created in the current directory which holds all reminder data.
