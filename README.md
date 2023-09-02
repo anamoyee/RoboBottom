@@ -29,4 +29,4 @@ it tries to go back two directories and create a <code>RoboBottomDB</code> folde
 
 ## Contact
 If you have any questions contact me on discord `@thecreatorrrr`\
-If i change my username for some reason here's my id `<@507642999992352779>`
+If i change my username for some reason (or discord again fucks up the username system) here's my id `<@507642999992352779>`
