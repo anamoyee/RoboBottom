@@ -324,6 +324,7 @@ RoboTop was really such a great bot. Perhaps the greatest i've ever used. After 
   'How to host this bot yourself': embed(
     "How to host this bot",
     "Detailed instruction is located [here](https://github.com/TheCreatorrr333/RoboBottom) as well as the bot's source code",
+    color='#00ccff',
   ),
 }
 HELPMSG_NONE = embed(
