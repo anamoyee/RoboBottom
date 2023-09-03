@@ -317,7 +317,7 @@ HELPMSGS = {
 **Originally created by:** **[Colon](https://gdcolon.com)** <:fluff:1146072273665654864>
 **Recreated by:** <@507642999992352779>
 
-RoboTop was really such a great bot. Perhaps the greatest i've ever used. After it shut down I really missed the reminders so I remade them! This is not my original idea, most of the looks and functionality is remade to be exactly (or really close to) original **[Colon](https://gdcolon.com)**'s bot and I just made it reminders-only.
+RoboTop was really such a great bot. Perhaps the greatest i've ever used. After it shut down I really missed the reminders so I remade them! This is __not__ my original idea, most of the looks and functionality is remade to be exactly (or really close to) original **[Colon](https://gdcolon.com)**'s bot and I just made it reminders-only.
 """[1:-1],
     color='#ff8000',
   ),
