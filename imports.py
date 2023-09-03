@@ -266,7 +266,7 @@ EMBEDS = Embeds()
 
 HELPMSGS = {
   'Remind - Syntax':                       EMBEDS.invalid_syntax_big(_in_help=True),
-  'List your reminders':          embed(
+  'List your reminders':           embed(
       "List of reminders",
       "Simple. Shows you the list of reminders.",
       color='#00ccff',
@@ -282,7 +282,7 @@ HELPMSGS = {
         ),
       ],
     ),
-  'Cancel a reminder':            embed(
+  'Cancel a reminder':             embed(
       "Cancelling Reminders",
       "Use the following syntax: `cancel <1-99999>` where you specify the index of the reminder that you want to cancel.\nTo see the list of your reminders along with the indices type `list` or view its help by using </help:1146216876779774012> with section argument `list`",
       color='#00ccff',
@@ -294,7 +294,7 @@ HELPMSGS = {
         ),
       ],
     ),
-  'Clear (cancel) all reminders': embed(
+  'Clear (cancel) all reminders':  embed(
       "Clearing all reminders",
       "To clear (cancel) all reminders type `clear` (or any of its aliases) and it will remove all of your set reminders without reminding you",
       color='#00ccff',
@@ -306,12 +306,12 @@ HELPMSGS = {
         ),
       ],
     ),
-  'Report a bug':                 embed(
+  'Report a bug':                  embed(
     "Reporting a bug",
     "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
     color='#00ccff',
   ),
-  'Credits':                      embed(
+  'Credits':                       embed(
     "Credits",
 """
 **Originally created by:** **[Colon](https://gdcolon.com)** <:fluff:1146072273665654864>
@@ -320,6 +320,10 @@ HELPMSGS = {
 RoboTop was really such a great bot. Perhaps the greatest i've ever used. After it shut down I really missed the reminders so I remade them! This is __not__ my original idea, most of the looks and functionality is remade to be exactly (or really close to) original **[Colon](https://gdcolon.com)**'s bot and I just made it reminders-only.
 """[1:-1],
     color='#ff8000',
+  ),
+  'How to host this bot yourself': embed(
+    "How to host this bot",
+    "Detailed instruction is located [here](https://github.com/TheCreatorrr333/RoboBottom) as well as the bot's source code",
   ),
 }
 HELPMSG_NONE = embed(
