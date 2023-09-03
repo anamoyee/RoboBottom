@@ -186,6 +186,21 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
 SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB'); SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
+class Reminder:
+  unix = None
+  text = None
+  user = None
+  def __init__(self, unix, text, user) -> None:
+    self.unix = unix
+    self.text = text
+    self.user = user
+
+  def __str__(self) -> str:
+    return f'**{self.text}** (<t:{self.unix}:R>)'
+
+  def __repr__(self) -> str:
+    return f'/{self.text}/'
+
 class Embeds:
   def e_generic_error(self, e: Exception, *, author=None, **kwargs):
     # return embed(*extract_error(e, raw=True), color=0xFF0000, author=author_dict(author), **kwargs)
@@ -193,6 +208,7 @@ class Embeds:
       *extract_error(e, raw=True),
       color=('#FF8000' if rng.randint(1, 100) == 1 else '#FF0000'),
       footer=(S.OOPSIE_WOOPSIE if rng.randint(1, 100) == 1 else ''),
+      **kwargs,
     ) # Oopsie Woopsie :3
 
   def invalid_syntax_small(self):
@@ -333,21 +349,6 @@ def multichar_lstrip(input_string, text_to_remove):
         return input_string[len(text_to_remove):]
     # If input_string doesn't start with text_to_remove, return it unchanged
     return input_string
-
-class Reminder:
-  unix = None
-  text = None
-  user = None
-  def __init__(self, unix, text, user) -> None:
-    self.unix = unix
-    self.text = text
-    self.user = user
-
-  def __str__(self) -> str:
-    return f'**{self.text}** (<t:{self.unix}:R>)'
-
-  def __repr__(self) -> str:
-    return f'r\'{self.text}\''
 
 ### miru views
 
@@ -602,6 +603,12 @@ def get_stats(a: int = 0) -> tuple[int, int]:
   if a == 0: return len(ALL_rems)
   return sum([len(x) for x in ALL_rems.values()])
 
+def split_every_n(text: str, n: int) -> list:
+  return [text[i:i+n] for i in range(0, len(text), n)]
+def cut_str_at(text: str, n: int, end: str='...') -> str:
+  if len(text) <= n:
+    return text
+  return text[:n-len(end)] + end
 
 ### async funcs
 
