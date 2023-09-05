@@ -19,3 +19,7 @@ class LIMITS:
 class RUNNING_ON:
   LINUX   = 'My phone [*permanent hosting*]'
   WINDOWS = 'My PC [*debugging bench*]'
+
+STATUS = "Used in DMs"
+
+USE_TEST_TOKEN_IF_AVAILABLE = True

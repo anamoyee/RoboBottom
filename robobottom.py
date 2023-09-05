@@ -21,6 +21,7 @@ if True: # \/ Bot-dependant funcs
 
   async def reminder_scheduler(content, responder, author_id, *, force_ephemeral=False):
     flags = hikari.MessageFlag.NONE if not force_ephemeral else hikari.MessageFlag.EPHEMERAL
+    flags = flags | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS # @silent
     if not is_valid_reminder_syntax(content):
       await responder(EMBEDS.invalid_syntax_small(), flags=flags)
       return
@@ -54,7 +55,7 @@ if True: # \/ Slash Commands
   @lb.implements(lb.SlashCommand)
   async def cmd_botstatus(ctx: lb.SlashContext):
     await ctx.respond(embed(
-      Null,
+      Null if not USING_TOKEN2 else "Testmode",
 f"""
 **Originally created by:** **[Colon](https://gdcolon.com)** <:fluff:1146072273665654864>
 **Recreated by:** <@507642999992352779>
@@ -163,11 +164,11 @@ if True: # \/ Reminder Components
     if len(user_reminders) < choice:
       return await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders)))
     reminder = delete_reminder_by_idx(event.author_id, choice-1)
-    await event.message.respond(EMBEDS.cancel_success(reminder.text))
+    await event.message.respond(EMBEDS.cancel_success(reminder.text), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
 
   async def r_reminders(event: hikari.DMMessageCreateEvent):
     rems = get_reminders(event.author_id)
-    await event.message.respond(EMBEDS.list_(rems))
+    await event.message.respond(EMBEDS.list_(rems), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
 
 if True: # \/ Listeners
   @bot.listen(hikari.DMMessageCreateEvent)
@@ -199,4 +200,7 @@ if True: # \/ Listeners
     reminder_task.start()
 
 if True: # \/ bot.run()
-  bot.run(activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name="DMs"))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
+  status_name = S.STATUS + (' - Testmode' if USING_TOKEN2 else '')
+  console.log(f'Status: {status_name}')
+  bot.run(activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
+  # Temporarly a "watching" status until a get custom statuses to work huh...

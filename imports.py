@@ -167,7 +167,12 @@ class Console:
     return None
 console = Console()
 
-TOKEN_FILE = p.Path('TOKEN.txt')
+TOKEN2_FILE = p.Path('TOKEN2.txt')
+TOKEN_FILE  = p.Path('TOKEN.txt' )
+USING_TOKEN2 = False
+if os.name == 'nt' and TOKEN2_FILE.is_file() and S.USE_TEST_TOKEN_IF_AVAILABLE:
+  TOKEN_FILE = TOKEN2_FILE
+  USING_TOKEN2 = True
 if not TOKEN_FILE.is_file():
   TOKEN_FILE = '..' / TOKEN_FILE
 if not TOKEN_FILE.is_file():
@@ -436,7 +441,30 @@ def delete_reminder_by_reminder(user_id, reminder: Reminder) -> None:
 def is_valid_reminder_syntax(input_string):
   return bool(regex.match(SYNTAX_REGEX, input_string))
 
+def seconds_to_nearest_hour_minute(hour, minute):
+  # Get the current time in seconds since the epoch
+  current_time = int(time.time())
+
+  # Calculate the current hour and minute
+  current_struct_time = time.localtime(current_time)
+  current_hour = current_struct_time.tm_hour
+  current_minute = current_struct_time.tm_min
+
+  # Calculate the number of seconds until the specified time
+  return ((hour - current_hour) * 3600 + (minute - current_minute) * 60) % 86400
+
 def timestr_to_seconds(timestr: str, *, unit='s'):
+  """Add a docstring to this later ehh."""
+  additive = 0
+  if regex.fullmatch(r'^(?:0[0-9]|1[0-9]|2[0-3]):[0-5][0-9],$', timestr[:6]): # if it has a leading date
+    hhmm, timestr = timestr[:5], timestr[6:] # discard the comma
+    h, m = hhmm.split(':')
+    h, m = int(h), int(m)
+    additive += seconds_to_nearest_hour_minute(h, m)
+  if ':' in timestr:
+    msg = 'Invalid colon position in hh:mm notation. Must be leading 5 characters'
+    raise ValueError(msg)
+
   timestr = timestr.replace(' ', '')
   if not timestr: return 0
   def is_numeric_or_dot(s: str) -> bool:
@@ -447,7 +475,7 @@ def timestr_to_seconds(timestr: str, *, unit='s'):
     's':       1,
     'sec':     1,
     'secs':    1,
-    'sex':     1,
+    'sex':     1, # >:3
     'second':  1,
     'seconds': 1,
 
@@ -531,7 +559,7 @@ def timestr_to_seconds(timestr: str, *, unit='s'):
     msg = f'Invalid output unit: {unit}'
     raise ValueError(msg) from e
   else:
-    return (split_by_timestr(timestr) / unit_divisor)
+    return (split_by_timestr(timestr) / unit_divisor) + additive
 
 def author_dict(author, url=None, *, discriminator=False, footer=False):
   if author is None: # or S.HIDE_AUTHORS
