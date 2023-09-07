@@ -259,6 +259,9 @@ class Embeds:
       footer=footer,
     )
   def list_(self, rems, *, who: str | None = None):
+    def key(rem: Reminder):
+      return rem.unix
+    rems = sorted(rems, key=key, reverse=True)
     display_rems = '\n'.join([f'{i+1}) **{x.text.replace(NEWLINE, " ")}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
     if display_rems: display_rems += '\n\n'
     rest = f"Cancel a reminder with `cancel [1-{len(rems)}]`"
