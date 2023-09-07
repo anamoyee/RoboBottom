@@ -259,9 +259,6 @@ class Embeds:
       footer=footer,
     )
   def list_(self, rems, *, who: str | None = None):
-    def key(rem: Reminder):
-      return rem.unix
-    rems = sorted(rems, key=key, reverse=True)
     display_rems = '\n'.join([f'{i+1}) **{x.text.replace(NEWLINE, " ")}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
     if display_rems: display_rems += '\n\n'
     rest = f"Cancel a reminder with `cancel [1-{len(rems)}]`"
@@ -395,6 +392,16 @@ def _get_reminders(key) -> list[Reminder]:
   with shelve.open(shelf_path, writeback=True) as shelf:
     return shelf.get(key, [])
 
+def _sort_reminders(user_id) -> None:
+  user_id = str(user_id)
+  shelf_path = SHELF_DIRECTORY / "reminders"
+  rems = get_reminders(user_id)
+  def key(rem: Reminder):
+    return rem.unix
+  rems = sorted(rems, key=key, reverse=True)
+  with shelve.open(shelf_path, writeback=True) as shelf:
+    shelf[user_id] = rems
+
 def append_reminder(user_id, reminder: Reminder) -> Reminder:
   user_id = str(user_id)
   shelf_path = SHELF_DIRECTORY / "reminders"
@@ -405,11 +412,13 @@ def append_reminder(user_id, reminder: Reminder) -> Reminder:
       shelf[user_id] = existing_values
     else:
       shelf[user_id] = [reminder]
+  _sort_reminders(user_id)
 
 def schedule_reminder(user_id, *, text, unix: int | str) -> bool:
   if isinstance(unix, str): unix = math.floor(time.time()+timestr_to_seconds(unix))
   if len(get_reminders(user_id)) < S.LIMITS.REMINDER:
     append_reminder(user_id, Reminder(unix=unix, text=text, user=user_id))
+    _sort_reminders(user_id)
     return True
   return False
 
