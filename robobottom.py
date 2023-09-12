@@ -51,7 +51,7 @@ if True: # \/ Tasks
 
 if True: # \/ Slash Commands
   @bot.command
-  @lb.command('botstatus', 'View some (partially made up) details about the bot')
+  @lb.command('botstatus', 'View some (partially made up) details about the bot' + (' - Testmode' if USING_TOKEN2 else ''))
   @lb.implements(lb.SlashCommand)
   async def cmd_botstatus(ctx: lb.SlashContext):
     await ctx.respond(embed(
@@ -76,7 +76,7 @@ f"""
 
   @bot.command
   @lb.option('section', 'Feature to view specific help on, leave blank to view general help', required=False, choices=HELPMSGS)
-  @lb.command('help', 'View bot\'s help page or specific help about certain command')
+  @lb.command('help', 'View bot\'s help page or specific help about certain command' + (' - Testmode' if USING_TOKEN2 else ''))
   @lb.implements(lb.SlashCommand)
   async def cmd_help(ctx: lb.SlashContext):
     if ctx.options.section is None:
@@ -87,7 +87,7 @@ f"""
   @bot.command
   @lb.option('ephemeral', "Sneaky sneaky (False by default)", type=bool, required=False)
   @lb.option('thing', "The thing to do", required=True)
-  @lb.command('dev', 'Do dev stuff!', guilds=[S.DEV_GUILD])
+  @lb.command('dev', 'Do dev stuff!' + (' - Testmode' if USING_TOKEN2 else ''), guilds=[S.DEV_GUILD])
   @lb.implements(lb.SlashCommand)
   async def cmd_dev(ctx: lb.SlashContext):
     if ctx.author.id != S.DEV_ID: return await ctx.respond('You are not allowed to use this command', flags=hikari.MessageFlag.EPHEMERAL)
@@ -104,6 +104,9 @@ f"""
         global GUILD_COUNT
         GUILD_COUNT = await get_guild_count(bot)
         await r(f'Updated the guild count, new guild count: `{GUILD_COUNT}`')
+      elif thing[0] in ['1', 'del']:
+        await bot.rest.delete_message(thing[1], thing[2])
+        await r(f'Deleted message in <#{thing[1]}>', force_ephemeral=True)
       # elif ...:
       #  ...
       else:
@@ -115,7 +118,7 @@ f"""
   @bot.command
   @lb.option('ephemeral', "Sneaky sneaky (True by default)", type=bool, required=False)
   @lb.option('code', "The thing to run", required=True)
-  @lb.command('run', 'Do even more dev stuff!', guilds=[S.DEV_GUILD])
+  @lb.command('run', 'Do even more dev stuff!' + (' - Testmode' if USING_TOKEN2 else ''), guilds=[S.DEV_GUILD])
   @lb.implements(lb.SlashCommand)
   async def cmd_run(ctx: lb.SlashContext):
     if ctx.author.id != S.DEV_ID: return await ctx.respond('You are not allowed to use this command', flags=hikari.MessageFlag.EPHEMERAL)
@@ -135,7 +138,7 @@ f"""
   @bot.command
   @lb.option('text',  "The reminder's text",                                                  required=True, min_length=1, max_length=100, type=str)
   @lb.option('delay', "The delay to remind you after, for example 6h56m, see /help for help", required=True, min_length=2, max_length=100, type=str)
-  @lb.command('remind', "Set a reminder!")
+  @lb.command('remind', "Set a reminder!" + (' - Testmode' if USING_TOKEN2 else ''))
   @lb.implements(lb.SlashCommand)
   async def cmd_remind(ctx: lb.SlashContext):
     content = ctx.options.delay + ' ' + ctx.options.text
