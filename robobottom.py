@@ -64,8 +64,6 @@ f"""
 **Servers:** {GUILD_COUNT} (May not be up to date)
 **Python version:** v{sys.version.split()[0]} (Hikari {hikari.__version__})
 **Running on:** {S.RUNNING_ON.LINUX if os.name != 'nt' else S.RUNNING_ON.WINDOWS}
-**Users with >0 reminders:** {get_stats(0)}
-**Total Reminders:** {get_stats(1)}
 **Memory usage:** {420.69}MB/s/√π
 **Gearbot's reminders:** suck
 """[1:-1],
