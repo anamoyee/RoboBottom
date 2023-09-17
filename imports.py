@@ -233,7 +233,7 @@ class Embeds:
 `^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^`
 ` time        your message     `
 """[1:-1], True),
-          ("Units", "`s`, `sec`, `seconds`\n`m`, `min`, `minutes`\n`h`, `hr`, `hours`\n`w`, `weeks`\n`y`, `years`\n`???`, `???????????` (easteregg/hidden reference)\nAll singular/plural versions of the nouns should be valid as well", False),
+          ("Units", "`s`, `sec`, `seconds`\n`m`, `min`, `minutes`\n`h`, `hr`, `hours`\n`w`, `weeks`\n`y`, `years`\n`pul`, `pull`, `card` alias for `11.5h`\n`res`, `rescues` alias for `6h`\n`???`, `???????????` (easteregg/hidden reference)\nAll singular/plural versions of the nouns should be valid as well", False),
         ],
         footer=F'The above regex if you know how regex works (doesn\'t include unit validation):\n/{SYNTAX_REGEX}/g',
         color='#ff0000' if not _in_help else "#00ccff",
@@ -514,6 +514,20 @@ def timestr_to_seconds(timestr: str, *, unit='s'):
     'y':     356*24*60*60,
     'year':  356*24*60*60,
     'years': 356*24*60*60,
+
+    'pul':   11*60*60+30*60, # 11h30m
+    'pull':  11*60*60+30*60,
+    'puls':  11*60*60+30*60,
+    'pulls': 11*60*60+30*60,
+    'card':  11*60*60+30*60,
+    'cards': 11*60*60+30*60,
+
+
+    'res':     6*60*60, # 6h
+    'reses':   6*60*60,
+    'resees':  6*60*60,
+    'rescue':  6*60*60,
+    'rescues': 6*60*60,
 
     'rev':         133*24*60*60, # 1 revolution = 133 days, nice if you get the reference hihi :>
     'revs':        133*24*60*60,
