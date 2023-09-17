@@ -73,6 +73,35 @@ f"""
     ), flags=hikari.MessageFlag.EPHEMERAL)
 
   @bot.command
+  @lb.command('delhistory', 'Delete all (or most) messages in your DM channel with the bot')
+  @lb.implements(lb.SlashCommand)
+  async def cmd_delhistory(ctx: lb.SlashContext):
+    if ctx.guild_id is not None: await ctx.respond('You may only use this command in DMs', flags=hikari.MessageFlag.EPHEMERAL)
+
+    this_message = await ctx.respond('Deleting messages...')
+
+    messages = await bot.rest.fetch_messages(ctx.channel_id)
+    total = 0
+    for message in messages:
+      if message.author.id == bot.get_me().id and message.id != (await this_message.message()).id:
+        try:
+          await message.delete()
+        except hikari.errors.NotFoundError:
+          pass
+        else:
+          total += 1
+
+    deltime = 5
+    try:
+      another_message = await ctx.edit_last_response(f'Deleted `{total}` message{"s" if total != 1 else ""}\nThis message will be deleted in {deltime} seconds...')
+    except hikari.errors.NotFoundError:
+      pass
+    else:
+      await asyncio.sleep(deltime)
+      with contextlib.suppress(hikari.errors.NotFoundError):
+        await another_message.delete()
+
+  @bot.command
   @lb.option('section', 'Feature to view specific help on, leave blank to view general help', required=False, choices=HELPMSGS)
   @lb.command('help', 'View bot\'s help page or specific help about certain command' + (' - Testmode' if USING_TOKEN2 else ''))
   @lb.implements(lb.SlashCommand)
@@ -203,5 +232,5 @@ if True: # \/ Listeners
 if True: # \/ bot.run()
   status_name = S.STATUS + (' - Testmode' if USING_TOKEN2 else '')
   console.log(f'Status: {status_name}')
-  bot.run(activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
+  bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
   # Temporarly a "watching" status until a get custom statuses to work huh...
