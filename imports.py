@@ -678,6 +678,7 @@ def parse_for_aliases(content: str):
     return '1card card'
   if content in ['1rescue', 'rescue']:
     return '1rescue rescue!'
+  return content
 
 ### async funcs
 
