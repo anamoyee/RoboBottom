@@ -671,6 +671,14 @@ def cut_str_at(text: str, n: int, end: str='...') -> str:
     return text
   return text[:n-len(end)] + end
 
+def parse_for_aliases(content: str):
+  if content in ['1pul', 'pul']:
+    return '1pul pul'
+  if content in ['1card', 'card']:
+    return '1card card'
+  if content in ['1rescue', 'rescue']:
+    return '1rescue rescue!'
+
 ### async funcs
 
 async def get_guild_count(bot: lb.BotApp):

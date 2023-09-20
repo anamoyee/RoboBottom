@@ -169,6 +169,8 @@ f"""
   @lb.implements(lb.SlashCommand)
   async def cmd_remind(ctx: lb.SlashContext):
     content = ctx.options.delay + ' ' + ctx.options.text
+    content = content.strip()
+    content = parse_for_aliases(content)
     await reminder_scheduler(content, ctx.respond, ctx.author.id, force_ephemeral=bool(ctx.guild_id is not None)) # Force ephemeral on server, such that there's no spam/unnecessary messages, but don't ephemeral in DMs
 
 if True: # \/ Reminder Components
@@ -206,6 +208,7 @@ if True: # \/ Listeners
     if event.is_bot: return # Don't respond to self
 
     content = event.content
+    content = parse_for_aliases(content)
     if content is None: return
 
     aliases = [x + ' ' for x in ['remindme', 'reminder', 'reminders', 'rem', 're', 'rm']]
