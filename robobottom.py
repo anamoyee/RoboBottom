@@ -207,18 +207,13 @@ if True: # \/ Listeners
   async def on_dm_message(event: hikari.DMMessageCreateEvent):
     if event.is_bot: return # Don't respond to self
 
-    console.debug('asdf')
-
     content = event.content
     content = parse_for_aliases(content)
     if content is None: return
 
     aliases = [x + ' ' for x in ['remindme', 'reminder', 'reminders', 'rem', 're', 'rm']]
-    console.debug('asdfasd1')
     for alias in aliases + ['r!' + x for x in aliases]:
       content = multichar_lstrip(content, alias)
-
-    console.debug('asdfas2')
 
     if content in S.ALIASES.LIST:
       await r_reminders(event)
