@@ -246,10 +246,10 @@ class Embeds:
        f'Use the following syntax: `cancel <1-{n}>`' if n > 0 else 'You don\'t have any reminders to cancel, therefore every number you choose will result in invalid choice',
         color='#ff0000',
       )
-  def cancel_success(self, text):
+  def cancel_success(self, reminder: Reminder):
     return embed(
       'Successfully cancelled a reminder!',
-      text,
+      reminder.text,# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
       color='#00ccff',
     )
 

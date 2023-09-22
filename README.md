@@ -34,13 +34,18 @@ If i change my username for some reason (or discord again fucks up the username 
 ## Todo
 - [X] `/remind` for servers
 - [X] Update /help msg to include /remind in servers
-- [ ] Add select menu to `.` and make a `reminder` embed with control view
-- [ ] Add settings where you can disable the thing above
+- [X]  ~~Add select menu to `.` and make a `reminder` embed with control view~~
+   - [X] ~~Add settings where you can disable the thing above~~
 - [X] SORT the `.` list to be from furthest to closest reminders
-- [ ] Tell when would cancelled reminder remind on cancelation
+-  [X] ~~Tell when would cancelled reminder remind on cancelation~~ *scrapped because it looked ugly*
 - [ ] Flags/prefixes/idks
   - [ ] Important (`!` prefix), mentions the user
-  - [ ] Recurring (`*` prefix), doesnt cancel after remindion
+  - [ ] Recurring (`&` prefix), doesnt cancel after remindion
   - [ ] Text == `r` | `repeat` => text = (text of user's last trigered reminder)
+  - [ ] hidden reminders
+    - [ ] Ability to fully hide hidden reminders (they dont remind and if you re-enable they resume)
 - [ ] `defer` & `undefer`
 - [ ] Folders with indent on
+
+<style>s{color: crimson;}</style> <!-- crimson color means scrapped -->
+<!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->

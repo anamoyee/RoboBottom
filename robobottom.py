@@ -196,7 +196,7 @@ if True: # \/ Reminder Components
     if len(user_reminders) < choice:
       return await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders)))
     reminder = delete_reminder_by_idx(event.author_id, choice-1)
-    await event.message.respond(EMBEDS.cancel_success(reminder.text), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
+    await event.message.respond(EMBEDS.cancel_success(reminder), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
 
   async def r_reminders(event: hikari.DMMessageCreateEvent):
     rems = get_reminders(event.author_id)
