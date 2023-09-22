@@ -47,5 +47,5 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] `defer` & `undefer`
 - [ ] Folders with indent on
 
-<style>s{color: crimson;}</style> <!-- crimson color means scrapped -->
+<!--<style>s{color: crimson;}</style> <!-- crimson color means scrapped -->
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
