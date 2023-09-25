@@ -10,36 +10,42 @@ if True: # \/ BotApp
   tasks.load(bot)
 
 if True: # \/ Bot-dependant funcs
-  async def remind(user_id, text, too_late=1):
+  async def remind(user_id, text, too_late=1, *, ping_user=False, hide_text=False):
     channel = await bot.rest.create_dm_channel(user_id)
-    await channel.send(embed(
+    if text and hide_text:
+      text = f'||{text.replace("|", FAKE_PIPE)}||'
+    await channel.send(f"<@{user_id}>" if ping_user else hikari.UNDEFINED, embed=embed(
       "🔔 Reminder!",
-      text or 'Uh.. text=None / text=\'\'? Report this bug to <@507642999992352779> pls',
+      text or 'Uh.. text=None / text=\'\'? Report this bug pls',
       color='#ffff00',
       footer=f'Sowwy fow sending thwis wemindeww {seconds_to_timestr(too_late)} too lwate!!! >.<' if too_late else None,
-    ))
+    ), user_mentions=[user_id] if ping_user else hikari.UNDEFINED)
 
   async def reminder_scheduler(content, responder, author_id, *, force_ephemeral=False):
-    flags = hikari.MessageFlag.NONE if not force_ephemeral else hikari.MessageFlag.EPHEMERAL
-    flags = flags | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS # @silent
+    message_flags = hikari.MessageFlag.NONE if not force_ephemeral else hikari.MessageFlag.EPHEMERAL
+    message_flags = message_flags | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS # @silent
+
+    flags, content = separate_flags_from_rest(content)
+
     if not is_valid_reminder_syntax(content):
-      await responder(EMBEDS.invalid_syntax_small(), flags=flags)
+      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags)
       return
 
     unix, text = content.split(' ', maxsplit=1)
+    unix = unix.lower()
     try:
       unix = timestr_to_seconds(unix)
     except ValueError:
-      await responder(EMBEDS.invalid_syntax_small(), flags=flags)
+      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags)
     else:
-      if unix < S.LIMITS.MINIMAL_DURATION:
-        await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!', flags=flags)
+      if (not testmode()) and (unix < S.LIMITS.MINIMAL_DURATION):
+        await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!', flags=message_flags)
         return
 
-      if schedule_reminder(author_id, text=text, unix=math.floor(time.time()+unix)):
-        await responder(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**", flags=flags)
+      if schedule_reminder(author_id, text=text, unix=math.floor(time.time()+unix), flags=flags):
+        await responder(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**" + (' ;)' if flags & ReminderFlag.HIDDEN else ''), flags=message_flags)
       else:
-        await responder(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!', flags=flags)
+        await responder(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!', flags=message_flags)
 
 if True: # \/ Tasks
   @tasks.task(s=1)
@@ -51,7 +57,7 @@ if True: # \/ Tasks
 
 if True: # \/ Slash Commands
   @bot.command
-  @lb.command('botstatus', 'View some (partially made up) details about the bot' + (' - Testmode' if USING_TOKEN2 else ''))
+  @lb.command('botstatus', 'View some (partially made up) details about the bot' + testmode())
   @lb.implements(lb.SlashCommand)
   async def cmd_botstatus(ctx: lb.SlashContext):
     await ctx.respond(embed(
@@ -103,7 +109,7 @@ f"""
 
   @bot.command
   @lb.option('section', 'Feature to view specific help on, leave blank to view general help', required=False, choices=HELPMSGS)
-  @lb.command('help', 'View bot\'s help page or specific help about certain command' + (' - Testmode' if USING_TOKEN2 else ''))
+  @lb.command('help', 'View bot\'s help page or specific help about certain command' + testmode())
   @lb.implements(lb.SlashCommand)
   async def cmd_help(ctx: lb.SlashContext):
     if ctx.options.section is None:
@@ -114,7 +120,7 @@ f"""
   @bot.command
   @lb.option('ephemeral', "Sneaky sneaky (False by default)", type=bool, required=False)
   @lb.option('thing', "The thing to do", required=True)
-  @lb.command('dev', 'Do dev stuff!' + (' - Testmode' if USING_TOKEN2 else ''), guilds=[S.DEV_GUILD])
+  @lb.command('dev', 'Do dev stuff!' + testmode(), guilds=[S.DEV_GUILD])
   @lb.implements(lb.SlashCommand)
   async def cmd_dev(ctx: lb.SlashContext):
     if ctx.author.id != S.DEV_ID: return await ctx.respond('You are not allowed to use this command', flags=hikari.MessageFlag.EPHEMERAL)
@@ -145,7 +151,7 @@ f"""
   @bot.command
   @lb.option('ephemeral', "Sneaky sneaky (True by default)", type=bool, required=False)
   @lb.option('code', "The thing to run", required=True)
-  @lb.command('run', 'Do even more dev stuff!' + (' - Testmode' if USING_TOKEN2 else ''), guilds=[S.DEV_GUILD])
+  @lb.command('run', 'Do even more dev stuff!' + testmode(), guilds=[S.DEV_GUILD])
   @lb.implements(lb.SlashCommand)
   async def cmd_run(ctx: lb.SlashContext):
     if ctx.author.id != S.DEV_ID: return await ctx.respond('You are not allowed to use this command', flags=hikari.MessageFlag.EPHEMERAL)
@@ -165,7 +171,7 @@ f"""
   @bot.command
   @lb.option('text',  "The reminder's text",                                                  required=True, min_length=1, max_length=100, type=str)
   @lb.option('delay', "The delay to remind you after, for example 6h56m, see /help for help", required=True, min_length=2, max_length=100, type=str)
-  @lb.command('remind', "Set a reminder!" + (' - Testmode' if USING_TOKEN2 else ''))
+  @lb.command('remind', "Set a reminder!" + testmode())
   @lb.implements(lb.SlashCommand)
   async def cmd_remind(ctx: lb.SlashContext):
     content = ctx.options.delay + ' ' + ctx.options.text
@@ -202,6 +208,21 @@ if True: # \/ Reminder Components
     rems = get_reminders(event.author_id)
     await event.message.respond(EMBEDS.list_(rems), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
 
+  async def r_delete(event: hikari.DMMessageCreateEvent):
+    other_message = event.message.referenced_message
+
+    if other_message is None:
+      await event.message.respond('Reply to the message you want me to delete!')
+      return
+    if other_message.author.id != bot.get_me().id:
+      await event.message.respond('That\'s not my message, I dont have permission to delete it!')
+      return
+
+    try:
+      await other_message.delete()
+    except Exception as e:
+      await event.message.respond('Unable to delete that message... report this as a bug pls')
+
 if True: # \/ Listeners
   @bot.listen(hikari.DMMessageCreateEvent)
   async def on_dm_message(event: hikari.DMMessageCreateEvent):
@@ -221,6 +242,8 @@ if True: # \/ Listeners
       await r_wipe(event)
     elif content.startswith('cancel ') or content == 'cancel':
       await r_cancel(event, content)
+    elif content in S.ALIASES.DELETE:
+      await r_delete(event)
     else:
       await r_schedule(event, content)
 
@@ -233,7 +256,7 @@ if True: # \/ Listeners
     reminder_task.start()
 
 if True: # \/ bot.run()
-  status_name = S.STATUS + (' - Testmode' if USING_TOKEN2 else '')
+  status_name = S.STATUS + testmode()
   console.log(f'Status: {status_name}')
   bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
   # Temporarly a "watching" status until a get custom statuses to work huh...

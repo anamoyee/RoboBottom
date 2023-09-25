@@ -37,13 +37,15 @@ If i change my username for some reason (or discord again fucks up the username 
 - [X]  ~~Add select menu to `.` and make a `reminder` embed with control view~~
    - [X] ~~Add settings where you can disable the thing above~~
 - [X] SORT the `.` list to be from furthest to closest reminders
--  [X] ~~Tell when would cancelled reminder remind on cancelation~~ *scrapped because it looked ugly*
+- [X] ~~Tell when would cancelled reminder remind on cancelation~~ *scrapped because it looked ugly*
+- [ ] lowercase the time bruh because `2H` doesnt work
 - [ ] Flags/prefixes/idks
-  - [ ] Important (`!` prefix), mentions the user
+  - [X] Important (`!` prefix), mentions the user
   - [ ] Recurring (`&` prefix), doesnt cancel after remindion
+  - [X] Hidden (`#`), its text doesnt show in `.` list and when canceling
+    - [ ] Ability to pause hidden reminders
   - [ ] Text == `r` | `repeat` => text = (text of user's last trigered reminder)
-  - [ ] hidden reminders
-    - [ ] Ability to fully hide hidden reminders (they dont remind and if you re-enable they resume)
+  - [ ] DISPLAY THE PREFIXES IN THE `.` LIST!!! (`! &`)
 - [ ] `defer` & `undefer`
 - [ ] Folders with indent on
 

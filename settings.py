@@ -8,9 +8,9 @@ DEV_GUILD = 1145433323594842166
 VERSION = '3.0.1'
 
 class ALIASES:
-  LIST = ['.', 'list', 'reminders', 'rems']
-  WIPE = ['clear', 'wipe', 'deleteall', 'cancelall']
-
+  LIST   = ['.', 'list', 'reminders', 'rems']
+  WIPE   = ['clear', 'wipe', 'deleteall', 'cancelall']
+  DELETE = ['del', 'delete', 'delete this', 'deletethis', 'del this', 'delthis']
 
 class LIMITS:
   REMINDER         = 24 # Reminders

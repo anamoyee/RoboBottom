@@ -8,6 +8,7 @@ if True: # \/ Imports
   import random as rng
   import re as regex
   import shelve
+  import string
   import sys
   import time
   import typing as t
@@ -188,25 +189,43 @@ if not TOKEN_FILE.read_text(encoding='UTF-8'):
 TOKEN = TOKEN_FILE.read_text(encoding='UTF-8')
 TOKEN = TOKEN.strip()
 
-NEWLINE = '\n'; APOSTROPHE = '\''
+NEWLINE = '\n'; APOSTROPHE = '\''; FAKE_PIPE = '¦'
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
 SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB'); SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
+class ReminderFlag:
+  NONE      = 0
+  IMPORTANT = 1 << 0
+  RECURRING = 1 << 1
+  HIDDEN    = 1 << 2
+
+class ReminderFlagSymbol:
+  __SYMBOLS__ = None
+  IMPORTANT   = '!'
+  RECURRING   = '&'
+  HIDDEN      = '#'
+
+assert {x for x in ReminderFlag.__dict__ if x != 'NONE' and '_' not in x} == {x for x in ReminderFlagSymbol.__dict__ if x != 'NONE' and '_' not in x}, "Non-corresponding flags in ReminderFlag and ReminderFlagSymbol classes"
+
+ReminderFlagSymbol.__SYMBOLS__ = tuple({x: y for x, y in ReminderFlagSymbol.__dict__.items() if '_' not in x}.values())
+
 class Reminder:
-  unix = None
-  text = None
-  user = None
-  def __init__(self, unix, text, user) -> None:
+  unix = None # The time of the reminder (int | str)
+  text = None # The text of the reminder (str)
+  user = None # Discord User ID (int | str)
+  flag = 0    # Any reminders created before addition of the flags will have flags=0 after the reboot to the new version
+  def __init__(self, unix, text, user, flag: int | None) -> None:
     self.unix = unix
     self.text = text
     self.user = user
+    self.flag = flag
 
   def __str__(self) -> str:
     return f'**{self.text}** (<t:{self.unix}:R>)'
 
   def __repr__(self) -> str:
-    return f'/{self.text}/'
+    return f'{flags_to_str(self.flag)}/{self.text}/'
 
 class Embeds:
   def e_generic_error(self, e: Exception, *, author=None, **kwargs):
@@ -249,7 +268,7 @@ class Embeds:
   def cancel_success(self, reminder: Reminder):
     return embed(
       'Successfully cancelled a reminder!',
-      reminder.text,# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
+      reminder.text if not reminder.flag & ReminderFlag.HIDDEN else "Its contents have been unrecoverably lost!",# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
       color='#00ccff',
     )
 
@@ -261,7 +280,9 @@ class Embeds:
       footer=footer,
     )
   def list_(self, rems, *, who: str | None = None):
-    display_rems = '\n'.join([f'{i+1}) **{x.text.replace(NEWLINE, " ")}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
+    Q = '?'
+    patt = '`%s`'
+    display_rems = '\n'.join([f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{x.text.replace(NEWLINE, " ") if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(len(x.text)-2, len(x.text)+2))}`"}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
     if display_rems: display_rems += '\n\n'
     rest = f"Cancel a reminder with `cancel [1-{len(rems)}]`"
     return embed(
@@ -313,6 +334,22 @@ HELPMSGS = {
         ),
       ],
     ),
+  'Delete bot messages':           embed(
+    "Deleting bot's messages",
+    "There are two ways...",
+    fields=[
+      (
+        "In bulk",
+        "Use the </delhistory:1153060830103998574> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**",
+        False,
+      ),(
+        "One at a time",
+        f"Reply to a message you want to delete and as the message text send any of the following:\n{', '.join(f'`{x}`' for x in S.ALIASES.DELETE)}",
+        False,
+      ),
+    ],
+    color='#00ccff',
+  ),
   'Report a bug':                  embed(
     "Reporting a bug",
     "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
@@ -388,6 +425,7 @@ def get_ALL_reminders() -> dict[str, list[Reminder]]:
   shelf_path = SHELF_DIRECTORY / "reminders"
   with shelve.open(shelf_path, writeback=True) as shelf:
     return dict(shelf).copy()
+ALL = get_ALL_reminders
 
 def _get_reminders(key) -> list[Reminder]:
   shelf_path = SHELF_DIRECTORY / "reminders"
@@ -416,10 +454,10 @@ def append_reminder(user_id, reminder: Reminder) -> Reminder:
       shelf[user_id] = [reminder]
   _sort_reminders(user_id)
 
-def schedule_reminder(user_id, *, text, unix: int | str) -> bool:
+def schedule_reminder(user_id, *, text, unix: int | str, flags=ReminderFlag.NONE) -> bool:
   if isinstance(unix, str): unix = math.floor(time.time()+timestr_to_seconds(unix))
   if len(get_reminders(user_id)) < S.LIMITS.REMINDER:
-    append_reminder(user_id, Reminder(unix=unix, text=text, user=user_id))
+    append_reminder(user_id, Reminder(unix=unix, text=text, user=user_id, flag=flags))
     _sort_reminders(user_id)
     return True
   return False
@@ -680,6 +718,40 @@ def parse_for_aliases(content: str):
     return '1rescue rescue!'
   return content
 
+def testmode() -> str:
+  """Returns suffix when called, may be used in if check since it returns a falsey '' when not in testmode and truey '...' if in testmode."""
+  return (' - Testmode' if USING_TOKEN2 else '')
+
+def separate_flags_from_rest(content: str) -> tuple[int, str]:
+  i = 0
+  for letter in content:
+    if letter not in ReminderFlagSymbol.__SYMBOLS__:
+      break
+    i+=1
+  flags, content = content[:i], content[i:]
+  flags = ''.join(sorted(set(flags)))
+  fls = 0
+  for FLAG, VALUE in {x: y for x, y in ReminderFlag.__dict__.items() if '_' not in x and x != 'NONE'}.items():
+    fls = fls | ((getattr(ReminderFlagSymbol, FLAG) in flags) * VALUE)
+  return fls, content
+
+def flags_to_str(flags: int):
+  text = ''
+  for FLAG, VALUE in {x: y for x, y in ReminderFlag.__dict__.items() if x != 'NONE' and '_' not in x}.items():
+    if flags & VALUE:
+      text += getattr(ReminderFlagSymbol, FLAG)
+  return ''.join(sorted(text))
+
+def random_str_of_len(n: int, pool: None | str = None, banned: None | t.Iterable[str] = None):
+  if banned is None:
+    banned = ['`']
+  if pool is None:
+    pool =  string.ascii_letters + string.digits + string.punctuation + string.punctuation + string.punctuation + string.punctuation + string.punctuation 
+  out = ''
+  for _ in range(n):
+    out += rng.choice([x for x in pool if x not in banned])
+  return out
+
 ### async funcs
 
 async def get_guild_count(bot: lb.BotApp):
@@ -690,7 +762,7 @@ async def trigger_and_delete_reminder(user_id: int | str, reminder: Reminder, re
   delete_reminder_by_reminder(user_id, reminder)
   difference = abs(reminder.unix - time.time())
   if difference < 10: difference = 0
-  await remindfunc(user_id, reminder.text, difference)
+  await remindfunc(user_id, reminder.text, difference, ping_user=bool(reminder.flag & ReminderFlag.IMPORTANT), hide_text=bool(reminder.flag & ReminderFlag.HIDDEN))
 
 
 
