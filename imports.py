@@ -340,7 +340,7 @@ HELPMSGS = {
     fields=[
       (
         "In bulk",
-        "Use the </delhistory:1153060830103998574> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**",
+        "Use the </delhistory:1153087533954113726> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**",
         False,
       ),(
         "One at a time",
