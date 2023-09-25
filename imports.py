@@ -350,6 +350,22 @@ HELPMSGS = {
     ],
     color='#00ccff',
   ),
+  'Reminder flags':                embed(
+    "Reminder flags",
+    "Flags are optional prefixes you might want to add to your reminder request!",
+    fields=[
+      (
+        "In bulk",
+        "Use the </delhistory:1153087533954113726> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**",
+        False,
+      ),(
+        "One at a time",
+        f"Reply to a message you want to delete and as the message text send any of the following:\n{', '.join(f'`{x}`' for x in S.ALIASES.DELETE)}",
+        False,
+      ),
+    ],
+    color='#00ccff',
+  ),
   'Report a bug':                  embed(
     "Reporting a bug",
     "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
