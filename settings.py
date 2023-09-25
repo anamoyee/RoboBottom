@@ -5,7 +5,7 @@ DEFAULT_ENABLED_GUILDS = () # Leave as empty tuple for slash commands to show up
 DEV_ID    = 507642999992352779
 DEV_GUILD = 1145433323594842166
 
-VERSION = '3.0.1'
+VERSION = '4.0.0'
 
 class ALIASES:
   LIST   = ['.', 'list', 'reminders', 'rems']
