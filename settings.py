@@ -20,6 +20,10 @@ class RUNNING_ON:
   LINUX   = 'My phone [*permanent hosting*]'
   WINDOWS = 'My PC [*debugging bench*]'
 
+MAIN_COLOR     = '#8000ff'
+MAIN_COLOR_ALT = '#5000dd'
+MAIN_COLOR_OLD = '#00ccff'
+
 STATUS = "Used in DMs"
 
 USE_TEST_TOKEN_IF_AVAILABLE = True

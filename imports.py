@@ -12,17 +12,23 @@ if True: # \/ Imports
   import sys
   import time
   import typing as t
-  from functools import reduce
 
   import hikari
   import lightbulb as lb
   import miru
   import pytz
-  from colored import attr, bg, fg, stylize
   from lightbulb.ext import tasks
 
   import settings as S
-  from imports import *
+
+  try:
+    os.system('pip install --upgrade tcrutils')
+    __import__('tcrutils')
+  except ImportError:
+    print(f"\n{'#'*19}\nInstalling TCRUtils\n{'#'*19}\n")
+    os.system('pip install tcrutils')
+  os.system('pip install --upgrade tcrutils')
+  from tcrutils import *
 
 class Tz:
   def get_localzone(self):
@@ -30,44 +36,8 @@ class Tz:
 tz = Tz()
 
 if True: # \/ Critical Funcs do not touch
-  class Null:
-    def __str__(self):
-      return ''
-    def __repr__(self):
-      return 'Null'
-  Null = Null()
-  def F(item: str) -> str: # Function to convert strings in settings to contain up to date versions of variables (if there's a better way of doing this then idc it works and that's all that matters)
-    return eval(f'f{item!r}') # Don't complain pls i really just didn't feel like taking a better (more time consuming) approach to this lol
-  def print_iterable(it: list | tuple | dict, *, recursive=True, raw=False) -> str | None: # Required for debugging (console object)
-    if it == []:
-      return '[]'
-    if it == ():
-      return '()'
-    if it == {}:
-      return '{}'
-    if isinstance(it, dict):
-      text = '{'
-      for key, value in it.items():
-        if recursive and isinstance(value, list | tuple | dict):
-          value = print_iterable(value, raw=True).replace('\n', '\n  ')
-        else:
-          value = repr(value)
-        text += f'\n  {key!r}: {value},'
-      text += '\n}'
-    else:
-      text = '[' if isinstance(it, list) else '('
-      for value in it:
-        if recursive and isinstance(value, list | tuple | dict):
-          value = print_iterable(value, raw=True).replace('\n', '\n  ')
-        else:
-          value = repr(value)
-        text += f'\n  {value},'
-      text += '\n]' if isinstance(it, list) else '\n)'
-
-    if raw:
-      return text
-    print(text)
-    return None
+  def F(item: str) -> str:
+    return eval(f'f{item!r}')
   def embed(title: str, description: str, *, url=None, color=None, timestamp=None, thumbnail=None, footer=None, footer_icon=None, author: dict | None=None, image=None, fields: list | None=None) -> hikari.Embed:
     if (title is not Null and not title.strip()) or (description is not Null and not description.strip()):
       msg = f'Both title and description must be non-whitespace-only strings unless explicitly specified the title to be Null, got Title: {title!r}, Description: {description!r}'
@@ -80,12 +50,12 @@ if True: # \/ Critical Funcs do not touch
         author = {}
 
     out = hikari.Embed(
-                        title=title,
-                        description=description,
-                        color=color,
-                        timestamp=timestamp,
-                        url=url,
-                      )
+      title=title,
+      description=description,
+      color=color,
+      timestamp=timestamp,
+      url=url,
+    )
 
     if thumbnail:
       out = out.set_thumbnail(thumbnail)
@@ -102,73 +72,7 @@ if True: # \/ Critical Funcs do not touch
         field = (*field, False)
       out = out.add_field(field[0], field[1], inline=field[2])
     return out
-  def extract_error(value, pattern='%s: %s', *, raw=False):
-    one = repr(value).split('(')[0]
-    two = str(value)
-    return (one, two) if raw else pattern % (one, two)
   start_time = datetime.datetime.now(tz=tz.get_localzone())
-
-class Console:
-  def log     (self, *values, sep=' ', end='', returnonly=False, withprefix=True                                         ) -> None or str:
-    if not values: values = ['']
-    out = reduce(lambda x, y: str(x) + sep + str(y), [*values, '']) + end
-    if withprefix:
-      out = F('I {str(datetime.datetime.now())[:-3].replace(".", ",")} ') + out
-    out = stylize(out, fg("light_green") + attr("bold"))
-    if returnonly:
-      return out
-    print(out)
-    return None
-  def warn    (self, *values, sep=' ', end='', returnonly=False, withprefix=True                                         ) -> None or str:
-    if not values: values = ['']
-    out = reduce(lambda x, y: str(x) + sep + str(y), [*values, '']) + end
-    if withprefix:
-      out = F('W {str(datetime.datetime.now())[:-3].replace(".", ",")} ') + out
-    out = stylize(out, fg("yellow") + attr("bold"))
-    if returnonly:
-      return out
-    print(out)
-    return None
-  def error   (self, *values, sep=' ', end='', returnonly=False, withprefix=True                                         ) -> None or str:
-    if not values: values = ['']
-    values = [(extract_error(x) if isinstance(x, Exception) else x) for x in values]
-    out = reduce(lambda x, y: str(x) + sep + str(y), [*values, '']) + end
-    if withprefix:
-      out = F('E {str(datetime.datetime.now())[:-3].replace(".", ",")} ') + out
-    out = stylize(out, fg("red") + attr("bold"))
-    if returnonly:
-      return out
-    print(out)
-    return None
-  def debug   (self, *values, sep=' ', end='', returnonly=False, withprefix=True, print_iterable_=True, passthrough=False) -> None or str:
-    if not values: values = ['']
-    if len(values) > 1:
-      out = reduce(lambda x, y: str(x) + sep + str(y), [*values, '']) + end
-    else:
-      out = values[0]
-    if isinstance(out, type({}.values()) | type({}.keys())):
-      out = list(out)
-    if print_iterable_ and isinstance(out, list | tuple | dict):
-      out = print_iterable(out, raw=True)
-    out = str(out)
-    if withprefix:
-      out = F('D {str(datetime.datetime.now())[:-3].replace(".", ",")} ') + out
-    out = stylize(out, fg("magenta") + attr('bold'))# + attr("underlined"))
-    if returnonly:
-      return out
-    print(out)
-    return None if not passthrough else values[0]
-  def critical(self, *values, sep=' ', end='', returnonly=False, withprefix=True                                         ) -> None or str:
-    if not values: values = ['']
-    out = reduce(lambda x, y: str(x) + sep + str(y), [*values, '']) + end
-    if withprefix:
-      out = F('C {str(datetime.datetime.now())[:-3].replace(".", ",")} ') + out
-    out = stylize(out, bg("red") + attr("bold"))
-    if returnonly:
-      return out
-    print(out)
-    return None
-console = Console()
 
 TOKEN2_FILE = p.Path('TOKEN2.txt')
 TOKEN_FILE  = p.Path('TOKEN.txt' )
@@ -188,6 +92,8 @@ if not TOKEN_FILE.read_text(encoding='UTF-8'):
   sys.exit(1)
 TOKEN = TOKEN_FILE.read_text(encoding='UTF-8')
 TOKEN = TOKEN.strip()
+
+if USING_TOKEN2: S.MAIN_COLOR = S.MAIN_COLOR_ALT # If the bot is in test mode use the alternative main color for embeds
 
 NEWLINE = '\n'; APOSTROPHE = '\''; FAKE_PIPE = '¦'
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
@@ -255,9 +161,11 @@ class Embeds:
 ` time        your message     `
 """[1:-1], True),
           ("Units", "`s`, `sec`, `seconds`\n`m`, `min`, `minutes`\n`h`, `hr`, `hours`\n`w`, `weeks`\n`y`, `years`\n`pul`, `pull`, `card` alias for `11.5h`\n`res`, `rescues` alias for `6h`\n`???`, `???????????` (easteregg/hidden reference)\nAll singular/plural versions of the nouns should be valid as well", False),
+          ("Special aliases", "`pul` -> `1pul pul`\n`card` -> `1card card`\n`rescue` -> `1rescue rescue`\n`<anything not containing space>` -> `<said thing> <said thing>`\nFor example `1h` -> `1h 1h`", False),
+          ("Prefixes / Modifiers / Flags", "`!` - **Important**: Will ping you when reminded\n`#` - **Hidden**: Will hide the reminder's contents until you're reminded\n`&` - **Recurring** - Will re-schedule the reminder after sending it\n\n**How to use it?** Just prepend anything you type in with one or multiple flags in any order for example:\n`!6m pet the Colon plushie`\n`!&1d find another xss vulnerability in zoo bot`\n`#999y No one will ever see this reminder's contents`\n\nIf certain reminder has any flags, their symbols will be shown next to them in reminders list", False),
         ],
-        footer=F'The above regex if you know how regex works (doesn\'t include unit validation):\n/{SYNTAX_REGEX}/g',
-        color='#ff0000' if not _in_help else "#00ccff",
+        footer=F'Regex for validating the reminder text (mostly outdated):\n/{SYNTAX_REGEX}/g',
+        color='#ff0000' if not _in_help else S.MAIN_COLOR,
       )
   def invalid_syntax_cancel(self, n=99999):
     return embed(
@@ -269,7 +177,7 @@ class Embeds:
     return embed(
       'Successfully cancelled a reminder!',
       reminder.text if not reminder.flag & ReminderFlag.HIDDEN else "Its contents have been unrecoverably lost!",# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
-      color='#00ccff',
+      color=S.MAIN_COLOR,
     )
 
   def wipe(self, footer=None):
@@ -280,24 +188,23 @@ class Embeds:
       footer=footer,
     )
   def list_(self, rems, *, who: str | None = None):
-    Q = '?'
     patt = '`%s`'
-    display_rems = '\n'.join([f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{x.text.replace(NEWLINE, " ") if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(len(x.text)-2, len(x.text)+2))}`"}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
+    display_rems = '\n'.join([f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{x.text.replace(NEWLINE, " ") if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text)-2), len(x.text)+2))}`"}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
     if display_rems: display_rems += '\n\n'
     rest = f"Cancel a reminder with `cancel [1-{len(rems)}]`"
     return embed(
       f"{'Your' if who is None else ((who + APOSTROPHE + 's') if not who.endswith('s') else (who + APOSTROPHE))} reminders ({len(rems)})",
       f'{display_rems}{rest}'.rstrip('\n'),
-      color='#00ccff',
+      color=S.MAIN_COLOR,
     )
 EMBEDS = Embeds()
 
 HELPMSGS = {
-  'Remind - Syntax':                       EMBEDS.invalid_syntax_big(_in_help=True),
+  'Remind - Syntax':               EMBEDS.invalid_syntax_big(_in_help=True),
   'List your reminders':           embed(
       "List of reminders",
       "Simple. Shows you the list of reminders.",
-      color='#00ccff',
+      color=S.MAIN_COLOR,
       fields=[
         (
           "Usage & Example",
@@ -313,7 +220,7 @@ HELPMSGS = {
   'Cancel a reminder':             embed(
       "Cancelling Reminders",
       "Use the following syntax: `cancel <1-99999>` where you specify the index of the reminder that you want to cancel.\nTo see the list of your reminders along with the indices type `list` or view its help by using </help:1146216876779774012> with section argument `list`",
-      color='#00ccff',
+      color=S.MAIN_COLOR,
       fields=[
         (
           "Example",
@@ -325,7 +232,7 @@ HELPMSGS = {
   'Clear (cancel) all reminders':  embed(
       "Clearing all reminders",
       "To clear (cancel) all reminders type `clear` (or any of its aliases) and it will remove all of your set reminders without reminding you",
-      color='#00ccff',
+      color=S.MAIN_COLOR,
       fields=[
         (
           "Aliases",
@@ -348,7 +255,7 @@ HELPMSGS = {
         False,
       ),
     ],
-    color='#00ccff',
+    color=S.MAIN_COLOR,
   ),
   'Reminder flags':                embed(
     "Reminder flags",
@@ -364,12 +271,12 @@ HELPMSGS = {
         False,
       ),
     ],
-    color='#00ccff',
+    color=S.MAIN_COLOR,
   ),
   'Report a bug':                  embed(
     "Reporting a bug",
     "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
-    color='#00ccff',
+    color=S.MAIN_COLOR,
   ),
   'Credits':                       embed(
     "Credits",
@@ -384,7 +291,7 @@ RoboTop was really such a great bot. Perhaps the greatest i've ever used. After 
   'How to host this bot yourself': embed(
     "How to host this bot",
     "Detailed instruction is available **[here](https://github.com/TheCreatorrr333/RoboBottom)** as well as the bot's source code",
-    color='#00ccff',
+    color=S.MAIN_COLOR,
   ),
 }
 HELPMSG_NONE = embed(
@@ -404,7 +311,7 @@ View </help:1146216876779774012> with section argument set to `remind` for usage
       False,
     ),
   ],
-  color='#00ccff',
+  color=S.MAIN_COLOR,
 )
 
 def multichar_lstrip(input_string, text_to_remove):
@@ -732,6 +639,9 @@ def parse_for_aliases(content: str):
     return '1card card'
   if content in ['1rescue', 'rescue']:
     return '1rescue rescue!'
+  if not ([x for x in content if x.isalpha()] and [x for x in content if x.isnumeric()]): return content
+  if ' ' not in content:
+    return f'{content} {content}'
   return content
 
 def testmode() -> str:
