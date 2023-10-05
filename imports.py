@@ -85,10 +85,10 @@ if not TOKEN_FILE.is_file():
 if not TOKEN_FILE.is_file():
   TOKEN_FILE = '..' / TOKEN_FILE
 if not TOKEN_FILE.is_file():
-  console.error('Unable to find TOKEN.txt file')
+  console.critical('Unable to find TOKEN.txt file')
   sys.exit(1)
 if not TOKEN_FILE.read_text(encoding='UTF-8'):
-  console.error('The TOKEN.txt file is empty.')
+  console.critical('The TOKEN.txt file is empty.')
   sys.exit(1)
 TOKEN = TOKEN_FILE.read_text(encoding='UTF-8')
 TOKEN = TOKEN.strip()
