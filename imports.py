@@ -80,10 +80,20 @@ USING_TOKEN2 = False
 if os.name == 'nt' and TOKEN2_FILE.is_file() and S.USE_TEST_TOKEN_IF_AVAILABLE:
   TOKEN_FILE = TOKEN2_FILE
   USING_TOKEN2 = True
-if not TOKEN_FILE.is_file():
-  TOKEN_FILE = '..' / TOKEN_FILE
-if not TOKEN_FILE.is_file():
-  TOKEN_FILE = '..' / TOKEN_FILE
+try:
+  ('..' / TOKEN_FILE).is_file()
+except PermissionError:
+  pass
+else:
+  if not TOKEN_FILE.is_file():
+    TOKEN_FILE = '..' / TOKEN_FILE
+try:
+  ('..' / TOKEN_FILE).is_file()
+except PermissionError:
+  pass
+else:
+  if not TOKEN_FILE.is_file():
+    TOKEN_FILE = '..' / TOKEN_FILE
 if not TOKEN_FILE.is_file():
   console.critical('Unable to find TOKEN.txt file')
   sys.exit(1)
