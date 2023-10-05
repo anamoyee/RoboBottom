@@ -107,7 +107,12 @@ if USING_TOKEN2: S.MAIN_COLOR = S.MAIN_COLOR_ALT # If the bot is in test mode us
 
 NEWLINE = '\n'; APOSTROPHE = '\''; FAKE_PIPE = '¦'
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
-SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB'); SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
+try:
+  SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB')
+  SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True) # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
+except PermissionError:
+  SHELF_DIRECTORY = p.Path('../RoboBottomDB')
+  SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True)
 SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
 
 class ReminderFlag:
