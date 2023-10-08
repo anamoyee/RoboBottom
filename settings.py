@@ -25,8 +25,8 @@ class LIMITS:
   MINIMAL_DURATION = 15 # Seconds
 
 class RUNNING_ON:
-  LINUX   = 'My phone [*permanent hosting*]'
-  WINDOWS = 'My PC [*debugging bench*]'
+  LINUX   = '24/7 server (aka my phone bruh)'
+  WINDOWS = 'Debugging testbench'
 
 MAIN_COLOR     = '#8000ff'
 MAIN_COLOR_ALT = '#5000dd'
