@@ -140,6 +140,11 @@ f"""
       elif thing[0] in ['1', 'del']:
         await bot.rest.delete_message(thing[1], thing[2])
         await r(f'Deleted message in <#{thing[1]}>', force_ephemeral=True)
+      elif thing[0] in ['2', 'ginfo']:
+        guilds = await bot.rest.fetch_my_guilds()
+        await r(f'```\n{print_iterable({guild.id: guild.name for guild in guilds}, raw=True)}```')
+      elif thing[0] in ['3', 'all']:
+        await r(f'```\n{print_iterable(ALL(), raw=True).replace("`", APOSTROPHE)}```')
       # elif ...:
       #  ...
       else:
