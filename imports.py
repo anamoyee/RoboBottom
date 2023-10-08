@@ -50,8 +50,8 @@ if True: # \/ Critical Funcs do not touch
         author = {}
 
     out = hikari.Embed(
-      title=title,
-      description=description,
+      title=title if title is not Null else None,
+      description=description if description is not Null else None,
       color=color,
       timestamp=timestamp,
       url=url,
