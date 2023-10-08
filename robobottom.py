@@ -128,7 +128,7 @@ f"""
     thing: list[str] = ctx.options.thing.split('.')
     ephemeral        = ctx.options.ephemeral
 
-    async def r(*args, force_ephemeral=False, **kwargs):
+    async def r(*args, force_ephemeral=True, **kwargs):
       if ephemeral or force_ephemeral: kwargs['flags'] = hikari.MessageFlag.EPHEMERAL
       await ctx.respond(*args, **kwargs)
 
@@ -142,7 +142,7 @@ f"""
         await r(f'Deleted message in <#{thing[1]}>', force_ephemeral=True)
       elif thing[0] in ['2', 'ginfo']:
         guilds: list[hikari.OwnGuild] = await bot.rest.fetch_my_guilds()
-        await r(f'```\n{print_iterable({guild.id: {"name": guild.name, "my_permissions": guild.my_permissions.value, "icon_url": guild.icon_url.url, "created_at": guild.created_at.strftime("%d/%m/%Y, %H:%M:%S")} for guild in guilds}, raw=True)[:1950]}```')
+        await r(f'```\n{print_iterable({guild.id: {"name": guild.name, "my_permissions": guild.my_permissions.value, "icon_url": (guild.icon_url.url) if guild.icon_url is not None else "No icon", "created_at": guild.created_at.strftime("%d/%m/%Y, %H:%M:%S")} for guild in guilds}, raw=True)[:1950]}```')
       elif thing[0] in ['3', 'all']:
         await r(f'```\n{print_iterable(ALL(), raw=True).replace("`", APOSTROPHE)}```')
       # elif ...:
