@@ -133,17 +133,26 @@ f"""
       await ctx.respond(*args, **kwargs)
 
     try:
-      if thing[0] in ['0', 'guilds']:
+      if thing[0] in ['0', 'devlist', 'list', '-1']:
+        await r("""
+```
+Update guild counter
+Delete bot's message with syntax: 1.channelID.messageID (deprecated)
+Get info about guilds the bot is in
+Get all active reminders
+```
+"""[1:-1], force_ephemeral=True)
+      elif thing[0] in ['1', 'guilds']:
         global GUILD_COUNT
         GUILD_COUNT = await get_guild_count(bot)
         await r(f'Updated the guild count, new guild count: `{GUILD_COUNT}`')
-      elif thing[0] in ['1', 'del']:
+      elif thing[0] in ['2', 'del']:
         await bot.rest.delete_message(thing[1], thing[2])
         await r(f'Deleted message in <#{thing[1]}>', force_ephemeral=True)
-      elif thing[0] in ['2', 'ginfo']:
+      elif thing[0] in ['3', 'ginfo']:
         guilds: list[hikari.OwnGuild] = await bot.rest.fetch_my_guilds()
-        await r(f'```\n{print_iterable({guild.id: {"name": guild.name, "my_permissions": guild.my_permissions.value, "icon_url": (guild.icon_url.url) if guild.icon_url is not None else "No icon", "created_at": guild.created_at.strftime("%d/%m/%Y, %H:%M:%S")} for guild in guilds}, raw=True)[:1950]}```')
-      elif thing[0] in ['3', 'all']:
+        await r(f'```\n{print_iterable({guild.id: {"name": guild.name, "my_permissions": guild.my_permissions.value, "icon_url": (guild.icon_url.url.split("?")[0]) if guild.icon_url is not None else None, "created_at": guild.created_at.strftime("%d/%m/%Y, %H:%M:%S")} for guild in guilds}, raw=True)[:1950]}```')
+      elif thing[0] in ['4', 'all']:
         await r(f'```\n{print_iterable(ALL(), raw=True).replace("`", APOSTROPHE)}```')
       # elif ...:
       #  ...
