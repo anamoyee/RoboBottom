@@ -126,9 +126,9 @@ f"""
     if ctx.author.id != S.DEV_ID: return await ctx.respond('You are not allowed to use this command', flags=hikari.MessageFlag.EPHEMERAL)
 
     thing: list[str] = ctx.options.thing.split('.')
-    ephemeral        = ctx.options.ephemeral
+    ephemeral        = ctx.options.ephemeral if ctx.options.ephemeral is not None else True
 
-    async def r(*args, force_ephemeral=True, **kwargs):
+    async def r(*args, force_ephemeral=False, **kwargs):
       if ephemeral or force_ephemeral: kwargs['flags'] = hikari.MessageFlag.EPHEMERAL
       await ctx.respond(*args, **kwargs)
 
