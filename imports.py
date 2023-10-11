@@ -734,9 +734,9 @@ class Battery:
 
   def __str__(self) -> str:
     charging = self.status == 'CHARGING'
-    if not charging and self.percentage < 25: icon = '⚠'
+    if not charging and self.percentage < 25: icon = '🔋 ⚠'
     elif charging:                            icon = '🔌'
-    else:                                     icon = ''
+    else:                                     icon = '🔋'
     return f"{self.percentage}%{(' ' + icon) if icon else ''}"
 
 _battery: None | Battery = None
