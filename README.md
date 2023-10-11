@@ -49,7 +49,7 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] `defer` & `undefer`
 - [ ] Folders with indentation
 - [ ] If message has only delay part and responds to sth delay that thing the amount
-- [X] Add battery indicators on status
+- [X] Add battery indicators in the activity text
 
 <!--<style>s{color: crimson;}</style> <!-- crimson color means scrapped -->
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
