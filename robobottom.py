@@ -56,9 +56,12 @@ if True: # \/ Tasks
           await trigger_and_delete_reminder(user_id, reminder, remind)
 
   if S.OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE:
-    @tasks.task(s=1, auto_start=True)
-    async def battery_update_task():
+    async def update_battery():
       await update_activity(bot, get_battery())
+
+    @tasks.task(s=S.BATTERY_UPDATE_INTERVAL_SECONDS, auto_start=True)
+    async def battery_update_task():
+      await update_battery()
 
 if True: # \/ Slash Commands
   @bot.command
@@ -285,9 +288,12 @@ if True: # \/ Listeners
     GUILD_COUNT = await get_guild_count(bot)
     console.log(f'Guild Count: {GUILD_COUNT}')
     reminder_task.start()
+    await update_battery()
 
 if True: # \/ bot.run()
   status_name = S.DEFAULT_ACTIVITY_TEXT + testmode()
   console.log(f'Status: {status_name}')
-  bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
-  # Temporarly a "watching" status until a get custom statuses to work huh...
+  if S.OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE:
+    bot.run()
+  else:
+    bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
