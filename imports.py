@@ -733,7 +733,7 @@ class Battery:
   update = __init__
 
   def __str__(self) -> str:
-    charging = self.status == 'CHARGING'
+    charging = self.status in ['CHARGING', 'FULL']
     if not charging and self.percentage < 25: icon = '🔋 ⚠'
     elif charging:                            icon = '🔌'
     else:                                     icon = '🔋'
