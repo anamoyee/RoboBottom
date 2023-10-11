@@ -55,13 +55,18 @@ if True: # \/ Tasks
         if reminder.unix <= time.time():
           await trigger_and_delete_reminder(user_id, reminder, remind)
 
+  if S.OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE:
+    @tasks.task(s=1, auto_start=True)
+    async def battery_update_task():
+      await update_activity(bot, get_battery())
+
 if True: # \/ Slash Commands
   @bot.command
   @lb.command('botstatus', 'View some (partially made up) details about the bot' + testmode())
   @lb.implements(lb.SlashCommand)
   async def cmd_botstatus(ctx: lb.SlashContext):
     await ctx.respond(embed(
-      Null if not USING_TOKEN2 else "Testmode",
+      testmode() or Null,
 f"""
 **Originally created by:** **[Colon](https://gdcolon.com)** <:fluff:1146072273665654864>
 **Recreated by:** <@507642999992352779>
@@ -157,7 +162,7 @@ f"""
         await r(f'```\n{print_iterable(ALL(), raw=True).replace("`", APOSTROPHE)}```')
       elif thing[0] in ['5', 'activity']:
         if len(thing) < 2: thing.append(None)
-        activity = thing[1] if thing[1] is not None else S.DEFAULT_STATUS
+        activity = thing[1] if thing[1] is not None else S.DEFAULT_ACTIVITY_TEXT
         if not activity:
           await bot.update_presence(activity=None)
           await r('Removed activity')
@@ -282,7 +287,7 @@ if True: # \/ Listeners
     reminder_task.start()
 
 if True: # \/ bot.run()
-  status_name = S.DEFAULT_STATUS + testmode()
+  status_name = S.DEFAULT_ACTIVITY_TEXT + testmode()
   console.log(f'Status: {status_name}')
   bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
   # Temporarly a "watching" status until a get custom statuses to work huh...

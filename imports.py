@@ -694,9 +694,9 @@ def random_str_of_len(n: int, pool: None | str = None, banned: None | t.Iterable
     out += rng.choice([x for x in pool if x not in banned])
   return out
 
-def get_battery() -> None | dict[str, t.Any]:
+def get_battery_dict() -> None | dict[str, t.Any]:
   """Returns None if there's no battery"""
-  if USING_TOKEN2:
+  if USING_TOKEN2: # Fake battery if on test token
     return eval(\
 """
 {
@@ -714,8 +714,43 @@ def get_battery() -> None | dict[str, t.Any]:
     console.error(extract_error(e))
     return None
 
-console.debug(get_battery())
-sys.exit()
+class Battery:
+  health: str
+  percentage: int
+  plugged: str
+  status: str
+  temperature: float
+  current: int
+
+  def __init__(self, *, health, percentage, plugged, status, temperature, current) -> None:
+    self.health = health
+    self.percentage = percentage
+    self.plugged = plugged
+    self.status = status
+    self.temperature = temperature
+    self.current = current
+
+  update = __init__
+
+  def __str__(self) -> str:
+    charging = self.status == 'CHARGING'
+    if not charging and self.percentage < 25: icon = '⚠'
+    elif charging:                            icon = '🔌'
+    else:                                     icon = ''
+    return f"{self.percentage}%{(' ' + icon) if icon else ''}"
+
+_battery: None | Battery = None
+
+def get_battery() -> Null | "Battery":
+  global _battery
+  a = get_battery_dict()
+  if a is not None:
+    if _battery is None:
+      _battery = Battery(**a)
+    else:
+      _battery.update(**a)
+    return _battery
+  return Null
 
 ### async funcs
 
@@ -729,8 +764,8 @@ async def trigger_and_delete_reminder(user_id: int | str, reminder: Reminder, re
   if difference < S.TOO_LATE_THRESHOLD_SECONDS: difference = 0
   await remindfunc(user_id, reminder.text, difference, ping_user=bool(reminder.flag & ReminderFlag.IMPORTANT), hide_text=bool(reminder.flag & ReminderFlag.HIDDEN))
 
-
-
+async def update_activity(bot: lb.BotApp, text: str = S.DEFAULT_ACTIVITY_TEXT, *, activity_type=hikari.ActivityType.WATCHING) -> None:
+  await bot.update_presence(activity=hikari.Activity(name=str(text), type=activity_type))
 
 
 

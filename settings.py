@@ -32,9 +32,11 @@ MAIN_COLOR     = '#8000ff'
 MAIN_COLOR_ALT = '#5000dd'
 MAIN_COLOR_OLD = '#00ccff'
 
-DEFAULT_STATUS = "Used in DMs"
+DEFAULT_ACTIVITY_TEXT = "Used in DMs"
 
 USE_TEST_TOKEN_IF_AVAILABLE = True
 
 TOO_LATE_THRESHOLD_SECONDS = 60
 TOO_LATE_MESSAGE           = 'Sowwy fow sending thwis wemindeww %s too lwate!!! >.<'
+
+OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE = True # Will change the status to "80% 🔌" or sth like that if set to True, else will use the DEFAULT_STATUS
