@@ -32,6 +32,9 @@ MAIN_COLOR     = '#8000ff'
 MAIN_COLOR_ALT = '#5000dd'
 MAIN_COLOR_OLD = '#00ccff'
 
-STATUS = "Used in DMs"
+DEFAULT_STATUS = "Used in DMs"
 
 USE_TEST_TOKEN_IF_AVAILABLE = True
+
+TOO_LATE_THRESHOLD_SECONDS = 60
+TOO_LATE_MESSAGE           = 'Sowwy fow sending thwis wemindeww %s too lwate!!! >.<'

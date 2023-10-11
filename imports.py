@@ -9,6 +9,7 @@ if True: # \/ Imports
   import re as regex
   import shelve
   import string
+  import subprocess
   import sys
   import time
   import typing as t
@@ -685,13 +686,36 @@ def flags_to_str(flags: int):
 
 def random_str_of_len(n: int, pool: None | str = None, banned: None | t.Iterable[str] = None):
   if banned is None:
-    banned = ['`']
+    banned = ['`', '*', '_']
   if pool is None:
     pool =  string.ascii_letters + string.digits + string.punctuation + string.punctuation + string.punctuation + string.punctuation + string.punctuation 
   out = ''
   for _ in range(n):
     out += rng.choice([x for x in pool if x not in banned])
   return out
+
+def get_battery() -> None | dict[str, t.Any]:
+  """Returns None if there's no battery"""
+  if USING_TOKEN2:
+    return eval(\
+"""
+{
+  "health": "GOOD",
+  "percentage": 86,
+  "plugged": "PLUGGED_AC",
+  "status": "CHARGING",
+  "temperature": 29.600000381469727,
+  "current": 527400
+}
+"""[1:-1])
+  try:
+    return eval(subprocess.check_output("termux-battery-status", shell=True).decode('utf-8'))
+  except Exception as e:
+    console.error(extract_error(e))
+    return None
+
+console.debug(get_battery())
+sys.exit()
 
 ### async funcs
 
@@ -702,7 +726,7 @@ async def trigger_and_delete_reminder(user_id: int | str, reminder: Reminder, re
   user_id = str(user_id)
   delete_reminder_by_reminder(user_id, reminder)
   difference = abs(reminder.unix - time.time())
-  if difference < 10: difference = 0
+  if difference < S.TOO_LATE_THRESHOLD_SECONDS: difference = 0
   await remindfunc(user_id, reminder.text, difference, ping_user=bool(reminder.flag & ReminderFlag.IMPORTANT), hide_text=bool(reminder.flag & ReminderFlag.HIDDEN))
 
 

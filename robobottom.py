@@ -18,7 +18,7 @@ if True: # \/ Bot-dependant funcs
       "🔔 Reminder!",
       text or 'Uh.. text=None / text=\'\'? Report this bug pls',
       color='#ffff00',
-      footer=f'Sowwy fow sending thwis wemindeww {seconds_to_timestr(too_late)} too lwate!!! >.<' if too_late else None,
+      footer=(S.TOO_LATE_MESSAGE % seconds_to_timestr(too_late)) if too_late else None,
     ), user_mentions=[user_id] if ping_user else hikari.UNDEFINED)
 
   async def reminder_scheduler(content, responder, author_id, *, force_ephemeral=False):
@@ -136,10 +136,11 @@ f"""
       if thing[0] in ['0', 'devlist', 'list', '-1']:
         await r("""
 ```
-Update guild counter
-Delete bot's message with syntax: 1.channelID.messageID (deprecated)
-Get info about guilds the bot is in
-Get all active reminders
+1. Update guild counter
+2. Delete bot's message with syntax: 1.channelID.messageID (deprecated)
+3. Get info about guilds the bot is in
+4. Get all active reminders
+5. Set activity text of the bot
 ```
 """[1:-1], force_ephemeral=True)
       elif thing[0] in ['1', 'guilds']:
@@ -154,6 +155,15 @@ Get all active reminders
         await r(f'```\n{print_iterable({guild.id: {"name": guild.name, "my_permissions": guild.my_permissions.value, "icon_url": (guild.icon_url.url.split("?")[0]) if guild.icon_url is not None else None, "created_at": guild.created_at.strftime("%d/%m/%Y, %H:%M:%S")} for guild in guilds}, raw=True)[:1950]}```')
       elif thing[0] in ['4', 'all']:
         await r(f'```\n{print_iterable(ALL(), raw=True).replace("`", APOSTROPHE)}```')
+      elif thing[0] in ['5', 'activity']:
+        if len(thing) < 2: thing.append(None)
+        activity = thing[1] if thing[1] is not None else S.DEFAULT_STATUS
+        if not activity:
+          await bot.update_presence(activity=None)
+          await r('Removed activity')
+        else:
+          await bot.update_presence(activity=hikari.Activity(name=activity + testmode(), type=hikari.ActivityType.WATCHING))
+          await r(f"New activity: `{activity}`")
       # elif ...:
       #  ...
       else:
@@ -161,6 +171,8 @@ Get all active reminders
         raise ValueError(msg)
     except Exception as e:
       await r(EMBEDS.e_generic_error(e), force_ephemeral=True)
+      if testmode():
+        raise
 
   @bot.command
   @lb.option('ephemeral', "Sneaky sneaky (True by default)", type=bool, required=False)
@@ -270,7 +282,7 @@ if True: # \/ Listeners
     reminder_task.start()
 
 if True: # \/ bot.run()
-  status_name = S.STATUS + testmode()
+  status_name = S.DEFAULT_STATUS + testmode()
   console.log(f'Status: {status_name}')
   bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
   # Temporarly a "watching" status until a get custom statuses to work huh...
