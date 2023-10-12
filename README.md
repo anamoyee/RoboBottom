@@ -53,7 +53,7 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] Add more time formats:
   - [ ] `(?:{days}d + )?HH:MM:SS`
   - [ ] `@HH:MM:SS` (not relative, for example 22:00 will count current hour and subtract it from the selected @hour, then it will )
-  - [ ] When user supplies {x}h{y} (without the m) make it implicit since it directly follows the hours
+  - [ ] When user supplies `{x}h{y}` (without the m) make it implicit since it directly follows the hours
 
 <!--<style>s{color: crimson;}</style> <!-- crimson color means scrapped -->
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
