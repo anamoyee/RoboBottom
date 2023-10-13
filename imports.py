@@ -147,7 +147,8 @@ class Reminder:
     return f'**{self.text}** (<t:{self.unix}:R>)'
 
   def __repr__(self) -> str:
-    return f'{flags_to_str(self.flag)}/{self.text}/'
+    hidden = self.flag & ReminderFlag.HIDDEN
+    return f'{flags_to_str(self.flag)}/{"#" if hidden else ""}{self.text if not hidden else random_str_of_len(max(1, len(self.text)-2))}{"#" if hidden else ""}/'
 
 class Embeds:
   def e_generic_error(self, e: Exception, *, author=None, **kwargs):
@@ -734,7 +735,7 @@ class Battery:
 
   def __str__(self) -> str:
     charging = self.status in ['CHARGING', 'FULL']
-    if not charging and self.percentage < 25: icon = '🔋 ⚠'
+    if not charging and self.percentage < 25: icon = '🔋 ❗❗'
     elif charging:                            icon = '🔌'
     else:                                     icon = '🔋'
     return f"{self.percentage}%{(' ' + icon) if icon else ''}"
