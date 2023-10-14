@@ -314,7 +314,8 @@ if True: # \/ Listeners
     GUILD_COUNT = await get_guild_count(bot)
     console.log(f'Guild Count: {GUILD_COUNT}')
     reminder_task.start()
-    await update_battery()
+    if S.OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE:
+      await update_battery()
 
 if True: # \/ bot.run()
   status_name = S.DEFAULT_ACTIVITY_TEXT + testmode()
