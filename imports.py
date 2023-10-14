@@ -114,7 +114,8 @@ try:
 except PermissionError:
   SHELF_DIRECTORY = p.Path('../RoboBottomDB')
   SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True)
-SYNTAX_REGEX = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
+SYNTAX_REGEX     = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
+REGEX_ONLY_DELAY = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
 
 class ReminderFlag:
   NONE      = 0
@@ -214,6 +215,12 @@ class Embeds:
       f'{display_rems}{rest}'.rstrip('\n'),
       color=S.MAIN_COLOR,
     )
+  def no_reply():
+    return embed(
+          "Unsupported reply action",
+          "This message does not support reply action",
+          color="ff0000",
+        )
 EMBEDS = Embeds()
 
 HELPMSGS = {
@@ -649,15 +656,15 @@ def cut_str_at(text: str, n: int, end: str='...') -> str:
     return text
   return text[:n-len(end)] + end
 
-def parse_for_aliases(content: str):
+def parse_for_aliases(content: str, is_reply: bool = False):
   if content in ['1pul', 'pul']:
     return '1pul pul'
   if content in ['1card', 'card']:
     return '1card card'
   if content in ['1rescue', 'rescue']:
-    return '1rescue rescue!'
+    return '1rescue rescue'
   if not ([x for x in content if x.isalpha()] and [x for x in content if x.isnumeric()]): return content
-  if ' ' not in content:
+  if ' ' not in content and not is_reply:
     return f'{content} {content}'
   return content
 

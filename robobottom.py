@@ -21,14 +21,14 @@ if True: # \/ Bot-dependant funcs
       footer=(S.TOO_LATE_MESSAGE % seconds_to_timestr(too_late)) if too_late else None,
     ), user_mentions=[user_id] if ping_user else hikari.UNDEFINED)
 
-  async def reminder_scheduler(content, responder, author_id, *, force_ephemeral=False):
+  async def reminder_scheduler(content, responder, author_id, *, force_ephemeral=False, reply_to=hikari.UNDEFINED):
     message_flags = hikari.MessageFlag.NONE if not force_ephemeral else hikari.MessageFlag.EPHEMERAL
     message_flags = message_flags | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS # @silent
 
     flags, content = separate_flags_from_rest(content)
 
     if not is_valid_reminder_syntax(content):
-      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags)
+      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
       return
 
     unix, text = content.split(' ', maxsplit=1)
@@ -36,16 +36,16 @@ if True: # \/ Bot-dependant funcs
     try:
       unix = timestr_to_seconds(unix)
     except ValueError:
-      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags)
+      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
     else:
       if (not testmode()) and (unix < S.LIMITS.MINIMAL_DURATION):
-        await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!', flags=message_flags)
+        await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!', flags=message_flags, reply=reply_to)
         return
 
       if schedule_reminder(author_id, text=text, unix=math.floor(time.time()+unix), flags=flags):
-        await responder(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**" + (' ;)' if flags & ReminderFlag.HIDDEN else ''), flags=message_flags)
+        await responder(f"🔔 **{random_sure()}** I'll remind you in **{seconds_to_timestr(unix)}**" + (' ;)' if flags & ReminderFlag.HIDDEN else ''), flags=message_flags, reply=reply_to)
       else:
-        await responder(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!', flags=message_flags)
+        await responder(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!', flags=message_flags, reply=reply_to)
 
 if True: # \/ Tasks
   @tasks.task(s=1)
@@ -215,7 +215,34 @@ f"""
 
 if True: # \/ Reminder Components
   async def r_schedule(event: hikari.DMMessageCreateEvent, content: str):
-    await reminder_scheduler(content, event.message.respond, event.author_id)
+    if ' ' not in content and event.message.type == hikari.MessageType.REPLY and regex.match(REGEX_ONLY_DELAY, content):
+      if event.message.referenced_message is None:
+        await event.message.respond("Invalid message")
+        return
+      
+      if ' ' in content:
+        await event.message.respond(embed(
+          "Unsupported reply action",
+          "Read more about reply actions in </help:1146216876779774012> with section argument `Reminder - Reply Actions`",
+          color="ff0000",
+        ))
+
+      if (event.message.referenced_message.author.id != bot.get_me().id) or \
+         (not event.message.referenced_message.embeds) or \
+         (event.message.referenced_message.embeds[0].title is None) or \
+         ('reminder' not in event.message.referenced_message.embeds[0].title.lower()):
+        await event.message.respond(EMBEDS.no_reply())
+        return
+
+      desc = event.message.referenced_message.embeds[0].description
+
+      if desc.startswith('||') and desc.endswith('||'):
+        desc = desc.removeprefix('||')
+        desc = desc.removesuffix('||')
+
+      await reminder_scheduler(content + ' ' + desc, event.message.respond, event.author_id, reply_to=event.message_id)
+    else:
+      await reminder_scheduler(content, event.message.respond, event.author_id)
 
   async def r_wipe(event: hikari.DMMessageCreateEvent):
     async def func(btn: miru.Button, ctx: miru.Context, author_id=event.author_id):
@@ -263,7 +290,7 @@ if True: # \/ Listeners
     if event.is_bot: return # Don't respond to self
 
     content = event.content
-    content = parse_for_aliases(content)
+    content = parse_for_aliases(content, event.message.type == hikari.MessageType.REPLY)
     if content is None: return
 
     aliases = [x + ' ' for x in ['remindme', 'reminder', 'reminders', 'rem', 're', 'rm']]

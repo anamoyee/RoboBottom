@@ -55,6 +55,7 @@ If i change my username for some reason (or discord again fucks up the username 
   - [ ] `@HH:MM:SS` (not relative, for example 22:00 will count current hour and subtract it from the selected @hour, then it will )
   - [ ] When user supplies `{x}h{y}` (without the m) make it implicit since it directly follows the hours
 - [ ] Add support for displaying images (may be scrapped because of recent discord caveats)
+- [ ] Select menu components (with modal +new reminder)
 
 <!--<style>s{color: crimson;}</style> <!-- crimson color means scrapped -->
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
