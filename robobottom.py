@@ -219,7 +219,7 @@ if True: # \/ Reminder Components
       if event.message.referenced_message is None:
         await event.message.respond("Invalid message")
         return
-      
+
       if ' ' in content:
         await event.message.respond(embed(
           "Unsupported reply action",
@@ -237,8 +237,7 @@ if True: # \/ Reminder Components
       desc = event.message.referenced_message.embeds[0].description
 
       if desc.startswith('||') and desc.endswith('||'):
-        desc = desc.removeprefix('||')
-        desc = desc.removesuffix('||')
+        desc = desc.replace('||', '')
 
       await reminder_scheduler(content + ' ' + desc, event.message.respond, event.author_id, reply_to=event.message_id)
     else:

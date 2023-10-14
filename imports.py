@@ -223,7 +223,27 @@ class Embeds:
         )
 EMBEDS = Embeds()
 
+HELPMSG_NONE = embed(
+  "General Help",
+  'Use </help:1146216876779774012> with section specified to get more info about it.',
+  fields=[
+    (
+      "Basic use",
+"""
+You don't need to use the robotop's prefix (`r!`) or any other prefix
+The bot is mainly usable in DMs where `r!remind ` prefix is implied
+It can also be used on servers with `/cmds` but all messages are ephemeral
+Bot's status and other statistics are available by using </botstatus:1146135130415579207>
+View credits by using </help:1146216876779774012> with section set to `Credits`
+View </help:1146216876779774012> with section argument set to `remind` for usage
+"""[1:-1],
+      False,
+    ),
+  ],
+  color=S.MAIN_COLOR,
+)
 HELPMSGS = {
+  'Introduction':                  HELPMSG_NONE.set_footer('You may also access this help message by using /help without any arguments'),
   'Remind - Syntax':               EMBEDS.invalid_syntax_big(_in_help=True),
   'List your reminders':           embed(
       "List of reminders",
@@ -297,6 +317,14 @@ HELPMSGS = {
     ],
     color=S.MAIN_COLOR,
   ),
+  'Reply Actions':                 embed(
+    "Reply actions",
+    "To use reply actions reply to a message containing a reminder (Embed with title `🔔 Reminder!`) and in your message provide only the time part of the reminder, for example: `1h20m`. This will intepret it as inhereting the reminder text from the replied-to message.",
+    color=S.MAIN_COLOR,
+    fields=[
+      ("Flags", "Flags are not supported, for now at least - if you use this method all message flags are zeroed out and if the message starts and ends with spoiler tags (hidden reminder) they are removed.", False),
+    ],
+  ),
   'Report a bug':                  embed(
     "Reporting a bug",
     "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
@@ -318,25 +346,6 @@ RoboTop was really such a great bot. Perhaps the greatest i've ever used. After 
     color=S.MAIN_COLOR,
   ),
 }
-HELPMSG_NONE = embed(
-  "General Help",
-  'Use </help:1146216876779774012> with section specified to get more info about it.',
-  fields=[
-    (
-      "Basic use",
-"""
-You don't need to use the robotop's prefix (`r!`) or any other prefix
-The bot is mainly usable in DMs where `r!remind ` prefix is implied
-It can also be used on servers with `/cmds` but all messages are ephemeral
-Bot's status and other statistics are available by using </botstatus:1146135130415579207>
-View credits by using </help:1146216876779774012> with section set to `Credits`
-View </help:1146216876779774012> with section argument set to `remind` for usage
-"""[1:-1],
-      False,
-    ),
-  ],
-  color=S.MAIN_COLOR,
-)
 
 def multichar_lstrip(input_string, text_to_remove):
     # Check if the input_string starts with the text_to_remove
