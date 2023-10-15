@@ -34,8 +34,6 @@ If i change my username for some reason (or discord again fucks up the username 
 ## Todo
 - [X] `/remind` for servers
 - [X] Update /help msg to include /remind in servers
-- [X]  ~~Add select menu to `.` and make a `reminder` embed with control view~~
-   - [X] ~~Add settings where you can disable the thing above~~
 - [X] SORT the `.` list to be from furthest to closest reminders
 - [X] ~~Tell when would cancelled reminder remind on cancelation~~ *scrapped because it looked ugly*
 - [X] lowercase the time bruh because `2H` doesnt work
@@ -56,6 +54,7 @@ If i change my username for some reason (or discord again fucks up the username 
   - [ ] When user supplies `{x}h{y}` (without the m) make it implicit since it directly follows the hours
 - [ ] Add support for displaying images (may be scrapped because of recent discord caveats)
 - [ ] **Select menu components (with modal +new reminder)**
+- [ ] Add confirmation to /delhistory
 
-<!--<style>s{color: crimson;}</style> <!-- crimson color means scrapped -->
-<!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
+<style>s{color: crimson;}</style>
+<!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC
