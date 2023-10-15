@@ -243,7 +243,7 @@ View </help:1146216876779774012> with section argument set to `remind` for usage
   color=S.MAIN_COLOR,
 )
 HELPMSGS = {
-  'Introduction':                  HELPMSG_NONE.set_footer('You may also access this help message by using /help without any arguments'),
+  'Introduction':                  HELPMSG_NONE,#.set_footer('You may also access this help message by using /help without any arguments'),
   'Remind - Syntax':               EMBEDS.invalid_syntax_big(_in_help=True),
   'List your reminders':           embed(
       "List of reminders",
@@ -288,22 +288,6 @@ HELPMSGS = {
   'Delete bot messages':           embed(
     "Deleting bot's messages",
     "There are two ways...",
-    fields=[
-      (
-        "In bulk",
-        "Use the </delhistory:1153087533954113726> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**",
-        False,
-      ),(
-        "One at a time",
-        f"Reply to a message you want to delete and as the message text send any of the following:\n{', '.join(f'`{x}`' for x in S.ALIASES.DELETE)}",
-        False,
-      ),
-    ],
-    color=S.MAIN_COLOR,
-  ),
-  'Reminder flags':                embed(
-    "Reminder flags",
-    "Flags are optional prefixes you might want to add to your reminder request!",
     fields=[
       (
         "In bulk",
