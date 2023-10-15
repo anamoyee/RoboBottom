@@ -56,5 +56,5 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] **Select menu components (with modal +new reminder)**
 - [ ] Add confirmation to /delhistory
 
-<style>s{color: crimson;}</style>
+~~*<style>s{color: crimson;}</style>*~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC
