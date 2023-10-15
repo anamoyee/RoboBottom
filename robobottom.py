@@ -57,7 +57,7 @@ if True: # \/ Tasks
 
   if S.OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE:
     async def update_battery():
-      await update_activity(bot, get_battery())
+      await update_activity(bot, str(get_battery()) + testmode())
 
     @tasks.task(s=S.BATTERY_UPDATE_INTERVAL_SECONDS, auto_start=True)
     async def battery_update_task():

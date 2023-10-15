@@ -106,7 +106,7 @@ TOKEN = TOKEN.strip()
 
 if USING_TOKEN2: S.MAIN_COLOR = S.MAIN_COLOR_ALT # If the bot is in test mode use the alternative main color for embeds
 
-NEWLINE = '\n'; APOSTROPHE = '\''; FAKE_PIPE = '¦'
+NEWLINE = '\n'; APOSTROPHE = '\''; FAKE_PIPE = '¦'; BACKSLASH = '\\'
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
 try:
   SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB')
@@ -207,7 +207,7 @@ class Embeds:
     )
   def list_(self, rems, *, who: str | None = None):
     patt = '`%s`'
-    display_rems = '\n'.join([f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{x.text.replace(NEWLINE, " ") if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text)-2), len(x.text)+2))}`"}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
+    display_rems = '\n'.join([f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{x.text.replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text)-2), len(x.text)+2))}`"}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
     if display_rems: display_rems += '\n\n'
     rest = f"Cancel a reminder with `cancel [1-{len(rems)}]`"
     return embed(
