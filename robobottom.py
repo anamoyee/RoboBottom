@@ -16,7 +16,7 @@ if True: # \/ Bot-dependant funcs
       text = f'||{text.replace("|", FAKE_PIPE)}||'
     await channel.send(f"<@{user_id}>" if ping_user else hikari.UNDEFINED, embed=embed(
       "🔔 Reminder!",
-      text or 'Uh.. text=None / text=\'\'? Report this bug pls',
+      text[:3950] or 'Uh.. text=None / text=\'\'? Report this bug pls',
       color='#ffff00',
       footer=(S.TOO_LATE_MESSAGE % seconds_to_timestr(too_late)) if too_late else None,
     ), user_mentions=[user_id] if ping_user else hikari.UNDEFINED)

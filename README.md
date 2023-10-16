@@ -55,6 +55,10 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] Add support for displaying images (may be scrapped because of recent discord caveats)
 - [ ] **Select menu components (with modal +new reminder)**
 - [ ] Add confirmation to /delhistory
+- [ ] add buttons on Rescue! and Successfully canceled reminder to reschedule the reminder for `5m` `15m` `1h` `6h` `24h`
+- [ ] increase max message length
+- [ ] fix too long message resulting in invalid syntax
+- [ ] Limit the length of displayed message (EMBEDS._list) but keep the text intact
 
 ~~*<style>s{color: crimson;}</style>*~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC

@@ -114,7 +114,7 @@ try:
 except PermissionError:
   SHELF_DIRECTORY = p.Path('../RoboBottomDB')
   SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True)
-SYNTAX_REGEX     = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s){1,100}$'
+SYNTAX_REGEX     = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s)+$'
 REGEX_ONLY_DELAY = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
 
 class ReminderFlag:
@@ -194,7 +194,7 @@ class Embeds:
   def cancel_success(self, reminder: Reminder):
     return embed(
       'Successfully cancelled a reminder!',
-      reminder.text if not reminder.flag & ReminderFlag.HIDDEN else "Its contents have been unrecoverably lost!",# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
+      reminder.text[:3950] if not reminder.flag & ReminderFlag.HIDDEN else "Its contents have been unrecoverably lost!",# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
       color=S.MAIN_COLOR,
     )
 
@@ -205,9 +205,14 @@ class Embeds:
       color=('#ff0000' if rng.randint(1, 100) != '1' else '#ff8000'),
       footer=footer,
     )
-  def list_(self, rems, *, who: str | None = None):
+  def list_(self, rems: t.Iterable[Reminder], *, who: str | None = None):
     patt = '`%s`'
-    display_rems = '\n'.join([f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{x.text.replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text)-2), len(x.text)+2))}`"}** (<t:{x.unix}:R>)' for i, x in enumerate(rems)])
+    display_rems = '\n'.join(
+      [
+        f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_str_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER).replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
+        for i, x in enumerate(rems)
+      ],
+    )
     if display_rems: display_rems += '\n\n'
     rest = f"Cancel a reminder with `cancel [1-{len(rems)}]`"
     return embed(
@@ -698,17 +703,14 @@ def random_str_of_len(n: int, pool: None | str = None, banned: None | t.Iterable
 def get_battery_dict() -> None | dict[str, t.Any]:
   """Returns None if there's no battery"""
   if USING_TOKEN2: # Fake battery if on test token
-    return eval(\
-"""
-{
-  "health": "GOOD",
-  "percentage": 86,
-  "plugged": "PLUGGED_AC",
-  "status": "CHARGING",
-  "temperature": 29.600000381469727,
-  "current": 527400
+    return {
+  "health": "SHIT",
+  "percentage": rng.randint(1, 99),
+  "plugged": f"{'UN' if (discharging := rng.randint(1, 3) != 1) else ''}PLUGGED{'_AC' if not discharging else ''}",
+  "status": f"{'DIS' if discharging else ''}CHARGING",
+  "temperature": {rng.uniform(26, 33)},
+  "current": rng.randint(527400//2, 527400*2)*(-1 if discharging else 1),
 }
-"""[1:-1])
   try:
     return eval(subprocess.check_output("termux-battery-status", shell=True).decode('utf-8'))
   except Exception as e:
