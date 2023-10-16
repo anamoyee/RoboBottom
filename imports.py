@@ -740,7 +740,7 @@ class Battery:
     if not charging and self.percentage < 25: icon = '🔋 ❗❗'
     elif charging:                            icon = '🔌'
     else:                                     icon = '🔋'
-    return f"{self.percentage if self.percentage != 69 else '69420'}%{(' ' + icon) if icon else ''}"
+    return f"{self.percentage if self.percentage != 69 else '69.420'}%{(' ' + icon) if icon else ''}"
 
 _battery: None | Battery = None
 
