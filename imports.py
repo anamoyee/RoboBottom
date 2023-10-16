@@ -709,7 +709,7 @@ def get_battery_dict() -> None | dict[str, t.Any]:
   "plugged": f"{'UN' if (discharging := rng.randint(1, 3) != 1) else ''}PLUGGED{'_AC' if not discharging else ''}",
   "status": f"{'DIS' if discharging else ''}CHARGING",
   "temperature": {rng.uniform(26, 33)},
-  "current": rng.randint(527400//2, 527400*2)*(-1 if discharging else 1),
+  "current": rng.randint(527400//2, 527400*2)*(-2 if discharging else 1),
 }
   try:
     return eval(subprocess.check_output("termux-battery-status", shell=True).decode('utf-8'))
@@ -740,7 +740,7 @@ class Battery:
     if not charging and self.percentage < 25: icon = '🔋 ❗❗'
     elif charging:                            icon = '🔌'
     else:                                     icon = '🔋'
-    return f"{self.percentage}%{(' ' + icon) if icon else ''}"
+    return f"{self.percentage if self.percentage != 69 else '69420'}%{(' ' + icon) if icon else ''}"
 
 _battery: None | Battery = None
 
