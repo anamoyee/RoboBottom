@@ -53,12 +53,16 @@ If i change my username for some reason (or discord again fucks up the username 
   - [ ] `@HH:MM:SS` (not relative, for example 22:00 will count current hour and subtract it from the selected @hour, then it will )
   - [ ] When user supplies `{x}h{y}` (without the m) make it implicit since it directly follows the hours
 - [ ] Add support for displaying images (may be scrapped because of recent discord caveats)
-- [ ] **Select menu components (with modal +new reminder)**
+- [ ] !!! **Select menu components (with modal +new reminder)**
 - [ ] Add confirmation to /delhistory
 - [ ] add buttons on Rescue! and Successfully canceled reminder to reschedule the reminder for `5m` `15m` `1h` `6h` `24h`
-- [ ] increase max message length
+- [X] increase max message length
 - [ ] fix too long message resulting in invalid syntax
 - [ ] Limit the length of displayed message (EMBEDS._list) but keep the text intact
+- [ ] !!! **Rewrite the scheduling reminder, take content and rewrite the actual delay scheisse**
+  - [ ] & TimeExp binary joiner
+- [ ] user settings and default settings (default dict)
+- [ ] set alarm with termux (or notif)
 
-~~*<style>s{color: crimson;}</style>*~~
+~~*<style>s{color: crimson;} b,strong{text-decoration:underline}</style>*~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC

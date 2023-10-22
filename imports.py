@@ -114,8 +114,12 @@ try:
 except PermissionError:
   SHELF_DIRECTORY = p.Path('../RoboBottomDB')
   SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True)
-SYNTAX_REGEX     = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s)+$'
-REGEX_ONLY_DELAY = r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
+
+REGEX_ONLY_DELAY: str = timestr.pattern.replace('^', '').replace('$', '') #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
+SYNTAX_REGEX: str     = REGEX_ONLY_DELAY + r" +(?:.|\s)+$" #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s)+$'
+
+console.debug(SYNTAX_REGEX)
+console.debug(REGEX_ONLY_DELAY)
 
 class ReminderFlag:
   NONE      = 0
@@ -571,6 +575,8 @@ def timestr_to_seconds(timestr: str, *, unit='s'):
     raise ValueError(msg) from e
   else:
     return (split_by_timestr(timestr) / unit_divisor) + additive
+
+timestr_to_seconds = timestr.to_int  # noqa: F811
 
 def author_dict(author, url=None, *, discriminator=False, footer=False):
   if author is None: # or S.HIDE_AUTHORS

@@ -27,9 +27,9 @@ if True: # \/ Bot-dependant funcs
 
     flags, content = separate_flags_from_rest(content)
 
-    if not is_valid_reminder_syntax(content):
-      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
-      return
+    # if not is_valid_reminder_syntax(content):
+    #   await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
+    #   return
 
     unix, text = content.split(' ', maxsplit=1)
     unix = unix.lower()
