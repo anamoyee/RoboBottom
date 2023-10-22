@@ -118,9 +118,6 @@ except PermissionError:
 REGEX_ONLY_DELAY: str = timestr.pattern.replace('^', '').replace('$', '') #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
 SYNTAX_REGEX: str     = REGEX_ONLY_DELAY + r" +(?:.|\s)+$" #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s)+$'
 
-console.debug(SYNTAX_REGEX)
-console.debug(REGEX_ONLY_DELAY)
-
 class ReminderFlag:
   NONE      = 0
   IMPORTANT = 1 << 0
@@ -224,7 +221,7 @@ class Embeds:
       f'{display_rems}{rest}'.rstrip('\n'),
       color=S.MAIN_COLOR,
     )
-  def no_reply():
+  def no_reply(self):
     return embed(
           "Unsupported reply action",
           "This message does not support reply action",

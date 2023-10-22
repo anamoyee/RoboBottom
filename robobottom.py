@@ -31,6 +31,10 @@ if True: # \/ Bot-dependant funcs
     #   await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
     #   return
 
+    if ' ' not in content:
+      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
+      return
+
     unix, text = content.split(' ', maxsplit=1)
     unix = unix.lower()
     try:
