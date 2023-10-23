@@ -65,6 +65,10 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] set alarm with termux (or notif)
 - [ ] remove useless @ prefix since it can be detected with :
 - [ ] replace(' + ', '!') (make {days}d + hh:mm:ss work by replacing ' + ' with '!' separator)
+- [ ] make "remidner cancelled" embed more like it was back in robotop
+- [ ] Upadte the `/help syntax` command to account for @hh:mm:ss syntax
+- [ ] make it possible to have image attachments but notify if the user has set the reminder time to over the discords limit
+- [ ] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
 
 ~~*<style>s{color: crimson;} b,strong{text-decoration:underline}</style>*~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC
