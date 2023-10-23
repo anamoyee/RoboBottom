@@ -63,6 +63,8 @@ If i change my username for some reason (or discord again fucks up the username 
   - [ ] & TimeExp binary joiner
 - [ ] user settings and default settings (default dict)
 - [ ] set alarm with termux (or notif)
+- [ ] remove useless @ prefix since it can be detected with :
+- [ ] replace(' + ', '!') (make {days}d + hh:mm:ss work by replacing ' + ' with '!' separator)
 
 ~~*<style>s{color: crimson;} b,strong{text-decoration:underline}</style>*~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC
