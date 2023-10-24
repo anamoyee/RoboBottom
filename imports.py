@@ -19,17 +19,9 @@ if True: # \/ Imports
   import miru
   import pytz
   from lightbulb.ext import tasks
+  from tcrutils import *
 
   import settings as S
-
-  try:
-    os.system('pip install --upgrade tcrutils')
-    __import__('tcrutils')
-  except ImportError:
-    print(f"\n{'#'*19}\nInstalling TCRUtils\n{'#'*19}\n")
-    os.system('pip install tcrutils')
-  os.system('pip install --upgrade tcrutils')
-  from tcrutils import *
 
 class Tz:
   def get_localzone(self):
