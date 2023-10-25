@@ -31,7 +31,7 @@ it tries to go back two directories and create a <code>RoboBottomDB</code> folde
 If you have any questions contact me on discord `@thecreatorrrr`\
 If i change my username for some reason (or discord again fucks up the username system) here's my id `<@507642999992352779>`
 
-## Todo
+# Todo
 - [X] `/remind` for servers
 - [X] Update /help msg to include /remind in servers
 - [X] SORT the `.` list to be from furthest to closest reminders
