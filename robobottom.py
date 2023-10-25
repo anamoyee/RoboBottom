@@ -42,8 +42,8 @@ if True: # \/ Bot-dependant funcs
     except ValueError:
       await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
     else:
-      if (not testmode()) and (unix < S.LIMITS.MINIMAL_DURATION):
-        await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION}` seconds long!', flags=message_flags, reply=reply_to)
+      if ((not testmode()) and (unix < S.LIMITS.MINIMAL_DURATION)) or unix < 2:
+        await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION if not testmode() else 2}` seconds long!' + (f" (`{unix}`)" if testmode() else ""), flags=message_flags, reply=reply_to)
         return
 
       if schedule_reminder(author_id, text=text, unix=math.floor(time.time()+unix), flags=flags):

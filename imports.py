@@ -1,4 +1,6 @@
 if True: # \/ Imports
+  import sys
+  if sys.version_info[:2] != (3, 11): raise NotImplementedError('Use python 3.11')  # noqa: EM101
   import asyncio
   import contextlib
   import datetime
@@ -10,7 +12,6 @@ if True: # \/ Imports
   import shelve
   import string
   import subprocess
-  import sys
   import time
   import typing as t
 
