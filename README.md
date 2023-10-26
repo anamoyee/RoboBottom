@@ -71,10 +71,12 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] make it possible to have image attachments but notify if the user has set the reminder time to over the discords limit
 - [ ] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
 - [ ] Fix floats not recognized and negative numbers not recognized
-- [ ] Fix the mysterious 1 hour too early bug bruh
+- [ ] Fix the mysterious 1 hour too early bug bruh (maybe because of DST?? maybe because timezone is hardcoded bruuuuuhhhh)
 - [ ] if in timestr.to_int() there are both and only 1 each of: x.y.z and a\:b:c syntaxes then `days -= 1`
+- [ ] `to_str2` which shows in format `1d + 23:45:57`
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
 ~~<style>p, li{font-family: "Hubot Sans Bold"; font-size: 17px}</style>~~
 ~~<style>code, pre{font-family: Consolas}</style>~~
+~~<style>code{background-color: #271a45; border-radius: 4px; padding: 2px; padding-left: 5px; padding-right: 5px;}</style>~~
