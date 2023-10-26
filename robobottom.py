@@ -87,7 +87,7 @@ f"""
 """[1:-1],
       color='#ff8000',
       author=author_dict(bot.get_me()),
-      footer='Like, really all credit should go to Colon, I just recreated it 1:1\nHeck, even this embed is taken from one of his bots cuz it looked nice...',
+      footer='Like, really all credit should go to Colon, I just recreated it\nHeck, even this embed is taken from one of his bots cuz it looked nice...',
     ), flags=hikari.MessageFlag.EPHEMERAL)
 
   @bot.command
