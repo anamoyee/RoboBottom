@@ -32,31 +32,31 @@ If you have any questions contact me on discord `@thecreatorrrr`\
 If i change my username for some reason (or discord again fucks up the username system) here's my id `<@507642999992352779>`
 
 # Todo
-- [X] `/remind` for servers
-- [X] Update /help msg to include /remind in servers
-- [X] SORT the `.` list to be from furthest to closest reminders
-- [X] ~~Tell when would cancelled reminder remind on cancelation~~ *scrapped because it looked ugly*
-- [X] lowercase the time bruh because `2H` doesnt work
+- [x] `/remind` for servers
+- [x] Update /help msg to include /remind in servers
+- [x] SORT the `.` list to be from furthest to closest reminders
+- [x] ~~Tell when would cancelled reminder remind on cancelation~~ *scrapped because it looked ugly*
+- [x] lowercase the time bruh because `2H` doesnt work
 - [ ] Flags/prefixes/idks
-  - [X] Important (`!` prefix), mentions the user
+  - [x] Important (`!` prefix), mentions the user
   - [ ] Recurring (`&` prefix), doesnt cancel after remindion
-  - [X] Hidden (`#`), its text doesnt show in `.` list and when canceling
+  - [x] Hidden (`#`), its text doesnt show in `.` list and when canceling
     - [ ] Ability to pause hidden reminders
   - [ ] Text == `r` | `repeat` => text = (text of user's last trigered reminder)
-  - [X] DISPLAY THE PREFIXES IN THE `.` LIST!!! (`! &`)
+  - [x] DISPLAY THE PREFIXES IN THE `.` LIST!!! (`! &`)
 - [ ] `defer` & `undefer`
 - [ ] Folders with indentation
 - [ ] If message has only delay part and responds to sth delay that thing the amount
-- [X] Add battery indicators in the activity text
+- [x] Add battery indicators in the activity text
 - [ ] Add more time formats:
   - [ ] `(?:{days}d + )?HH:MM:SS`
-  - [x] `@HH:MM:SS` (not relative, for example 22:00 will count current hour and subtract it from the selected @hour, then it will )
+  - [ ] `@HH:MM:SS` (not relative, for example 22:00 will count current hour and subtract it from the selected @hour, then it will )
   - [ ] When user supplies `{x}h{y}` (without the m) make it implicit since it directly follows the hours
 - [ ] Add support for displaying images (may be scrapped because of recent discord caveats)
 - [ ] !!! **Select menu components (with modal +new reminder)**
 - [ ] Add confirmation to /delhistory
 - [ ] add buttons on Rescue! and Successfully canceled reminder to reschedule the reminder for `5m` `15m` `1h` `6h` `24h`
-- [X] increase max message length
+- [x] increase max message length
 - [ ] fix too long message resulting in invalid syntax
 - [ ] Limit the length of displayed message (EMBEDS._list) but keep the text intact
 - [ ] !!! **Rewrite the scheduling reminder, take content and rewrite the actual delay scheisse**
@@ -71,6 +71,10 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] make it possible to have image attachments but notify if the user has set the reminder time to over the discords limit
 - [ ] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
 - [ ] Fix floats not recognized and negative numbers not recognized
+- [ ] Fix the mysterious 1 hour too early bug bruh
+- [ ] if in timestr.to_int() there are both and only 1 each of: x.y.z and a\:b:c syntaxes then `days -= 1`
 
-~~*<style>s{color: crimson;} b,strong{text-decoration:underline}</style>*~~
-<!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC
+~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
+<!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
+~~<style>p, li{font-family: "Hubot Sans Bold"; font-size: 17px}</style>~~
+~~<style>code, pre{font-family: Consolas}</style>~~
