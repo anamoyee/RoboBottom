@@ -72,8 +72,12 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
 - [ ] Fix floats not recognized and negative numbers not recognized
 - [ ] Fix the mysterious 1 hour too early bug bruh (maybe because of DST?? maybe because timezone is hardcoded bruuuuuhhhh) // DO MORE TESTING and it may happen if `1.` syntax used along with `1:` syntax
+## TCRUtils
 - [ ] if in timestr.to_int() there are both and only 1 each of: x.y.z and a\:b:c syntaxes then `days -= 1`
 - [ ] `to_str2` which shows in format `1d + 23:45:57`
+- [ ] Move this to tcrutils file
+- [ ] update gp_scum.py to use tcrutils from pypi
+- [ ] `timestr.to_int()` should support weekdays
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
