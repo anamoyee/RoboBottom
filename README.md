@@ -72,7 +72,6 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
 - [ ] Fix floats not recognized and negative numbers not recognized
 - [ ] Fix the mysterious 1 hour too early bug bruh (maybe because of DST?? maybe because timezone is hardcoded bruuuuuhhhh) // DO MORE TESTING and it may happen if `1.` syntax used along with `1:` syntax
-- [ ] TCRUtils .md file
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
