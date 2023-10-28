@@ -64,7 +64,7 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] user settings and default settings (default dict)
 - [ ] set alarm with termux (or notif)
 - [x] remove useless @ prefix since it can be detected with :
-- [ ] replace(' + ', '!') (make {days}d + hh:mm:ss work by replacing ' + ' with '!' separator)
+- [x] ~~replace(' + ', '!') (make {days}d + hh:mm:ss work by replacing ' + ' with '!' separator)~~ scrapped because too much bodging to make it work
 - [ ] make "remidner cancelled" embed more like it was back in robotop
 - [ ] Upadte the `/help syntax` command to account for @hh:mm:ss syntax
   - [ ] Add setlocale support (dep: usersettings from one of previous checkmarks)

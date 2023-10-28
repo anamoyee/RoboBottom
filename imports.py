@@ -176,7 +176,7 @@ class Embeds:
           ("Special aliases", "`pul` -> `1pul pul`\n`card` -> `1card card`\n`rescue` -> `1rescue rescue`\n`<anything not containing space>` -> `<said thing> <said thing>`\nFor example `1h` -> `1h 1h`", False),
           ("Prefixes / Modifiers / Flags", "`!` - **Important**: Will ping you when reminded\n`#` - **Hidden**: Will hide the reminder's contents until you're reminded\n`&` - **Recurring** - Will re-schedule the reminder after sending it\n\n**How to use it?** Just prepend anything you type in with one or multiple flags in any order for example:\n`!6m pet the Colon plushie`\n`!&1d find another xss vulnerability in zoo bot`\n`#999y No one will ever see this reminder's contents`\n\nIf certain reminder has any flags, their symbols will be shown next to them in reminders list", False),
         ],
-        footer=F'Regex for validating the reminder text (mostly outdated):\n/{SYNTAX_REGEX}/g',
+        footer=f'Regex for validating the reminder text:\n/{timestr.pattern}/gi'[:2000],
         color='#ff0000' if not _in_help else S.MAIN_COLOR,
       )
   def invalid_syntax_cancel(self, n=99999):
@@ -429,8 +429,9 @@ def delete_reminder_by_reminder(user_id, reminder: Reminder) -> None:
       console.error(f'Unable to delete reminder {reminder!r} - It\'s not present')
     shelf[user_id] = reminders
 
-def is_valid_reminder_syntax(input_string):
-  return bool(regex.match(SYNTAX_REGEX, input_string))
+def is_valid_reminder_syntax(input_string) -> bool:
+  return timestr.valid(input_string.split(' ')[0])
+  # return bool(regex.match(SYNTAX_REGEX, input_string))
 
 def seconds_to_nearest_hour_minute(hour, minute):
   # Get the current time in seconds since the epoch
