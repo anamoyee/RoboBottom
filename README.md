@@ -54,7 +54,7 @@ If i change my username for some reason (or discord again fucks up the username 
   - [x] When user supplies `{x}h{y}` (without the m) make it implicit since it directly follows the hours
 - [ ] Add support for displaying images (may be scrapped because of recent discord caveats)
 - [ ] !!! **Select menu components (with modal +new reminder)**
-- [ ] Add confirmation to /delhistory
+- [x] Add confirmation to /delhistory
 - [ ] add buttons on Rescue! and Successfully canceled reminder to reschedule the reminder for `5m` `15m` `1h` `6h` `24h`
 - [x] increase max message length
 - [x] fix too long message resulting in invalid syntax
@@ -71,6 +71,7 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] make it possible to have image attachments but notify if the user has set the reminder time to over the discords limit
 - [x] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
 - [ ] Fix the mysterious 1 hour too early bug bruh (maybe because of DST?? maybe because timezone is hardcoded bruuuuuhhhh) // DO MORE TESTING and it may happen if `1.` syntax used along with `1:` syntax
+- [ ] Fix uncaught exceptions when bot takes too long to respond to an interaction
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->

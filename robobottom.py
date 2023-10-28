@@ -91,10 +91,12 @@ f"""
     ), flags=hikari.MessageFlag.EPHEMERAL)
 
   @bot.command
+  @lb.option('iamsure', 'Type exactly "I know what I am doing" to confirm.', required=True)
   @lb.command('delhistory', 'Delete all (or most) messages in your DM channel with the bot. Be careful with this one!')
   @lb.implements(lb.SlashCommand)
   async def cmd_delhistory(ctx: lb.SlashContext):
-    if ctx.guild_id is not None: await ctx.respond('You may only use this command in DMs', flags=hikari.MessageFlag.EPHEMERAL)
+    if ctx.guild_id is not None: return await ctx.respond('You may only use this command in DMs', flags=hikari.MessageFlag.EPHEMERAL)
+    if ctx.options.iamsure.lower() != "I know what I am doing".lower(): return await ctx.respond("You did not type the phrase correctly, make sure to use this command carefully!")
 
     this_message = await ctx.respond('Deleting messages...')
 

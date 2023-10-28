@@ -189,9 +189,9 @@ class Embeds:
       )
   def cancel_success(self, reminder: Reminder):
     return embed(
-      'Successfully cancelled a reminder!',
+      '🔕 Reminder cancelled!',
       reminder.text[:3950] if not reminder.flag & ReminderFlag.HIDDEN else "Its contents have been unrecoverably lost!",# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
-      color=S.MAIN_COLOR,
+      color=('#ff0000' if rng.randint(1, 100) != '1' else '#ff8000'),
     )
 
   def wipe(self, footer=None):
@@ -304,7 +304,7 @@ HELPMSGS = {
   ),
   'Reply Actions':                 embed(
     "Reply actions",
-    "To use reply actions reply to a message containing a reminder (Embed with title `🔔 Reminder!`) and in your message provide only the time part of the reminder, for example: `1h20m`. This will intepret it as inhereting the reminder text from the replied-to message.",
+    "To use reply actions reply to a message containing a reminder (Embed title must have `reminder`) and in your message provide only the time part of the reminder, for example: `1h20m`. This will intepret it as inhereting the reminder text from the replied-to message.",
     color=S.MAIN_COLOR,
     fields=[
       ("Flags", "Flags are not supported, for now at least - if you use this method all message flags are zeroed out and if the message starts and ends with spoiler tags (hidden reminder) they are removed.", False),
