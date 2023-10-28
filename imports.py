@@ -21,6 +21,7 @@ if True: # \/ Imports
   import pytz
   from lightbulb.ext import tasks
   from tcrutils import *
+  from tcrutils import error as TCRError
 
   import settings as S
 
@@ -155,11 +156,12 @@ class Embeds:
       **kwargs,
     ) # Oopsie Woopsie :3
 
-  def invalid_syntax_small(self):
+  def invalid_syntax_small(self, e: Exception | None = None):
     return embed(
       "Invalid syntax",
       "To view syntax guide use the </help:1146446941278965793> with section set to `Remind - Syntax`",
       color='#ff0000' if rng.randint(1, 100) != 1 else '#ff8000',
+      footer=None if e is None else extract_error(e),
     )
   def invalid_syntax_big(self, _in_help=False):
     return embed(

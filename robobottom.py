@@ -39,8 +39,8 @@ if True: # \/ Bot-dependant funcs
     unix = unix.lower()
     try:
       unix = timestr_to_seconds(unix)
-    except ValueError:
-      await responder(EMBEDS.invalid_syntax_small(), flags=message_flags, reply=reply_to)
+    except (ValueError, TCRError.ConfigurationError) as e:
+      await responder(EMBEDS.invalid_syntax_small(e), flags=message_flags, reply=reply_to)
     else:
       if ((not testmode()) and (unix < S.LIMITS.MINIMAL_DURATION)) or unix < 2:
         await responder(f':x: That\'s too soon! Make sure the delay is at least `{S.LIMITS.MINIMAL_DURATION if not testmode() else 2}` seconds long!' + (f" (`{unix}`)" if testmode() else ""), flags=message_flags, reply=reply_to)
