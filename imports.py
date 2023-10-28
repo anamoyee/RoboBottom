@@ -242,7 +242,7 @@ View </help:1146216876779774012> with section argument set to `remind` for usage
   color=S.MAIN_COLOR,
 )
 HELPMSGS = {
-  'Introduction':                  HELPMSG_NONE,#.set_footer('You may also access this help message by using /help without any arguments'),
+  'Introduction':                  HELPMSG_NONE,
   'Remind - Syntax':               EMBEDS.invalid_syntax_big(_in_help=True),
   'List your reminders':           embed(
       "List of reminders",
