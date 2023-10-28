@@ -2,8 +2,6 @@ import os
 from pathlib import Path
 
 DEFAULT_ENABLED_GUILDS = () # Leave as empty tuple for slash commands to show up everywhere
-#   1145433323594842166,
-# )
 
 DEV_ID    = 507642999992352779
 DEV_GUILD = 1145433323594842166
@@ -11,7 +9,6 @@ DEV_GUILD = 1145433323594842166
 VERSION = '4.0'
 
 os.chdir(Path(__file__).resolve().parent)
-
 with open('VERSION.txt', encoding='utf-8') as f:
   VERSION += '.' + f.read().strip()
 

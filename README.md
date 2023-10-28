@@ -70,7 +70,6 @@ If i change my username for some reason (or discord again fucks up the username 
   - [ ] Add setlocale support (dep: usersettings from one of previous checkmarks)
 - [ ] make it possible to have image attachments but notify if the user has set the reminder time to over the discords limit
 - [x] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
-- [ ] Fix floats not recognized and negative numbers not recognized
 - [ ] Fix the mysterious 1 hour too early bug bruh (maybe because of DST?? maybe because timezone is hardcoded bruuuuuhhhh) // DO MORE TESTING and it may happen if `1.` syntax used along with `1:` syntax
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
