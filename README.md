@@ -65,13 +65,14 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] set alarm with termux (or notif)
 - [x] remove useless @ prefix since it can be detected with :
 - [x] ~~replace(' + ', '!') (make {days}d + hh:mm:ss work by replacing ' + ' with '!' separator)~~ scrapped because too much bodging to make it work
-- [ ] make "remidner cancelled" embed more like it was back in robotop
-- [ ] Upadte the `/help syntax` command to account for @hh:mm:ss syntax
-  - [ ] Add setlocale support (dep: usersettings from one of previous checkmarks)
+- [x] make "remidner cancelled" embed more like it was back in robotop
+- [ ] Update the `/help syntax` command to account for t:im:e, d:at:e & weekdays syntaxes
+- [ ] Add setlocale support (dep: usersettings from one of previous checkmarks)
 - [ ] make it possible to have image attachments but notify if the user has set the reminder time to over the discords limit
 - [x] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
-- [ ] Fix the mysterious 1 hour too early bug bruh (maybe because of DST?? maybe because timezone is hardcoded bruuuuuhhhh) // DO MORE TESTING and it may happen if `1.` syntax used along with `1:` syntax
 - [ ] Fix uncaught exceptions when bot takes too long to respond to an interaction
+- [ ] cancelling by name (`cancel <name>` instead of `cancel <number>`)
+- [ ] Add reminder pages
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
