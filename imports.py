@@ -14,6 +14,8 @@ if True: # \/ Imports
   import subprocess
   import time
   import typing as t
+  from collections.abc import Callable, Iterable, Mapping, Sequence
+  from typing import Any
 
   import hikari
   import lightbulb as lb
@@ -201,18 +203,18 @@ class Embeds:
       color=('#ff0000' if rng.randint(1, 100) != '1' else '#ff8000'),
       footer=footer,
     )
-  def list_(self, rems: t.Iterable[Reminder], *, who: str | None = None):
+  def list_(self, rems: Sequence[Reminder], *, who: str | None = None, total_override: Any | None = None, count_from: int = 0):
     patt = '`%s`'
     display_rems = '\n'.join(
       [
-        f'{i+1}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_str_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER).replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
+        f'{i+1+count_from}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_str_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER).replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
         for i, x in enumerate(rems)
       ],
     )
     if display_rems: display_rems += '\n\n'
-    rest = f"Cancel a reminder with `cancel [1-{len(rems)}]`"
+    rest = f"Cancel a reminder with `cancel [1-{len(rems) if total_override is None else total_override}]`"
     return embed(
-      f"{'Your' if who is None else ((who + APOSTROPHE + 's') if not who.endswith('s') else (who + APOSTROPHE))} reminders ({len(rems)})",
+      f"{'Your' if who is None else ((who + APOSTROPHE + 's') if not who.endswith('s') else (who + APOSTROPHE))} reminders ({len(rems) if total_override is None else total_override})",
       f'{display_rems}{rest}'.rstrip('\n'),
       color=S.MAIN_COLOR,
     )
@@ -353,6 +355,40 @@ def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:
         await self.message.edit(embed=EMBEDS.wipe(footer='❌ Did not cancel any reminders.'), components=VClearConfirm(func=func, _disabled=True).build())
         self.stop()
   return VClearConfirm_(timeout=timeout)
+
+def VPagedMessage(pages: Sequence[Mapping], page: int, _disabled=False, timeout: float | int | None = 120) -> miru.View:
+  if len(pages) == 0:
+    msg = 'pages iterable is empty'
+    raise ValueError(msg)
+
+  if not (0 <= page < len(pages)):
+    msg = f'invalid page number: {page}'
+    raise ValueError(msg)
+
+  class VPagedMessage_(miru.View):
+    @miru.button(label=f'<< Page {page}', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled or (page == 0))
+    async def btn_prev(self, btn: miru.Button, ctx: miru.Context):
+      view = VPagedMessage(pages=pages, page=page-1)
+      self.stop()
+      # await ctx.respond()
+      await ctx.edit_response(**(pages[page-1]), components=view.build())
+      await view.start(self.message)
+      await view.wait()
+
+    @miru.button(label=f'Page {page+2} >>', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled or (page == len(pages)-1))
+    async def btn_next(self, btn: miru.Button, ctx: miru.Context):
+      view = VPagedMessage(pages=pages, page=page+1)
+      self.stop()
+      # await ctx.respond()
+      await ctx.edit_response(**(pages[page+1]), components=view.build())
+      await view.start(self.message)
+      await view.wait()
+
+    if not _disabled:
+      async def on_timeout(self) -> None:
+        await self.message.edit(components=VPagedMessage(pages=pages, page=page, _disabled=True).build())
+        self.stop()
+  return VPagedMessage_(timeout=timeout)
 
 ### sync funcs
 
@@ -646,12 +682,13 @@ def get_stats(a: int = 0) -> tuple[int, int]:
   if a == 0: return len(ALL_rems)
   return sum([len(x) for x in ALL_rems.values()])
 
-def split_every_n(text: str, n: int) -> list:
-  return [text[i:i+n] for i in range(0, len(text), n)]
+def split_every_n(it: str | Iterable, n: int) -> list:
+  return [it[i:i+n] for i in range(0, len(it), n)]
 def cut_str_at(text: str, n: int, end: str='...') -> str:
   if len(text) <= n:
     return text
   return text[:n-len(end)] + end
+
 
 def parse_for_aliases(content: str, is_reply: bool = False):
   if content in ['1pul', 'pul']:
@@ -689,7 +726,7 @@ def flags_to_str(flags: int):
       text += getattr(ReminderFlagSymbol, FLAG)
   return ''.join(sorted(text))
 
-def random_str_of_len(n: int, pool: None | str = None, banned: None | t.Iterable[str] = None):
+def random_str_of_len(n: int, pool: None | str = None, banned: None | Sequence[str] = None):
   if banned is None:
     banned = ['`', '*', '_']
   if pool is None:
@@ -766,9 +803,14 @@ async def trigger_and_delete_reminder(user_id: int | str, reminder: Reminder, re
   if difference < S.TOO_LATE_THRESHOLD_SECONDS: difference = 0
   await remindfunc(user_id, reminder.text, difference, ping_user=bool(reminder.flag & ReminderFlag.IMPORTANT), hide_text=bool(reminder.flag & ReminderFlag.HIDDEN))
 
-async def update_activity(bot: lb.BotApp, text: str = S.DEFAULT_ACTIVITY_TEXT, *, activity_type=hikari.ActivityType.WATCHING) -> None:
+async def update_activity(bot: lb.BotApp, text: str = S.DEFAULT_ACTIVITY_TEXT, *, activity_type=hikari.ActivityType.CUSTOM) -> None:
   await bot.update_presence(activity=hikari.Activity(name=str(text), type=activity_type))
 
-
+async def send_paged_message_and_wait(responder, pages: Sequence[Mapping], page: int = 0, timeout: float | int | None = 120) -> dict:
+  if page < 0: page = page % len(pages)
+  view = VPagedMessage(pages=pages, page=page, timeout=timeout)
+  message = await responder(**pages[page], components=view.build())
+  await view.start(message)
+  await view.wait()
 
 

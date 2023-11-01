@@ -72,7 +72,10 @@ If i change my username for some reason (or discord again fucks up the username 
 - [x] **@ SYNTAX BUT FOR DAYS bruh why didnt i add it already????**
 - [ ] Fix uncaught exceptions when bot takes too long to respond to an interaction
 - [ ] cancelling by name (`cancel <name>` instead of `cancel <number>`)
-- [ ] Add reminder pages
+- [x] Add reminder pages
+- [x] Set the custom status (Not "watching")
+- [ ] Make "Your reminders" NOT reply-actioonable
+- [ ] Filter last backtick if number of them is odd
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->

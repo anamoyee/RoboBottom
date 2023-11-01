@@ -18,8 +18,9 @@ class ALIASES:
   DELETE = ['del', 'delete', 'delete this', 'deletethis', 'del this', 'delthis']
 
 class LIMITS:
-  REMINDER         = 24 # Reminders
-  MINIMAL_DURATION = 15 # Seconds
+  REMINDER          = 240 # Reminders
+  REMINDER_PER_PAGE = 24 # Reminders shown on a single page
+  MINIMAL_DURATION  = 15 # Seconds
 
 class RUNNING_ON:
   LINUX   = '24/7 server (aka my phone bruh)'

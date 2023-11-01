@@ -91,6 +91,22 @@ f"""
     ), flags=hikari.MessageFlag.EPHEMERAL)
 
   @bot.command
+  @lb.command('devtest', 'Do some testing dev stuff!')
+  @lb.implements(lb.SlashCommand)
+  async def cmd_devtest(ctx: lb.SlashContext):
+    if ctx.author.id != S.DEV_ID: return await ctx.respond('You have no power here!!')
+
+    await send_paged_message_and_wait(ctx.respond, [
+      {
+        "content": 'page 1',
+      },{
+        "content": 'page 2',
+      },{
+        "content": 'page 3',
+      },
+    ], 1)
+
+  @bot.command
   @lb.option('doasisay', 'Type exactly "Yes, do as I say!" to confirm.', required=True)
   @lb.command('delhistory', 'Delete all (or most) messages in your DM channel with the bot. Be careful with this one!')
   @lb.implements(lb.SlashCommand)
@@ -236,7 +252,8 @@ if True: # \/ Reminder Components
       if (event.message.referenced_message.author.id != bot.get_me().id) or \
          (not event.message.referenced_message.embeds) or \
          (event.message.referenced_message.embeds[0].title is None) or \
-         ('reminder' not in event.message.referenced_message.embeds[0].title.lower()):
+         ('reminder' not in event.message.referenced_message.embeds[0].title.lower()) or\
+         ('reminders'    in event.message.referenced_message.embeds[0].title.lower()):
         await event.message.respond(EMBEDS.no_reply())
         return
 
@@ -271,8 +288,15 @@ if True: # \/ Reminder Components
     await event.message.respond(EMBEDS.cancel_success(reminder), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
 
   async def r_reminders(event: hikari.DMMessageCreateEvent):
-    rems = get_reminders(event.author_id)
-    await event.message.respond(EMBEDS.list_(rems), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
+    rems = get_reminders(event.author_id) # Returns an iterable of Reminder objects
+    if len(rems) <= S.LIMITS.REMINDER_PER_PAGE:
+      await event.message.respond(EMBEDS.list_(rems), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
+    else:
+      pages = [{
+        "embed": EMBEDS.list_(rems_, total_override=len(rems), count_from=i*S.LIMITS.REMINDER_PER_PAGE),
+      } for i, rems_ in enumerate(split_every_n(rems, S.LIMITS.REMINDER_PER_PAGE))]
+
+      await send_paged_message_and_wait(event.message.respond, pages=pages, page=-1)
 
   async def r_delete(event: hikari.DMMessageCreateEvent):
     other_message = event.message.referenced_message
@@ -329,4 +353,4 @@ if True: # \/ bot.run()
   if S.OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE:
     bot.run()
   else:
-    bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.WATCHING, name=status_name))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
+    bot.run(status=hikari.Status.ONLINE, activity=hikari.Activity(type=hikari.ActivityType.CUSTOM, name='Used in DMs'))#, url='https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
