@@ -76,6 +76,9 @@ If i change my username for some reason (or discord again fucks up the username 
 - [x] Set the custom status (Not "watching")
 - [ ] Make "Your reminders" NOT reply-actioonable
 - [ ] Filter last backtick if number of them is odd
+- [ ] placeholders like in execute
+- [ ] fix the fucking value error shit (matching `4h:` bruh how)
+- [ ] acknowledged robo reminders (you have to click ack for it to stop rescheduling
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
