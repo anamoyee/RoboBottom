@@ -38,7 +38,7 @@ if True: # \/ Bot-dependant funcs
     unix, text = content.split(' ', maxsplit=1)
     unix = unix.lower()
     try:
-      unix = timestr_to_seconds(unix)
+      unix = timestr.to_int(unix)
     except (ValueError, TCRError.ConfigurationError) as e:
       await responder(EMBEDS.invalid_syntax_small(e), flags=message_flags, reply=reply_to)
     else:
@@ -237,17 +237,17 @@ f"""
 
 if True: # \/ Reminder Components
   async def r_schedule(event: hikari.DMMessageCreateEvent, content: str):
-    if ' ' not in content and event.message.type == hikari.MessageType.REPLY and regex.match(REGEX_ONLY_DELAY, content):
+    if ' ' not in content and event.message.type == hikari.MessageType.REPLY and timestr.valid(content):
       if event.message.referenced_message is None:
         await event.message.respond("Invalid message")
         return
 
-      if ' ' in content:
-        await event.message.respond(embed(
-          "Unsupported reply action",
-          "Read more about reply actions in </help:1146216876779774012> with section argument `Reminder - Reply Actions`",
-          color="ff0000",
-        ))
+      # if ' ' in content:
+      #   await event.message.respond(embed(
+      #     "Unsupported reply action",
+      #     "Read more about reply actions in </help:1146216876779774012> with section argument `Reminder - Reply Actions`",
+      #     color="ff0000",
+      #   ))
 
       if (event.message.referenced_message.author.id != bot.get_me().id) or \
          (not event.message.referenced_message.embeds) or \

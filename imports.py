@@ -111,8 +111,8 @@ except PermissionError:
   SHELF_DIRECTORY = p.Path('../RoboBottomDB')
   SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True)
 
-REGEX_ONLY_DELAY: str = timestr.pattern.replace('^', '').replace('$', '') #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
-SYNTAX_REGEX: str     = REGEX_ONLY_DELAY + r" +(?:.|\s)+$" #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s)+$'
+# REGEX_ONLY_DELAY: str = timestr.pattern.replace('^', '').replace('$', '') #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
+# SYNTAX_REGEX: str     = REGEX_ONLY_DELAY + r" +(?:.|\s)+$" #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+ +(?:.|\s)+$'
 
 class ReminderFlag:
   NONE      = 0
@@ -356,7 +356,7 @@ def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:
         self.stop()
   return VClearConfirm_(timeout=timeout)
 
-def VPagedMessage(pages: Sequence[Mapping], page: int, _disabled=False, timeout: float | int | None = 120) -> miru.View:
+def VPagedMessage(pages: Sequence[Mapping], page: int, _disabled=False, timeout: float | None = 120) -> miru.View:
   if len(pages) == 0:
     msg = 'pages iterable is empty'
     raise ValueError(msg)
@@ -432,7 +432,7 @@ def append_reminder(user_id, reminder: Reminder) -> Reminder:
   _sort_reminders(user_id)
 
 def schedule_reminder(user_id, *, text, unix: int | str, flags=ReminderFlag.NONE) -> bool:
-  if isinstance(unix, str): unix = math.floor(time.time()+timestr_to_seconds(unix))
+  if isinstance(unix, str): unix = math.floor(time.time()+timestr.to_int(unix))
   if len(get_reminders(user_id)) < S.LIMITS.REMINDER:
     append_reminder(user_id, Reminder(unix=unix, text=text, user=user_id, flag=flags))
     _sort_reminders(user_id)
@@ -482,130 +482,6 @@ def seconds_to_nearest_hour_minute(hour, minute):
 
   # Calculate the number of seconds until the specified time
   return ((hour - current_hour) * 3600 + (minute - current_minute) * 60) % 86400
-
-def timestr_to_seconds(timestr: str, *, unit='s'):
-  """Add a docstring to this later ehh."""
-  additive = 0
-  if regex.fullmatch(r'^(?:0[0-9]|1[0-9]|2[0-3]):[0-5][0-9],$', timestr[:6]): # if it has a leading date
-    hhmm, timestr = timestr[:5], timestr[6:] # discard the comma
-    h, m = hhmm.split(':')
-    h, m = int(h), int(m)
-    additive += seconds_to_nearest_hour_minute(h, m)
-  if ':' in timestr:
-    msg = 'Invalid colon position in hh:mm notation. Must be leading 5 characters'
-    raise ValueError(msg)
-
-  timestr = timestr.replace(' ', '')
-  if not timestr: return 0
-  def is_numeric_or_dot(s: str) -> bool:
-    return s.isnumeric() or s == '.'
-  if not is_numeric_or_dot(timestr[0]): raise ValueError('non-empty timestr should start with a number or \'.\'')  # noqa: EM101
-
-  timestr_lookup = {
-    's':       1,
-    'sec':     1,
-    'secs':    1,
-    'sex':     1, # >:3
-    'second':  1,
-    'seconds': 1,
-
-    'm':       60,
-    'min':     60,
-    'mins':    60,
-    'minute':  60,
-    'minutes': 60,
-
-    'h':     60*60,
-    'hr':    60*60,
-    'hrs':   60*60,
-    'hour':  60*60,
-    'hours': 60*60,
-
-    'd':    24*60*60,
-    'day':  24*60*60,
-    'days': 24*60*60,
-
-    'w':     7*24*60*60,
-    'week':  7*24*60*60,
-    'weeks': 7*24*60*60,
-
-    'y':     356*24*60*60,
-    'year':  356*24*60*60,
-    'years': 356*24*60*60,
-
-    'pul':   11*60*60+30*60, # 11h30m
-    'pull':  11*60*60+30*60,
-    'puls':  11*60*60+30*60,
-    'pulls': 11*60*60+30*60,
-    'card':  11*60*60+30*60,
-    'cards': 11*60*60+30*60,
-
-
-    'res':     6*60*60, # 6h
-    'reses':   6*60*60,
-    'resees':  6*60*60,
-    'rescue':  6*60*60,
-    'rescues': 6*60*60,
-
-    'rev':         133*24*60*60, # 1 revolution = 133 days, nice if you get the reference hihi :>
-    'revs':        133*24*60*60,
-    'revolution':  133*24*60*60,
-    'revolutions': 133*24*60*60,
-  }
-
-  def split_by_timestr(text: str):
-    idxs = []
-    for i in range(len(text)):
-      if i == 0: continue
-      if not is_numeric_or_dot(text[i-1]) and is_numeric_or_dot(text[i]):
-        idxs.append(i)
-
-    def split_string_at_idxs(input_string: str, idxs: list[int]):
-      result = []
-      start = 0
-
-      for index in idxs:
-        result.append(input_string[start:index])
-        start = index
-
-      # Append the remaining part of the string after the last split index
-      result.append(input_string[start:])
-
-      return result
-    a = split_string_at_idxs(text, idxs)
-
-    def split_level2(x: str):
-      for i in range(len(x)):
-        if i == 0: continue
-        if is_numeric_or_dot(x[i-1]) and not is_numeric_or_dot(x[i]):
-          splitidx = i
-      return split_string_at_idxs(x, [splitidx])
-
-    a = [split_level2(x) for x in a]
-
-    try:
-      a = [(float(value), unit) for (value, unit) in a]
-    except ValueError as e:
-      msg = f'Invalid timestr (float conversion): {timestr}'
-      raise ValueError(msg) from e
-
-    try:
-      a = [timestr_lookup[unit]*value for (value, unit) in a]
-    except KeyError as e:
-      msg = f'Invalid timestr (invalid lookup): {timestr}'
-      raise ValueError(msg) from e
-
-    return sum(a)
-
-  try:
-    unit_divisor = timestr_lookup[unit]
-  except KeyError as e:
-    msg = f'Invalid output unit: {unit}'
-    raise ValueError(msg) from e
-  else:
-    return (split_by_timestr(timestr) / unit_divisor) + additive
-
-timestr_to_seconds = timestr.to_int  # noqa: F811
 
 def author_dict(author, url=None, *, discriminator=False, footer=False):
   if author is None: # or S.HIDE_AUTHORS
@@ -806,11 +682,9 @@ async def trigger_and_delete_reminder(user_id: int | str, reminder: Reminder, re
 async def update_activity(bot: lb.BotApp, text: str = S.DEFAULT_ACTIVITY_TEXT, *, activity_type=hikari.ActivityType.CUSTOM) -> None:
   await bot.update_presence(activity=hikari.Activity(name=str(text), type=activity_type))
 
-async def send_paged_message_and_wait(responder, pages: Sequence[Mapping], page: int = 0, timeout: float | int | None = 120) -> dict:
+async def send_paged_message_and_wait(responder, pages: Sequence[Mapping], page: int = 0, timeout: float | None = 120) -> dict:
   if page < 0: page = page % len(pages)
   view = VPagedMessage(pages=pages, page=page, timeout=timeout)
   message = await responder(**pages[page], components=view.build())
   await view.start(message)
   await view.wait()
-
-
