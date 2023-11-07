@@ -294,7 +294,7 @@ if True: # \/ Reminder Components
     else:
       pages = [{
         "embed": EMBEDS.list_(rems_, total_override=len(rems), count_from=i*S.LIMITS.REMINDER_PER_PAGE),
-      } for i, rems_ in enumerate(split_every_n(rems, S.LIMITS.REMINDER_PER_PAGE))]
+      } for i, rems_ in enumerate(batched(rems, S.LIMITS.REMINDER_PER_PAGE))]
 
       await send_paged_message_and_wait(event.message.respond, pages=pages, page=-1)
 

@@ -207,7 +207,7 @@ class Embeds:
     patt = '`%s`'
     display_rems = '\n'.join(
       [
-        f'{i+1+count_from}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_str_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER).replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
+        f'{i+1+count_from}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER).replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
         for i, x in enumerate(rems)
       ],
     )
@@ -335,11 +335,8 @@ RoboTop was really such a great bot. Perhaps the greatest i've ever used. After 
 }
 
 def multichar_lstrip(input_string, text_to_remove):
-    # Check if the input_string starts with the text_to_remove
     if input_string.startswith(text_to_remove):
-        # If it does, remove the text_to_remove from the beginning of input_string
         return input_string[len(text_to_remove):]
-    # If input_string doesn't start with text_to_remove, return it unchanged
     return input_string
 
 ### miru views
@@ -558,12 +555,12 @@ def get_stats(a: int = 0) -> tuple[int, int]:
   if a == 0: return len(ALL_rems)
   return sum([len(x) for x in ALL_rems.values()])
 
-def split_every_n(it: str | Iterable, n: int) -> list:
-  return [it[i:i+n] for i in range(0, len(it), n)]
-def cut_str_at(text: str, n: int, end: str='...') -> str:
-  if len(text) <= n:
-    return text
-  return text[:n-len(end)] + end
+# def split_every_n(it: str | Iterable, n: int) -> list:
+#   return [it[i:i+n] for i in range(0, len(it), n)]
+# def cut_str_at(text: str, n: int, end: str='...') -> str:
+#   if len(text) <= n:
+#     return text
+#   return text[:n-len(end)] + end
 
 
 def parse_for_aliases(content: str, is_reply: bool = False):
