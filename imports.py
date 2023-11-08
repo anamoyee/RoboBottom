@@ -207,7 +207,7 @@ class Embeds:
     patt = '`%s`'
     display_rems = '\n'.join(
       [
-        f'{i+1+count_from}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER).replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
+        f'{i+1+count_from}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER, filter_links=f"[{BACKSLASH}3...]").replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
         for i, x in enumerate(rems)
       ],
     )
