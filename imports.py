@@ -1,6 +1,6 @@
 if True: # \/ Imports
   import sys
-  if sys.version_info[:2] != (3, 11): raise NotImplementedError('Use python 3.11')  # noqa: EM101
+  if sys.version_info[:2] != (3, 11): raise NotImplementedError('Use python 3.11')
   import asyncio
   import contextlib
   import datetime
@@ -165,7 +165,7 @@ class Embeds:
       color='#ff0000' if rng.randint(1, 100) != 1 else '#ff8000',
       footer=None if e is None else extract_error(e),
     )
-  def invalid_syntax_big(self, _in_help=False):
+  def invalid_syntax_big(self, _in_help=False):  # noqa: FBT002
     return embed(
         'Invalid syntax' if not _in_help else 'Reminders',
         'Provide a delay in the format of at least one `[NUMBER][UNIT]` group or multiple for example `30m` or `1y30w` or `1h.25d` then separate it with a space and provide your message. The message must be between 1 and 100 characters long and must be separated from the delay with a space.\nAdditionally make sure all units are correct',
@@ -183,17 +183,26 @@ class Embeds:
         footer=f'Regex for validating the reminder text:\n/{timestr.pattern}/gi'[:2000],
         color='#ff0000' if not _in_help else S.MAIN_COLOR,
       )
-  def invalid_syntax_cancel(self, n=99999):
+  def invalid_syntax_cancel(self, n=99999, do_what='cancel'):
     return embed(
         'Invalid syntax/choice',
-       f'Use the following syntax: `cancel <1-{n}>`' if n > 0 else 'You don\'t have any reminders to cancel, therefore every number you choose will result in invalid choice',
+       f'Use the following syntax: `{do_what} <1-{n}>`' if n > 0 else f'You don\'t have any reminders to {do_what}, therefore every number you choose will result in invalid choice',
         color='#ff0000',
       )
   def cancel_success(self, reminder: Reminder):
     return embed(
       '🔕 Reminder cancelled!',
-      reminder.text[:3950] if not reminder.flag & ReminderFlag.HIDDEN else "Its contents have been unrecoverably lost!",# + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
+      reminder.text[:3950] if not reminder.flag & ReminderFlag.HIDDEN else "Its contents have been unrecoverably lost!",  # + f'\n||(It would trigger <t:{reminder.unix}:R> if you didn\'t cancel)||',
       color=('#ff0000' if rng.randint(1, 100) != '1' else '#ff8000'),
+    )
+
+  def reminder(self, reminder: Reminder, rem_id: int):
+    hidden = reminder.flag & ReminderFlag.HIDDEN
+    return embed(
+      f"📝 {'Hidden ' if hidden else ''}Reminder #{rem_id+1}",
+      reminder.text if not hidden else "`>> This reminder is hidden! <<`\nIts contents will only be shown when it's triggered, not cancelled",
+      color=S.MAIN_COLOR,
+      footer=f"Will trigger in {timestr.to_str(reminder.unix - math.floor(time.time()))} ({timestr.to_datestr_from_unix(reminder.unix)})",
     )
 
   def wipe(self, footer=None):
@@ -203,11 +212,11 @@ class Embeds:
       color=('#ff0000' if rng.randint(1, 100) != '1' else '#ff8000'),
       footer=footer,
     )
-  def list_(self, rems: Sequence[Reminder], *, who: str | None = None, total_override: Any | None = None, count_from: int = 0):
+  def list_(self, rems: Sequence[Reminder], *, who: str | None = None, total_override: Any | None = None, count_from: int = 0) -> hikari.Embed:
     patt = '`%s`'
     display_rems = '\n'.join(
       [
-        f'{i+1+count_from}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER, filter_links=f"[{BACKSLASH}3...]", shrink_links_visually_if_fits=True).replace(NEWLINE, " ").rstrip(BACKSLASH) if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
+        f'{i+1+count_from}) {((patt % flags_to_str(x.flag) + " ") if x.flag else "")}**{cut_at(x.text, S.LIST_MAX_CHAR_COUNT_PER_REMINDER, filter_links=f"[{BACKSLASH}3...]", shrink_links_visually_if_fits=True).replace(NEWLINE, " ").rstrip(BACKSLASH).replace("**", f"{BACKSLASH}*{BACKSLASH}*") if not x.flag & ReminderFlag.HIDDEN else f"`{random_str_of_len(rng.randint(max(1, len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])-2), len(x.text[:S.LIST_MAX_CHAR_COUNT_PER_REMINDER])+2))}`"}** (<t:{x.unix}:R>)'
         for i, x in enumerate(rems)
       ],
     )
@@ -257,7 +266,7 @@ HELPMSGS = {
           "Usage & Example",
           "`list`",
           False,
-        ),(
+        ), (
           "Aliases",
           ', '.join(['`' + x + '`' for x in S.ALIASES.LIST]),
           False,
@@ -296,7 +305,7 @@ HELPMSGS = {
         "In bulk",
         "Use the </delhistory:1153087533954113726> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**",
         False,
-      ),(
+      ), (
         "One at a time",
         f"Reply to a message you want to delete and as the message text send any of the following:\n{', '.join(f'`{x}`' for x in S.ALIASES.DELETE)}",
         False,
@@ -341,7 +350,7 @@ def multichar_lstrip(input_string, text_to_remove):
 
 ### miru views
 
-def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:
+def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:  # noqa: FBT002
   class VClearConfirm_(miru.View):
     @miru.button(label='Confirm', style=hikari.ButtonStyle.DANGER, disabled=_disabled)
     async def btn_confirm(self, btn: miru.Button, ctx: miru.Context):
@@ -353,7 +362,66 @@ def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:
         self.stop()
   return VClearConfirm_(timeout=timeout)
 
-def VPagedMessage(pages: Sequence[Mapping], page: int, _disabled=False, timeout: float | None = 120) -> miru.View:
+def VReminder(reminder: Reminder, rem_id: int, *, _activated=False, _disabled=False, timeout=120) -> miru.View:
+  class VReminder_(miru.View):
+    if not _activated:
+      @miru.button(label='...', style=hikari.ButtonStyle.SECONDARY, disabled=_disabled)
+      async def btn_more_options(self, btn: miru.Button, ctx: miru.Context):
+        view = VReminder(reminder=reminder, rem_id=rem_id, _activated=True)
+        await self.message.edit(EMBEDS.reminder(reminder, rem_id), components=view.build())
+        await view.start(self.message)
+    else:
+      async def reschedule(self, time):
+        delete_reminder_by_idx()
+        await schedule_reminder()
+
+      @miru.button(emoji='✏', style=hikari.ButtonStyle.PRIMARY, disabled=_disabled, row=1)
+      async def btn_p3(self, btn: miru.Button, ctx: miru.Context):
+        await self.reschedule()
+
+      @miru.button(label='+10m', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=1)
+      async def btn_p1(self, btn: miru.Button, ctx: miru.Context):
+        await self.reschedule('10m')
+
+      @miru.button(label='+1h', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=1)
+      async def btn_p2(self, btn: miru.Button, ctx: miru.Context):
+        return 0
+
+      @miru.button(label='+6h', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=1)
+      async def btn_p4(self, btn: miru.Button, ctx: miru.Context):
+        return 0
+
+      @miru.button(label='+1d', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=1)
+      async def btn_p5(self, btn: miru.Button, ctx: miru.Context):
+        return 0
+
+      @miru.button(emoji='❌', style=hikari.ButtonStyle.DANGER, disabled=_disabled, row=2)
+      async def btn_m3(self, btn: miru.Button, ctx: miru.Context):
+        return delete_reminder_by_idx(reminder.user, rem_id)
+
+      @miru.button(label='-10m', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=2)
+      async def btn_m1(self, btn: miru.Button, ctx: miru.Context):
+        return 0
+
+      @miru.button(label='-1h', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=2)
+      async def btn_m2(self, btn: miru.Button, ctx: miru.Context):
+        return 0
+
+      @miru.button(label='-6h', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=2)
+      async def btn_m4(self, btn: miru.Button, ctx: miru.Context):
+        return 0
+
+      @miru.button(label='-1d', style=hikari.ButtonStyle.SUCCESS, disabled=_disabled, row=2)
+      async def btn_m5(self, btn: miru.Button, ctx: miru.Context):
+        return 0
+
+    if not _disabled:
+      async def on_timeout(self) -> None:
+        await self.message.edit(EMBEDS.reminder(reminder, rem_id), components=[])
+        self.stop()
+  return VReminder_(timeout=timeout, autodefer=True)
+
+def VPagedMessage(pages: Sequence[Mapping], page: int, _disabled=False, timeout: float | None = 120) -> miru.View:  # noqa: FBT002
   if len(pages) == 0:
     msg = 'pages iterable is empty'
     raise ValueError(msg)
@@ -537,17 +605,19 @@ def seconds_to_timestr(seconds: int) -> str:
 
 def random_sure() -> str:
   return rng.choice(list({
-    'Roger!',
-    'Sure thing!',
-    'Got it!',
-    'Epic!',
-    'Heck yeah!',
-    'Awesome!',
-    'Noted!',
-    'Sounds good!',
-    'All done!',
-    'Great!',
-    'Gotcha!',
+    "Done",
+    "Got it",
+    "Sweet",
+    "Awesome",
+    "Great",
+    "Roger",
+    "Epic",
+    "Gotcha",
+    "Noted",
+    "Sure thing",
+    "Sounds good",
+    "Heck yeah",
+    "All done"
   }))
 
 def get_stats(a: int = 0) -> tuple[int, int]:
@@ -563,7 +633,8 @@ def get_stats(a: int = 0) -> tuple[int, int]:
 #   return text[:n-len(end)] + end
 
 
-def parse_for_aliases(content: str, is_reply: bool = False):
+def parse_for_aliases(content: str, is_reply: bool = False) -> str | None:  # noqa: FBT001, FBT002
+  if content is None: return None
   if content in ['1pul', 'pul']:
     return '1pul pul'
   if content in ['1card', 'card']:
@@ -603,14 +674,14 @@ def random_str_of_len(n: int, pool: None | str = None, banned: None | Sequence[s
   if banned is None:
     banned = ['`', '*', '_']
   if pool is None:
-    pool =  string.ascii_letters + string.digits + string.punctuation + string.punctuation + string.punctuation + string.punctuation + string.punctuation 
+    pool = string.ascii_letters + string.digits + string.punctuation + string.punctuation + string.punctuation + string.punctuation + string.punctuation 
   out = ''
   for _ in range(n):
     out += rng.choice([x for x in pool if x not in banned])
   return out
 
 def get_battery_dict() -> None | dict[str, t.Any]:
-  """Returns None if there's no battery"""
+  """Return None if there's no battery."""
   if USING_TOKEN2: # Fake battery if on test token
     return {
   "health": "SHIT",

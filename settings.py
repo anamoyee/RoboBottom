@@ -9,7 +9,8 @@ DEV_GUILD = 1145433323594842166
 VERSION = '4.0'
 
 os.chdir(Path(__file__).resolve().parent)
-with open('VERSION.txt', encoding='utf-8') as f:
+VERSION_FILE = Path('VERSION.txt')
+with VERSION_FILE.open(encoding='utf-8') as f:
   VERSION += '.' + f.read().strip()
 
 class ALIASES:
@@ -28,6 +29,8 @@ class RUNNING_ON:
 
 MAIN_COLOR     = '#8000ff'
 MAIN_COLOR_ALT = '#5000dd'
+REMINDER_COLOR = ''
+VIEWREMI_COLOR = ''
 MAIN_COLOR_OLD = '#00ccff'
 
 DEFAULT_ACTIVITY_TEXT = "Used in DMs"

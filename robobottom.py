@@ -51,6 +51,13 @@ if True: # \/ Bot-dependant funcs
       else:
         await responder(f':x: You reached the limit of `{S.LIMITS.REMINDER}` reminders!', flags=message_flags, reply=reply_to)
 
+  async def send_reminder_view(responder: Callable, reminder: Reminder, rem_id):
+    # view = VReminder(reminder, rem_id)
+    # message = \
+    await responder(EMBEDS.reminder(reminder, rem_id))#, components=view.build())
+    # await view.start(message)
+    # await view.wait()
+
 if True: # \/ Tasks
   @tasks.task(s=1)
   async def reminder_task():
@@ -93,15 +100,17 @@ f"""
   @bot.command
   @lb.command('devtest', 'Do some testing dev stuff!')
   @lb.implements(lb.SlashCommand)
-  async def cmd_devtest(ctx: lb.SlashContext):
-    if ctx.author.id != S.DEV_ID: return await ctx.respond('You have no power here!!')
+  async def cmd_devtest(ctx: lb.SlashContext) -> None:
+    if ctx.author.id != S.DEV_ID:
+      await ctx.respond('You have no power here!!')
+      return
 
     await send_paged_message_and_wait(ctx.respond, [
       {
         "content": 'page 1',
-      },{
+      }, {
         "content": 'page 2',
-      },{
+      }, {
         "content": 'page 3',
       },
     ], 1)
@@ -242,18 +251,12 @@ if True: # \/ Reminder Components
         await event.message.respond("Invalid message")
         return
 
-      # if ' ' in content:
-      #   await event.message.respond(embed(
-      #     "Unsupported reply action",
-      #     "Read more about reply actions in </help:1146216876779774012> with section argument `Reminder - Reply Actions`",
-      #     color="ff0000",
-      #   ))
-
       if (event.message.referenced_message.author.id != bot.get_me().id) or \
          (not event.message.referenced_message.embeds) or \
          (event.message.referenced_message.embeds[0].title is None) or \
-         ('reminder' not in event.message.referenced_message.embeds[0].title.lower()) or\
-         ('reminders'    in event.message.referenced_message.embeds[0].title.lower()):
+         ('reminder'    not in event.message.referenced_message.embeds[0].title.lower()) or\
+         ('reminders'       in event.message.referenced_message.embeds[0].title.lower()) or\
+         ('hidden reminder' in event.message.referenced_message.embeds[0].title.lower()):
         await event.message.respond(EMBEDS.no_reply())
         return
 
@@ -266,7 +269,7 @@ if True: # \/ Reminder Components
     else:
       await reminder_scheduler(content, event.message.respond, event.author_id)
 
-  async def r_wipe(event: hikari.DMMessageCreateEvent):
+  async def r_wipe(event: hikari.DMMessageCreateEvent) -> None:
     async def func(btn: miru.Button, ctx: miru.Context, author_id=event.author_id):
       wipe_reminders(author_id)
       await ctx.edit_response(components=[], embed=EMBEDS.wipe(footer='✅ Cancelled all reminders!'))
@@ -275,15 +278,33 @@ if True: # \/ Reminder Components
     await view.start(message)
     await view.wait()
 
-  async def r_cancel(event: hikari.DMMessageCreateEvent, content: str):
-    pattern = r'^cancel ([1-9]\d{,4})$'
+  async def r_view(event: hikari.DMMessageCreateEvent, content: str) -> None:
+    pattern = r'^v(?:iew)? ([1-9]\d{,4})$'
     user_reminders = get_reminders(event.author_id)
     if not (match := regex.match(pattern, content)):
-      return await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders)))
+      await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders), do_what='view'))
+      return
+    rem_id = match.group(1)
+    rem_id = int(rem_id)-1
+
+    try:
+      rem = user_reminders[rem_id]
+    except IndexError:
+      await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders), do_what='view'))
+    else:
+      await send_reminder_view(event.message.respond, rem, rem_id)
+
+  async def r_cancel(event: hikari.DMMessageCreateEvent, content: str) -> None:
+    pattern = r'^c(?:ancel)? ([1-9]\d{,4})$'
+    user_reminders = get_reminders(event.author_id)
+    if not (match := regex.match(pattern, content)):
+      await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders)))
+      return
     match = match.group(1)
     choice = int(match)
     if len(user_reminders) < choice:
-      return await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders)))
+      await event.message.respond(EMBEDS.invalid_syntax_cancel(n=len(user_reminders)))
+      return
     reminder = delete_reminder_by_idx(event.author_id, choice-1)
     await event.message.respond(EMBEDS.cancel_success(reminder), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
 
@@ -292,9 +313,17 @@ if True: # \/ Reminder Components
     if len(rems) <= S.LIMITS.REMINDER_PER_PAGE:
       await event.message.respond(EMBEDS.list_(rems), flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
     else:
+      total_count = 0
+
+      def _get_next_count(n: int):
+        nonlocal total_count
+        total_count += n
+        return total_count-n
+
+
       pages = [{
-        "embed": EMBEDS.list_(rems_, total_override=len(rems), count_from=i*S.LIMITS.REMINDER_PER_PAGE),
-      } for i, rems_ in enumerate(batched(rems, S.LIMITS.REMINDER_PER_PAGE))]
+        "embed": EMBEDS.list_(rems_, total_override=len(rems), count_from=_get_next_count(len(rems_))),
+      } for i, rems_ in enumerate(batched(rems, S.LIMITS.REMINDER_PER_PAGE, back_to_front=True))]
 
       await send_paged_message_and_wait(event.message.respond, pages=pages, page=-1)
 
@@ -310,7 +339,7 @@ if True: # \/ Reminder Components
 
     try:
       await other_message.delete()
-    except Exception as e:
+    except Exception:
       await event.message.respond('Unable to delete that message... report this as a bug pls')
 
 if True: # \/ Listeners
@@ -330,8 +359,10 @@ if True: # \/ Listeners
       await r_reminders(event)
     elif content in S.ALIASES.WIPE:
       await r_wipe(event)
-    elif content.startswith('cancel ') or content == 'cancel':
+    elif content.startswith(a := ('cancel ', 'c ')) or content in [x.strip() for x in a]:
       await r_cancel(event, content)
+    elif content.startswith(a := ('view ', 'v ')) or content in [x.strip() for x in a]:
+      await r_view(event, content)
     elif content in S.ALIASES.DELETE:
       await r_delete(event)
     else:

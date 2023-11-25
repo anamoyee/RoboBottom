@@ -1,5 +1,5 @@
 # RoboBottom
-A remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop was originally made by **[Colon](https://gdcolon.com)** <img style="width: 15px; height: 15px;" src="https://cdn.discordapp.com/emojis/1132968267963715634.webp?size=64&name=fluff&quality=lossless"></img>. I remade the *reminders* part of that bot because of its shutdown on August 12th 2023. RIP RoboTop, You will be missed!
+A clone/remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop was originally made by **[Colon](https://gdcolon.com)** <img style="width: 15px; height: 15px;" src="https://cdn.discordapp.com/emojis/1132968267963715634.webp?size=64&name=fluff&quality=lossless"></img>. I remade the *reminders* part of that bot because of its shutdown on August 12th 2023. RIP RoboTop, You will be missed!
 
 ## How do I host it myself?
 1. Install **[Python](https://www.python.org/downloads/)** and add it to PATH during instalation.
@@ -35,14 +35,12 @@ If i change my username for some reason (or discord again fucks up the username 
 - [x] `/remind` for servers
 - [x] Update /help msg to include /remind in servers
 - [x] SORT the `.` list to be from furthest to closest reminders
-- [x] ~~Tell when would cancelled reminder remind on cancelation~~ *scrapped because it looked ugly*
 - [x] lowercase the time bruh because `2H` doesnt work
 - [ ] Flags/prefixes/idks
   - [x] Important (`!` prefix), mentions the user
   - [ ] Recurring (`&` prefix), doesnt cancel after remindion
   - [x] Hidden (`#`), its text doesnt show in `.` list and when canceling
     - [ ] Ability to pause hidden reminders
-  - [x] ~~Text == `r` | `repeat` => text = (text of user's last trigered reminder)~~ scrapped for reply actions
   - [x] DISPLAY THE PREFIXES IN THE `.` LIST!!! (`! &`)
 - [ ] `defer` & `undefer`
 - [ ] Folders with indentation
@@ -64,7 +62,6 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] user settings and default settings (default dict)
 - [ ] set alarm with termux (or notif)
 - [x] remove useless @ prefix since it can be detected with :
-- [x] ~~replace(' + ', '!') (make {days}d + hh:mm:ss work by replacing ' + ' with '!' separator)~~ scrapped because too much bodging to make it work
 - [x] make "remidner cancelled" embed more like it was back in robotop
 - [ ] Update the `/help syntax` command to account for t:im:e, d:at:e & weekdays syntaxes
 - [ ] Add setlocale support (dep: usersettings from one of previous checkmarks)
@@ -74,11 +71,11 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] cancelling by name (`cancel <name>` instead of `cancel <number>`)
 - [x] Add reminder pages
 - [x] Set the custom status (Not "watching")
-- [ ] Make "Your reminders" NOT reply-actioonable
-- [ ] Filter last backtick if number of them is odd
-- [ ] placeholders like in execute
+- [x] Make "Your reminders" NOT reply-actionable
+- [x] Filter last backtick if number of them is odd
 - [ ] fix the fucking value error shit (matching `4h:` bruh how)
-- [ ] acknowledged robo reminders (you have to click ack for it to stop rescheduling
+- [ ] acknowledged robo reminders (you have to click ack for it to stop rescheduling)
+- [ ] quick reschedule buttons
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
