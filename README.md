@@ -73,9 +73,19 @@ If i change my username for some reason (or discord again fucks up the username 
 - [x] Set the custom status (Not "watching")
 - [x] Make "Your reminders" NOT reply-actionable
 - [x] Filter last backtick if number of them is odd
-- [ ] fix the fucking value error shit (matching `4h:` bruh how)
-- [ ] acknowledged robo reminders (you have to click ack for it to stop rescheduling)
 - [ ] quick reschedule buttons
+- [ ] what if you block robo and it sends a reminder?
+- [ ] pass each message through /#{1,3} (.*)/ and replace with \1
+- [ ] **reminder content editing**
+- [x] make the RoboBottom important @mention be with heading 1 when sending (`# <@id>`)
+- [x] filter triple backticks from list and replace with '''
+- [ ] After db update, edit the latest list_ message for that user
+- [ ] `/\. ?(?:query syntax)/`
+- [ ] make the fucking recursive with \<first_delay>&\<recursive_delay> syntax'
+- [ ] tasks (like nieprzygotowania, osobne kategorie):
+  - [ ] `tasks view <category>` (`t v <category>`) for example (`t v np`)
+- [ ] Relative rescheduliong reply action (`^16h` - instead of 16h from now, make it 16 hours from when that reminder expired)
+- [ ] Add polish weekday options
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->

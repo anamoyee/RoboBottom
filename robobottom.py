@@ -14,7 +14,7 @@ if True: # \/ Bot-dependant funcs
     channel = await bot.rest.create_dm_channel(user_id)
     if text and hide_text:
       text = f'||{text.replace("|", FAKE_PIPE)}||'
-    await channel.send(f"<@{user_id}>" if ping_user else hikari.UNDEFINED, embed=embed(
+    await channel.send(f"### <@{user_id}>" if ping_user else hikari.UNDEFINED, embed=embed(
       "🔔 Reminder!",
       text[:3950] or 'Uh.. text=None / text=\'\'? Report this bug pls',
       color='#ffff00',
@@ -98,24 +98,6 @@ f"""
     ), flags=hikari.MessageFlag.EPHEMERAL)
 
   @bot.command
-  @lb.command('devtest', 'Do some testing dev stuff!')
-  @lb.implements(lb.SlashCommand)
-  async def cmd_devtest(ctx: lb.SlashContext) -> None:
-    if ctx.author.id != S.DEV_ID:
-      await ctx.respond('You have no power here!!')
-      return
-
-    await send_paged_message_and_wait(ctx.respond, [
-      {
-        "content": 'page 1',
-      }, {
-        "content": 'page 2',
-      }, {
-        "content": 'page 3',
-      },
-    ], 1)
-
-  @bot.command
   @lb.option('doasisay', 'Type exactly "Yes, do as I say!" to confirm.', required=True)
   @lb.command('delhistory', 'Delete all (or most) messages in your DM channel with the bot. Be careful with this one!')
   @lb.implements(lb.SlashCommand)
@@ -174,12 +156,13 @@ f"""
     try:
       if thing[0] in ['0', 'devlist', 'list', '-1']:
         await r("""
-```
+```md
 1. Update guild counter
 2. Delete bot's message with syntax: 1.channelID.messageID (deprecated)
 3. Get info about guilds the bot is in
 4. Get all active reminders
 5. Set activity text of the bot
+6. Send a fake reminder, syntax: `6.userid.message`
 ```
 """[1:-1], force_ephemeral=True)
       elif thing[0] in ['1', 'guilds']:
@@ -203,6 +186,23 @@ f"""
         else:
           await bot.update_presence(activity=hikari.Activity(name=activity + testmode(), type=hikari.ActivityType.WATCHING))
           await r(f"New activity: `{activity}`")
+      elif thing[0] in ['6', 'fakeremind', 'fake_remind']:
+        try:
+          user_id = thing[1]
+          text    = thing[2] or ''
+          text = text.replace('\\n', '\n')
+          if all(x in string.whitespace for x in text):
+            raise ValueError
+          user_id = int(user_id)
+        except (IndexError, ValueError):
+          await r('Invalid syntax! use the following syntax: `6.user_id.text` where user_id is an int and text is a non-whitespace string', force_ephemeral=True)
+        else:
+          await remind(user_id, text, too_late=0)
+          await r(f"Sent a reminder to <@{user_id}>", embed=embed(
+            "🔔 Reminder!",
+            text[:3950] or 'Uh.. text=None / text=\'\'? Report this bug pls',
+            color='#ffff00',
+          ))
       # elif ...:
       #  ...
       else:

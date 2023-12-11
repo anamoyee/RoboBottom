@@ -43,4 +43,4 @@ TOO_LATE_THRESHOLD_SECONDS = 60
 TOO_LATE_MESSAGE           = 'Sowwy fow sending thwis wemindeww %s too lwate!!! >.<'
 
 OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE = True # Will change the status to "80% 🔌" or sth like that if set to True, else will use the DEFAULT_STATUS
-BATTERY_UPDATE_INTERVAL_SECONDS           = 60*5
+BATTERY_UPDATE_INTERVAL_SECONDS           = 60*10
