@@ -21,6 +21,7 @@ if True: # \/ Imports
   import lightbulb as lb
   import miru
   import pytz
+  import tcrutils as tcr
   from lightbulb.ext import tasks
   from tcrutils import *
   from tcrutils import error as TCRError
@@ -647,7 +648,7 @@ def parse_for_aliases(content: str, is_reply: bool = False) -> str | None:  # no
   return content
 
 def testmode() -> str:
-  """Returns suffix when called, may be used in if check since it returns a falsey '' when not in testmode and truey '...' if in testmode."""
+  """Return suffix when called, may be used in if check since it returns a falsey '' when not in testmode and truey '...' if in testmode."""
   return (' - Testmode' if USING_TOKEN2 else '')
 
 def separate_flags_from_rest(content: str) -> tuple[int, str]:

@@ -84,7 +84,7 @@ if True: # \/ Slash Commands
 f"""
 **Originally created by:** **[Colon](https://gdcolon.com)** <:fluff:1146072273665654864>
 **Recreated by:** <@507642999992352779>
-**Version:** {S.VERSION}
+**Version:** {S.VERSION} ({tcr.nth(S.REVOLUTION)} revolution)
 **Uptime:** {uptime()}
 **Servers:** {GUILD_COUNT} (May not be up to date)
 **Python version:** v{sys.version.split()[0]} (Hikari {hikari.__version__})
@@ -380,7 +380,7 @@ if True: # \/ Listeners
 
 if True: # \/ bot.run()
   status_name = S.DEFAULT_ACTIVITY_TEXT + testmode()
-  console.log(f'Status: {status_name}')
+  console.log(f'Status: {status_name} // On the eve of our {tcr.nth(S.REVOLUTION)} revolution...')
   if S.OVERRIDE_ACTIVITY_WITH_BATTERY_PERCENTAGE:
     bot.run()
   else:

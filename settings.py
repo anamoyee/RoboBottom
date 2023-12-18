@@ -8,10 +8,26 @@ DEV_GUILD = 1145433323594842166
 
 VERSION = '4.0'
 
-os.chdir(Path(__file__).resolve().parent)
-VERSION_FILE = Path('VERSION.txt')
-with VERSION_FILE.open(encoding='utf-8') as f:
-  VERSION += '.' + f.read().strip()
+if True:
+  os.chdir(Path(__file__).resolve().parent)
+  VERSION_FILE = Path('VERSION.txt')
+  with VERSION_FILE.open(encoding='utf-8') as f:
+    VERSION += '.' + f.read().strip()
+
+  REVOLUTION_FILE = Path('REVOLUTION.txt')
+  with REVOLUTION_FILE.open(encoding='utf-8', mode='r+') as f:
+    REVOLUTION = f.read() or f'{VERSION},0'
+    _rev_version, REVOLUTION = REVOLUTION.split(',', maxsplit=1)
+
+  if _rev_version != VERSION:
+    with REVOLUTION_FILE.open(encoding='utf-8', mode='w') as f:
+      f.write(f'{VERSION},0')
+      REVOLUTION = '1'
+
+  with REVOLUTION_FILE.open(encoding='utf-8', mode='w') as f:
+    f.write(f'{VERSION},{int(REVOLUTION)+1}')
+
+  REVOLUTION = int(REVOLUTION)
 
 class ALIASES:
   LIST   = ['.', 'list', 'reminders', 'rems']
