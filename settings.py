@@ -15,8 +15,9 @@ if True:
     VERSION += '.' + f.read().strip()
 
   REVOLUTION_FILE = Path('REVOLUTION.txt')
+  REVOLUTION_FILE.touch(exist_ok=True)
   with REVOLUTION_FILE.open(encoding='utf-8', mode='r+') as f:
-    REVOLUTION = f.read() or f'{VERSION},0'
+    REVOLUTION = f.read() or f'{VERSION},1'
     _rev_version, REVOLUTION = REVOLUTION.split(',', maxsplit=1)
 
   if _rev_version != VERSION:
