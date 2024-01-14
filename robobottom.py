@@ -149,6 +149,9 @@ f"""
     thing: list[str] = ctx.options.thing.split('.')
     ephemeral        = ctx.options.ephemeral if ctx.options.ephemeral is not None else True
 
+    await devthinger(ctx, thing, ephemeral)
+
+  async def devthinger(ctx, thing: list[str], ephemeral):
     async def r(*args, force_ephemeral=False, **kwargs):
       if ephemeral or force_ephemeral: kwargs['flags'] = hikari.MessageFlag.EPHEMERAL
       await ctx.respond(*args, **kwargs)
@@ -213,6 +216,12 @@ f"""
       if testmode():
         raise
 
+  # @bot.command
+  # @lb.command('devtest', 'Does a even more dev-y test!!')
+  # @lb.implements(lb.SlashCommand)
+  # async def cmd_devtest(ctx: lb.SlashContext):
+  #   if ctx.author.id != S.DEV_ID: return await ctx.respond('You are not allowed to use this command', flags=hikari.MessageFlag.EPHEMERAL)
+
   @bot.command
   @lb.option('ephemeral', "Sneaky sneaky (True by default)", type=bool, required=False)
   @lb.option('code', "The thing to run", required=True)
@@ -224,25 +233,42 @@ f"""
     code      = ctx.options.code
     ephemeral = ctx.options.ephemeral if ctx.options.ephemeral is not None else True
 
+    await mazerunner(ctx, code, ephemeral)
+
+  async def mazerunner(ctx, code, ephemeral): # Maze runner? I meant devrunner... ;3
     async def r(*args, force_ephemeral=False, **kwargs):
       if ephemeral or force_ephemeral: kwargs['flags'] = hikari.MessageFlag.EPHEMERAL
       await ctx.respond(*args, **kwargs)
 
     try:
-      await r(f'```{eval(code)}```')
+      await r(f'```py\n{eval(code)}```')
     except Exception as e:
       await r(EMBEDS.e_generic_error(e), force_ephemeral=True)
 
   @bot.command
-  @lb.option('text',  "The reminder's text",                                                  required=True, min_length=1, max_length=100, type=str)
-  @lb.option('delay', "The delay to remind you after, for example 6h56m, see /help for help", required=True, min_length=2, max_length=100, type=str)
+  @lb.option('ephemeral',  "Hide the output?", required=False, type=bool)
+  @lb.option('reminder',  "The reminder syntax (use /help for help)", required=True, min_length=1, max_length=418, type=str)
   @lb.command('remind', "Set a reminder!" + testmode())
   @lb.implements(lb.SlashCommand)
   async def cmd_remind(ctx: lb.SlashContext):
-    content = ctx.options.delay + ' ' + ctx.options.text
+    content: str = ctx.options.reminder
+    ephemeral = ctx.options.ephemeral if ctx.options.ephemeral is not None else True
+
+    if ctx.author.id == S.DEV_ID and content.startswith("$"):
+      content = content.removeprefix('$')
+      if content.startswith("$"):
+        content = content.removeprefix('$')
+        await mazerunner(ctx, content, ephemeral)
+        return
+      thing: list[str] = content.split('.')
+      await devthinger(ctx, thing, ephemeral)
+      return
+
+
+
     content = content.strip()
     content = parse_for_aliases(content)
-    await reminder_scheduler(content, ctx.respond, ctx.author.id, force_ephemeral=bool(ctx.guild_id is not None)) # Force ephemeral on server, such that there's no spam/unnecessary messages, but don't ephemeral in DMs
+    await reminder_scheduler(content, ctx.respond, ctx.author.id, force_ephemeral=ephemeral or bool(ctx.guild_id is not None)) # Force ephemeral on server, such that there's no spam/unnecessary messages, but don't ephemeral in DMs unless asked for
 
 if True: # \/ Reminder Components
   async def r_schedule(event: hikari.DMMessageCreateEvent, content: str):
