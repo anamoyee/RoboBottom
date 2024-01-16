@@ -21,9 +21,11 @@ if True: # \/ Bot-dependant funcs
       footer=(S.TOO_LATE_MESSAGE % seconds_to_timestr(too_late)) if too_late else None,
     ), user_mentions=[user_id] if ping_user else hikari.UNDEFINED)
 
-  async def reminder_scheduler(content, responder, author_id, *, force_ephemeral=False, reply_to=hikari.UNDEFINED):
+  async def reminder_scheduler(content: str, responder, author_id, *, force_ephemeral=False, reply_to=hikari.UNDEFINED):
     message_flags = hikari.MessageFlag.NONE if not force_ephemeral else hikari.MessageFlag.EPHEMERAL
     message_flags = message_flags | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS # @silent
+
+    content = content.removesuffix(APOSTROPHE)
 
     flags, content = separate_flags_from_rest(content)
 
@@ -290,6 +292,8 @@ if True: # \/ Reminder Components
 
       if desc.startswith('||') and desc.endswith('||'):
         desc = desc.replace('||', '')
+
+      content = content.removesuffix(APOSTROPHE)
 
       await reminder_scheduler(content + ' ' + desc, event.message.respond, event.author_id, reply_to=event.message_id)
     else:
