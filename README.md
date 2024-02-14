@@ -1,4 +1,4 @@
-### This is python 3.11 version, for 3.12 rewrite go to [this repository](https://github.com/TheCreatorrr333/RoboBottom-V2)
+### This is python 3.11 version, for 3.12 rewrite go to [this repository](https://github.com/TheCreatorrr333/RoboBottom-V2), keep in mind it's still a work in progress! It may not be functional yet, but I will post any updates there from now on
 
 
 # RoboBottom
