@@ -1,4 +1,4 @@
-tcrutils
+tcrutils>=12.0.0,<13.0.0
 hikari
 hikari-miru
-hikari-lightbulb
+hikari-arc
