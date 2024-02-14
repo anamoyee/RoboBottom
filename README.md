@@ -87,7 +87,10 @@ If i change my username for some reason (or discord again fucks up the username 
 - [ ] Relative rescheduliong reply action (`^16h` - instead of 16h from now, make it 16 hours from when that reminder expired)
 - [x] Add polish weekday options
 - [ ] add revolution counter in /botstatus (`tcr.nth()`)
-- [ ] Make `v @cat` syntax
+- [ ] ~~Make `v @cat` syntax~~ make `@db` syntax
+- [ ] Robo bottom personal DBs, file system like, reuse from terminal
+- [ ] make a "a red spy is in the base" Easter egg that no one will ever find in robobottom
+- [ ] add edit text with modal onto embed view
 
 ~~<style>s{color: crimson;} b,strong{text-decoration:underline}</style>~~
 <!-- I am MEGUMIN the greatest mage among crimson demons and wielder of EXPLOSION MAGIC -->
