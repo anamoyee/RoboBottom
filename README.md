@@ -17,8 +17,8 @@ pip install -r requirements.txt
 python src/robobottom.py
 ```
 
-!!! warning
-    You may use Python 3.12 if it works for you however i cannot guarantee it. Please use Python 3.11 if possible.
+> [!IMPORTANT]
+> You may use Python 3.12 if it works for you however i cannot guarantee it. Please use Python 3.11 if possible.
 
 ## Contact
 If you have any questions contact me on discord `@thecreatorrrr`\
