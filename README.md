@@ -2,15 +2,17 @@
 A clone/remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop was originally made by **[Colon](https://gdcolon.com)** <img style="width: 15px; height: 15px;" src="https://cdn.discordapp.com/emojis/1132968267963715634.webp?size=64&name=fluff&quality=lossless"></img>. I remade the *reminders* part of that bot because of its shutdown on August 12th 2023. RIP RoboTop, You will be missed!
 
 ## How do I host it myself?
-1. Install **[Python](https://www.python.org/downloads/)** and add it to PATH during instalation.
-2. Install python modules using the following command in the main project's directory.
+1. Install **[Python 3.11](https://www.python.org/downloads/)** and add it to PATH during instalation.
+  - On Linux you can use **[Parafoxia](https://github.com/parafoxia)**'s **[Python Install Scripts](https://github.com/parafoxia/python-scripts)**
+  - On Windows use the installer from **[Python Official Website](https://www.python.org/downloads/)** or the Microsoft Store
+2. Install python modules using the following command in the main project's directory. (`pip3.11`/`pip3` on linux)
 ```
 pip install -r requirements.txt
 ```
 <!--1. Go to `settings.py` and change your settings accordingly.-->
-3. Create an application on **[Discord Developer Portal](https://discord.com/developers/applications)** and grant it all priviliged gateway intents (I don't really know if they are needed but I just always grant them and I don't know if it will break something if it's not grantetd).
-4. The bot will try to find a file called `TOKEN.txt` up to two directories away (in cwd, parent & parent of parent). Create it and populate it with the bot's token.
-5. Run the bot with the following command
+1. Create an application on **[Discord Developer Portal](https://discord.com/developers/applications)** and grant it all priviliged gateway intents.
+2. The bot will try to find a file called `TOKEN.txt` up to two directories away (in cwd, parent & parent of parent). Create it and populate it with the bot's token.
+3. Run the bot with the following command (`python3.11`/`python3` on linux)
 ```
 python src/robobottom.py
 ```
@@ -19,7 +21,37 @@ python src/robobottom.py
 If you have any questions contact me on discord `@thecreatorrrr`\
 If i change my username for some reason (or discord again fucks the username system up) here's my id `<@507642999992352779>`
 
-# Todo for v1 (archive)
+# Todo v2
+- [X] Add vaidators for BANNER & BANNER_COLORS
+- [X] Add default enabled guilds to guilds
+- [ ] Add validators
+- [X] **!!! SECURE dev commands.**
+- [ ] Priority system
+  - P1 and `P1 \>\> ` highlight for reminders that have been set for **1 year or more**
+  - P2 and `P2 \> ` highlight for reminders that have been set for **1 month or more**
+  - P3 and `P3 ` highlight for reminders that have been set for **1 week or more**
+  - No highlight for other reminders
+  - Flag to opt out of priority (`=`) (go back to "no highlight for other reminders" even if highlight should be attached)
+- [ ] `n*` syntax: `3*1h test` -> do the same as typing `1h test` 3 times
+- [ ] Validate settings value with SETTING_VALID_SONMETHING_CHARACTERS
+- [ ] When responding to creating a reminder: "Sure! I'll remind you in..." add setting to append something like (it's idx=...)
+  - For example: `Sure! I'll remind you in 1 hour. (id=19)`
+- [ ] Add a setting to add a view with buttons like "No, wait, cancel" or "Preview" to the "Sure! i'll remind you in..." message
+  - [ ] Make them disappear (`.edit(components=[])`) after a while
+- [ ] Entering "rubrub" or "rub" rescue whenever the `.` message fails to load
+  - List the rem amount
+  - Show bottom-most (-1) rem
+  - Suggest cancelling -1 rem
+  - Suggest reporting bug
+- [ ] image support
+- [ ] add "from 4h ago" to the reminder footer
+- [ ] integrate the Melanie announcements to robobottom:
+  - Attention all (1) passengers... Wilford Industries wishes you a good morning. The temperature outside is {get_temperature()} degrees Celsius. As we enter the Yukon Territory of the former Canada, we remind you, for your personal safety, be prepared to brace. We are {get_formated_days_since_birth()} from departure. At the tone, the exact time will be 0800 hours.
+- [ ] add a ".then()" functionality. When defining you can specify two reminders or more (with some new separator, very hard to accidentally type) or some other way maybe to have a 'next' button which schedules the reminder net in line if any for example:
+5m ładowanie$$$1h unładowanie
+- [ ] **Add stats** (viewable for the user maybe)
+
+# Todo v1 (archive)
 - [x] `/remind` for servers
 - [x] Update /help msg to include /remind in servers
 - [x] SORT the `.` list to be from furthest to closest reminders
@@ -85,4 +117,3 @@ If i change my username for some reason (or discord again fucks the username sys
 ~~<style>p, li{font-family: "Hubot Sans Bold"; font-size: 17px}</style>~~
 ~~<style>code, pre{font-family: Consolas}</style>~~
 ~~<style>code{background-color: #271a45; border-radius: 4px; padding: 2px; padding-left: 5px; padding-right: 5px;}</style>~~
-~~<style>body *{background-color: #0d1117;}</style>~~
