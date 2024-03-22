@@ -22,7 +22,7 @@ class RBSettingsError(Exception):
       )
       for x in args
     ]
-    s = fg('red') + attr('bold') + '%s' + attr(0)
+    s = Fore.RED + Style.BOLD + '%s' + Style.RESET
     s = ''.join(args) if TESTMODE else (s % ''.join(args))
 
     super().__init__(s)
@@ -60,6 +60,13 @@ if True:  # ACTIVITY
 if True:  # BANNER & BANNER_COLORS
   if not (S.BANNER is None or isinstance(S.BANNER, str)):
     raise RBSettingsError('S.BANNER must be None or str, got: ', type(S.BANNER))
+
+  if S.BANNER is not None:
+    S.BANNER = (
+      a.read_text().strip()
+      if (a := p.Path(__file__).parent.parent / S.BANNER).is_file()
+      else tcr.console.error(f'\n###\n###  Unable to find banner file\n###  Check the path in r02_settings.py\n###')
+    )
 
   if (
     (not isinstance(S.BANNER_COLORS, tuple | list))

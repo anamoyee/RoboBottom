@@ -35,7 +35,7 @@ Running on Python {'.'.join([str(x) for x in sys.version_info[:2]])}
 Started {me.username}#{me.discriminator} v{VERSION}
 Status:   {S.STATUS:>30}
 Activity: {S.ACTIVITY.name:>30}
-On the eve of our {attr('underline')}{tcr.nth(REVOLUTION)}{attr(0) + fg('green') + attr('bold')} revolution...
+On the eve of our {Style.UNDERLINE}{tcr.nth(REVOLUTION)}{Style.RESET + Fore.GREEN + Style.BOLD} revolution...
 ========================================
 """[1:-1]
       ).split('\n')

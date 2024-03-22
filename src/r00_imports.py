@@ -18,7 +18,7 @@ import attr as atr
 import hikari
 import miru
 import tcrutils as tcr
-from colored import attr, bg, fg
+from colored import Back, Fore, Style
 from hikari import ButtonStyle, Emoji, UndefinedType
 from hikari.undefined import UNDEFINED as UNDEFINED
 from lightbulb.ext import tasks

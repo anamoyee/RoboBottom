@@ -25,13 +25,13 @@ class S:
   DB_DIRECTORY: p.Path = p.Path.home() / 'CCLocalReminders'  # Default: ~/CCLocalReminders
   """Pathlib Path object represending the directory where all user reminders are stored as subdirectories with the name of their discord ID. Created automatically if it doesn't exist."""
 
-  BANNER: str | None = (p.Path(__file__).parent.parent / 'banner.txt').read_text().strip()  # Default: ../banner.txt
+  BANNER: str | None = 'assets/txt/banner.txt'  # Default: assets/txt/banner.txt
   """The banner ascii that is shown when the bot launches. Just edit the banner.txt file. When set to None, both this banner and the hikari default banner are not shown."""
 
   BANNER_COLORS: tuple[int, str, str] = (
     36,  # Default: 36 for default banner.txt
-    attr(0) + fg('dark_gray'),
-    attr(0) + fg('orange_1') + attr('bold'),
+    Style.RESET + Fore.DARK_GRAY,
+    Style.RESET + Fore.ORANGE_1 + Style.BOLD,
   )
   """Colors of the above banner.
 
@@ -68,7 +68,7 @@ class S:
   """
 
   RANDOM_SURES: list[str] = list(
-    {  # list(set(x)) is used to prevent duplicates. Replace list(set()) with [] to allow duplicates - They will effectively have higher chance to be displayed.
+    {  # list(set(x)) is used to prevent accidental duplicates. Replace list(set()) with [] to allow duplicates - They will effectively have higher chance to be displayed.
       'Done!',
       'Got it!',
       'Sweet!',
