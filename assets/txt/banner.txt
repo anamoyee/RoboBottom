@@ -1,8 +1,15 @@
-8888888b.          888               888888b.            888    888
-888   Y88b         888               888  "88b           888    888
-888    888         888               888  .88P           888    888
-888   d88P .d88b.  88888b.   .d88b.  8888888K.   .d88b.  888888 888888 .d88b.   .d88b.d88b.
-8888888P" d88""88b 888 "88b d88""88b 888  "Y88b d88""88b 888    888   d88""88b 888 "888 "88b
-888 T88b  888  888 888  888 888  888 888    888 888  888 888    888   888  888 888  888  888
-888  T88b Y88..88P 888 d88P Y88..88P 888   d88P Y88..88P Y88b.  Y88b. Y88..88P 888  888  888
-888   T88b "Y88P"  88888P"   "Y88P"  8888888P"   "Y88P"   "Y888  "Y888 "Y88P"  888  888  888
+# COMMENT # WARNING! This file's contents are EXECUTED AS CODE in order to provide color support.
+# COMMENT # Do not put anything here. Use f-string placeholders {} to add expressions.
+# COMMENT # Every line starts with a color reset.
+# COMMENT # Every line that starts with "# COMMENT #" is ignored.
+# COMMENT # Font: Colossal (https://patorjk.com/software/taag/#p=display&f=Colossal&t=RoboTop)
+# COMMENT # PS: there is a special variable 'BC' which is a copy of the S(ettings).BANNER_COLORS list
+
+{BC[0]}8888888b.          888               {BC[1]}888888b.            888    888
+{BC[0]}888   Y88b         888               {BC[1]}888  "88b           888    888
+{BC[0]}888    888         888               {BC[1]}888  .88P           888    888
+{BC[0]}888   d88P .d88b.  88888b.   .d88b.  {BC[1]}8888888K.   .d88b.  888888 888888 .d88b.   .d88b.d88b.
+{BC[0]}8888888P" d88""88b 888 "88b d88""88b {BC[1]}888  "Y88b d88""88b 888    888   d88""88b 888 "888 "88b
+{BC[0]}888 T88b  888  888 888  888 888  888 {BC[1]}888    888 888  888 888    888   888  888 888  888  888
+{BC[0]}888  T88b Y88..88P 888 d88P Y88..88P {BC[1]}888   d88P Y88..88P Y88b.  Y88b. Y88..88P 888  888  888
+{BC[0]}888   T88b "Y88P"  88888P"   "Y88P"  {BC[1]}8888888P"   "Y88P"   "Y888  "Y888 "Y88P"  888  888  888

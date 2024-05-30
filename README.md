@@ -4,7 +4,7 @@ A clone/remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop 
 ## How do I host it myself?
 1. Install **[Python 3.11](https://www.python.org/downloads/)** and add it to PATH during instalation.
   - On Linux you can use **[Parafoxia](https://github.com/parafoxia)**'s **[Python Install Scripts](https://github.com/parafoxia/python-scripts)**
-  - On Windows use the installer from **[Python Official Website](https://www.python.org/downloads/)** or the Microsoft Store
+  - On Windows use the installer from **[Python Official Website](https://www.python.org/downloads/)** (or the Microsoft Store bleh)
 2. Install python modules using the following command in the main project's directory. (`pip3.11`/`pip3` on linux)
 ```
 pip install -r requirements.txt
@@ -12,7 +12,7 @@ pip install -r requirements.txt
 <!--1. Go to `settings.py` and change your settings accordingly.-->
 1. Create an application on **[Discord Developer Portal](https://discord.com/developers/applications)** and grant it all priviliged gateway intents.
 2. The bot will try to find a file called `TOKEN.txt` up to two directories away (in cwd, parent & parent of parent). Create it and populate it with the bot's token.
-3. Run the bot with the following command (`python3.11`/`python3` on linux)
+3. Run the bot with the following command (`python3`/`python3.11` on linux)
 ```
 python src/robobottom.py
 ```
@@ -24,18 +24,24 @@ python src/robobottom.py
 If you have any questions contact me on discord `@thecreatorrrr`\
 If i change my username for some reason (or discord again fucks the username system up) here's my id `<@507642999992352779>`
 
+# Todo v3
+- [ ] make basic stuff work
+- [x] fix revcounter
+- [ ] MAKE STATS LIKE: FIRST INTERACTED WITH THE BOT.
+- [ ] Add option to backup your reminders to a file and to load them later.
+- [ ] Add to the reminder: `This reminder was sent ... too late`.
+
 # Todo v2
 - [X] Add vaidators for BANNER & BANNER_COLORS
 - [X] Add default enabled guilds to guilds
-- [ ] Add validators
 - [X] **!!! SECURE dev commands.**
 - [ ] Priority system
+  - [ ] priority overrides (option for users to choose diff priority than time-based)
   - P1 and `P1 \>\> ` highlight for reminders that have been set for **1 year or more**
   - P2 and `P2 \> ` highlight for reminders that have been set for **1 month or more**
   - P3 and `P3 ` highlight for reminders that have been set for **1 week or more**
-  - No highlight for other reminders
-  - Flag to opt out of priority (`=`) (go back to "no highlight for other reminders" even if highlight should be attached)
-- [ ] `n*` syntax: `3*1h test` -> do the same as typing `1h test` 3 times
+  - No priority-highlight for other reminders
+- [ ] `n*` syntar2x: `3*1h test` -> do the same as typing `1h test` 3 times
 - [ ] Validate settings value with SETTING_VALID_SONMETHING_CHARACTERS
 - [ ] When responding to creating a reminder: "Sure! I'll remind you in..." add setting to append something like (it's idx=...)
   - For example: `Sure! I'll remind you in 1 hour. (id=19)`
@@ -53,6 +59,7 @@ If i change my username for some reason (or discord again fucks the username sys
 - [ ] add a ".then()" functionality. When defining you can specify two reminders or more (with some new separator, very hard to accidentally type) or some other way maybe to have a 'next' button which schedules the reminder net in line if any for example:
 5m ładowanie$$$1h unładowanie
 - [ ] **Add stats** (viewable for the user maybe)
+- [ ] message id editing (add a message id property to Reminder: `message_id: int | None`)
 
 # Todo v1 (archive)
 - [x] `/remind` for servers

@@ -1,4 +1,4 @@
-from r07_asyncs import *
+from r08_asyncs import *
 
 
 class RBSettingsError(Exception):
@@ -15,7 +15,7 @@ class RBSettingsError(Exception):
         if isinstance(x, str)
         else tcr.fmt_iterable(
           x,
-          syntax_highlighting=syntax_highlighting and (not TESTMODE),
+          syntax_highlighting=syntax_highlighting,
           force_no_indent=force_no_indent,
           **kwargs,
         )
@@ -58,29 +58,11 @@ if True:  # ACTIVITY
   S.ACTIVITY = hikari.Activity(**S.ACTIVITY)
 
 if True:  # BANNER & BANNER_COLORS
-  if not (S.BANNER is None or isinstance(S.BANNER, str)):
-    raise RBSettingsError('S.BANNER must be None or str, got: ', type(S.BANNER))
+  if not (S.BANNER is None or isinstance(S.BANNER, p.Path)):
+    raise RBSettingsError('S.BANNER must be None or p.Path, got: ', type(S.BANNER))
 
-  if S.BANNER is not None:
-    S.BANNER = (
-      a.read_text().strip()
-      if (a := p.Path(__file__).parent.parent / S.BANNER).is_file()
-      else tcr.console.error(f'\n###\n###  Unable to find banner file\n###  Check the path in r02_settings.py\n###')
-    )
-
-  if (
-    (not isinstance(S.BANNER_COLORS, tuple | list))
-    or (len(S.BANNER_COLORS) != 3)
-    or (not isinstance(S.BANNER_COLORS[0], int))
-    or (not isinstance(S.BANNER_COLORS[1], str))
-    or (not isinstance(S.BANNER_COLORS[2], str))
-  ):
-    raise RBSettingsError(
-      'S.BANNER_COLORS must be a tuple[int, str, str],\n' 'The first value is the cutoff point, the second value is the color before cutoff and the third is the color after cutoff. Got: ',
-      S.BANNER_COLORS,
-      let_no_indent=False,
-      force_no_indent=False,
-    )
+  if S.BANNER is not None and not S.BANNER.is_file():
+    raise RBSettingsError('S.BANNER must be an existing file, got: ', repr(S.BANNER))
 
 if True:  # DEFAULT_ENABLED_GUILDS
   if isinstance(S.DEFAULT_EANBLED_GUILDS, int):
