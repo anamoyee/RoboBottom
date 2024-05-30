@@ -208,7 +208,7 @@ class Embeds:
       footer=None if e is None else extract_error(e),
     )
 
-  def invalid_syntax_big(self, _in_help=False):  # noqa: FBT002
+  def invalid_syntax_big(self, _in_help=False):
     return embed(
       'Invalid syntax' if not _in_help else 'Reminders',
       'Provide a delay in the format of at least one `[NUMBER][UNIT]` group or multiple for example `30m` or `1y30w` or `1h.25d` then separate it with a space and provide your message. The message must be between 1 and 100 characters long and must be separated from the delay with a space.\nAdditionally make sure all units are correct',
@@ -442,7 +442,7 @@ def multichar_lstrip(input_string, text_to_remove):
 ### miru views
 
 
-def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:  # noqa: FBT002
+def VClearConfirm(func: t.Callable, _disabled=False, timeout=120) -> miru.View:
   class VClearConfirm_(miru.View):
     @miru.button(label='Confirm', style=hikari.ButtonStyle.DANGER, disabled=_disabled)
     async def btn_confirm(self, btn: miru.Button, ctx: miru.Context):
@@ -529,7 +529,7 @@ def VReminder(
 def VPagedMessage(
   pages: Sequence[Mapping],
   page: int,
-  _disabled=False,  # noqa: FBT002
+  _disabled=False,
   timeout: float | None = 120,
 ) -> miru.View:
   if len(pages) == 0:
@@ -777,7 +777,7 @@ def get_stats(a: int = 0) -> tuple[int, int]:
   return sum([len(x) for x in ALL_rems.values()])
 
 
-def parse_for_aliases(content: str, is_reply: bool = False) -> str | None:  # noqa: FBT001, FBT002
+def parse_for_aliases(content: str, is_reply: bool = False) -> str | None:
   if content is None:
     return None
   if content in ['1pul', 'pul']:
