@@ -1,3 +1,4 @@
+import hikari.channels
 from r04_bot import *
 
 
@@ -50,7 +51,7 @@ class EMBED:
   @staticmethod
   def reminder_canceled(rem: Reminder) -> hikari.Embed:
     if rem.is_flag(CTF.HASH_HIDDEN):
-      desc = "`>> This reminder was hidden <<`\nIts contents were irrecoverably lost!"
+      desc = '`>> This reminder was hidden <<`\nIts contents were irrecoverably lost!'
     else:
       desc = str(rem)
 
@@ -126,6 +127,14 @@ class RESP:
     }
 
   @staticmethod
+  def banned(**kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> tcr.discord.types.HikariDictMessage:
+    return {
+      'content': ':x: You are banned from using this bot.',
+      'flags': hikari.MessageFlag.EPHEMERAL,
+      **kwargs,
+    }
+
+  @staticmethod
   def reminder_list(r: t.Iterable[Reminder], **kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> nav.NavigatorView:
     """List of user's reminders.
 
@@ -142,3 +151,28 @@ class RESP:
       pages.append(nav.Page(embed=EMBED.reminder_list(remslice, len(r))))
 
     return nav.NavigatorView(pages=pages, items=[x() for x in (S.REMINDER_LIST_NAVBAR_ITEMS if len(pages) > 1 else S.REMINDER_LIST_NAVBAR_ITEMS_ONE_PAGE)], **kwargs)
+
+  @staticmethod
+  def reminder(rem: Reminder) -> tcr.discord.types.HikariDictMessage:
+    user_mentions = []
+
+    if rem.is_flag(CTF.IMPORTANT):
+      content = f'# {tcr.discord.IFYs.userify(rem.user)}'
+      user_mentions.append(rem.user)
+    else:
+      content = hikari.UNDEFINED
+
+    return {
+      'content': content,
+      'embed': m_embed.EMBED.reminder(rem),
+      'attachments': rem.attachments,
+      'user_mentions': user_mentions,
+    }
+
+  @staticmethod
+  def not_my_message(do_what: str = 'do that', **kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> tcr.discord.types.HikariDictMessage:
+    return {
+      'content': f"{S.NO} I can't {do_what} to a message I didn't send!.",
+      'flags': hikari.MessageFlag.EPHEMERAL,
+      **kwargs,
+    }

@@ -26,9 +26,7 @@ async def onStoppingEvent(event: hikari.StoppingEvent):
 
 
 @BOT.listen(arc.StoppingEvent)
-async def onArcStoppingEvent(event: arc.StoppingEvent):
-  ...
-
+async def onArcStoppingEvent(event: arc.StoppingEvent): ...
 
 
 @BOT.listen(hikari.StoppedEvent)
@@ -40,13 +38,25 @@ async def onDMMessageCreateEvent(event: hikari.DMMessageCreateEvent):
   if not event.is_human:
     return
 
+  if event.content and event.content == 'unban':  # Failsafe
+    await rd_ban(event.message.respond, admin_id=event.author.id, user=event.author.id, unban=True, drop_db=False)
+    return
+
+  if event.content and event.content in P.DM_CMD_ALIASES('del') and event.message.referenced_message:
+    await rr_del(event.message.respond, event.message, event.message.referenced_message)
+    return
+
+  if event.author.id in GDB['banned']:
+    await event.message.respond(**RESP.banned(), reply=event.message)
+    return
+
   scontent = event.content or ''
   if scontent and scontent[-1] in S.ACCIDENTAL_SUFFIXES:
     scontent = scontent[:-1]
 
   if not scontent:
     if event.message.attachments:
-      await event.message.respond(EMBED.generic_text_error("Empty message", "You sent a message with a file, but no text, therefore no reminder delay can be inferred."))
+      await event.message.respond(EMBED.generic_text_error('Empty message', 'You sent a message with a file, but no text, therefore no reminder delay can be inferred.'))
     return
 
   identifier = (scontent + ' ').split(' ', maxsplit=1)[0]

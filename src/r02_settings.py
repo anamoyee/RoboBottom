@@ -11,6 +11,13 @@ class S:
   - `False` → Never run in testmode
   """
 
+  NO: str = ':x:'
+  """'Something failed or could not be completed or an error occured' emoji/prefix."""
+  YES: str = ':white_check_mark:'
+  """'Something was completed successfully' emoji/prefix."""
+  WARN: str = ':warning:'
+  """'No error occured but something went slightly wrong OR nothing happened due to your actions but you are notified of it' emoji/prefix."""
+
   STATUS = hikari.Status.ONLINE
   """Discord status (Online, Idle, etc.)"""
 
@@ -113,7 +120,7 @@ class S:
   REMINDER_LIST_MAX_CHARS_PER_REMINDER: int = (tcr.discord.DiscordLimits.Embed.DESCRIPTION_SAFE - (5 * REMINDER_LIST_REMINDERS_PER_PAGE)) // REMINDER_LIST_REMINDERS_PER_PAGE
   """Number of characters a single reminder can take until it's cut off with an elipsis."""
 
-  REMINDER_LIST_MAX_TOTAL_REMINDERS_PER_USER: int = REMINDER_LIST_REMINDERS_PER_PAGE * 10 # 10 pages should be MORE THAN ENOUGH...
+  REMINDER_LIST_MAX_TOTAL_REMINDERS_PER_USER: int = REMINDER_LIST_REMINDERS_PER_PAGE * 10  # 10 pages should be MORE THAN ENOUGH...
 
   NAVBAR_LABEL: dict[str, str] = {
     'prev': '<< Page {page}',
@@ -124,7 +131,7 @@ class S:
   PRINT_REVOLUTION: bool = True
   """Nice if you get the reference. If this is True, the bot on startup prints the revolution "On the eve of our {} revolution..." (aka the how many times this bot has booted up without changing versions)."""
 
-  ACCIDENTAL_SUFFIXES: set[str] = {'\'', '\\'}
+  ACCIDENTAL_SUFFIXES: set[str] = {"'", '\\'}
   """Those characters will be ignored if left at the end of an input string.
 
   For example:
@@ -139,7 +146,19 @@ class S:
   when pressing the enter key to send the message.
   """
 
-  DEV_IDS: tuple[tcr.discord.Snowflake] = (507642999992352779,) # This manages permissions, not credits, for example user that's NOT on that list CAN'T invoke commands, but /botstatus uses a separate entry, look lower on this list of settings
+  SLASH_COMMAND_IDS = {
+    'privacy purge': 1246239256863576074,
+  }
+  """Used for `</command:id>` notation for clickable commands in chat. You have to change this if you change bots (two different bot accounts from the discord developer portal) or the slash commands won't display properly
+
+  To obtain a discord command ID, enable developer mode in settings, then select the command in the chat by typing / and its name, then right click on the top bar and select "Copy ID".
+  https://i.sstatic.net/e7XGm.png
+  https://stackoverflow.com/questions/73983897/how-do-i-get-the-id-of-a-slash-command-and-mention-it
+  """
+
+  DEV_IDS: tuple[tcr.discord.Snowflake] = (
+    507642999992352779,
+  )  # This manages permissions, not credits, for example user that's NOT on that list CAN'T invoke commands, but /botstatus uses a separate entry, look lower on this list of settings
   """[DEV] A list of discord IDs of user accounts that are permitted to invoke developer functions (dangerous!)"""
 
   DEFAULT_EANBLED_GUILDS: tuple[tcr.discord.Snowflake] | None = None  # (1145433323594842166,) # Default: None
@@ -154,7 +173,7 @@ class S:
 
   ### The following settings should not be modified.
 
-  CREATED_BY: CreatedByTD = {'id': 507642999992352779, 'name': 'anamoyee'} # Do not change or confusion will ensue (if a bug is ever triggered)
+  CREATED_BY: CreatedByTD = {'id': 507642999992352779, 'name': 'anamoyee'}  # Do not change or confusion will ensue (if a bug is ever triggered)
   """Should not be changed - my discord name & ID. This is rarely used to refer a user that stumbled upon a bug to me so i can fix it. This is also used in one line in credits."""
 
   MAJOR_VERSION_TEMPLATE: str = '2.1.%s'

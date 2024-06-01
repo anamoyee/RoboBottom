@@ -31,5 +31,6 @@ if True:  # Functional
       'list': ('.', 'list', 'ls', 'l', 'reminders', 'rems', 'list reminders', 'list rems', 'listreminders', 'listrems'),
       'cancel': ('c', 'cancel', 'cancel reminder', 'cancel rem', 'cancelreminder', 'cancelrem'),
       'view': ('v', 'view', 'view reminder', 'view rem', 'viewreminder', 'viewrem'),
+      'del': ('delete', 'delthis', 'del this', 'delete this', 'deletethis', 'remove', 'removethis', 'removethis'),
     }
   )

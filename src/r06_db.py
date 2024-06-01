@@ -16,7 +16,12 @@ if True:  # DB Hints
     'revolution': int,
   }
 
-  class G(TD): ...
+  class G(TD):
+    banned: set[int]
+
+  G.defaults = {
+    'banned': set,
+  }
 
 
 if True:  # DB Types
@@ -33,7 +38,7 @@ if True:  # DB Types
       r = self['r']
 
       if len(r) >= S.REMINDER_LIST_MAX_TOTAL_REMINDERS_PER_USER:
-        raise TextErrpondError("How??", f'You somehow reached the user reminder limit (`{S.REMINDER_LIST_MAX_TOTAL_REMINDERS_PER_USER}`)...')
+        raise TextErrpondError('How??', f'You somehow reached the user reminder limit (`{S.REMINDER_LIST_MAX_TOTAL_REMINDERS_PER_USER}`)...')
 
       r.append(rem)
       r = sorted(r, key=S.SORTKEY)
@@ -59,6 +64,7 @@ if True:  # DB Types
 
   class _GlobalDatabaseType(tcr.ShelveDB):
     directory = DB_GLOBAL_PATH.parent
+    defaults = G.defaults
 
     @classmethod
     def iter_all(cls) -> t.NoReturn:

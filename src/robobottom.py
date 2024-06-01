@@ -13,6 +13,7 @@ def print_banner():
 
   print(banner_text)
 
+
 if __name__ == '__main__':
   if S.BANNER is not None:
     print_banner()

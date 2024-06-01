@@ -6,6 +6,7 @@ import r08_asyncs as m_asyncs
 from r00_imports import *
 
 if True:  # Errors
+
   class TextErrpondError(Exception):
     """Represents an error that should be handled by text_errponding. Provides a shorthand for it: e.execute(ctx)."""
 
@@ -16,6 +17,7 @@ if True:  # Errors
       self.title = title
       self.description = description
       super().__init__()
+
 
 if True:  # Typed Dicks
 
@@ -28,6 +30,7 @@ if True:  # Typed Dicks
   class CreatedByTD(TD):
     id: int
     name: str
+
 
 if True:  # Reminder:
 
@@ -79,7 +82,7 @@ if True:  # Reminder:
       """Send the reminder to the user."""
 
       channel = await bot.rest.create_dm_channel(self.user)
-      await channel.send(m_embed.EMBED.reminder(self), attachments=self.attachments)
+      await channel.send(**m_embed.RESP.reminder(self))
 
     def expired(self) -> bool:
       """Return True if the reminder should be delivered."""

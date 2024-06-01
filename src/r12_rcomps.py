@@ -39,6 +39,53 @@ async def rd_run(
   await responder(out)
 
 
+async def rd_ban(
+  responder: Callable[[str], Coroutine],
+  *,
+  admin_id: int,
+  user: int,
+  unban: bool,
+  drop_db: bool,
+):
+  if not tcr.discord.is_snowflake(user, allow_string=True):
+    await responder(f""":x: Invalid user ID: `{user.replace('`', "'")}`""", flags=hikari.MessageFlag.EPHEMERAL)
+    return
+
+  if unban and drop_db:
+    await responder(':x: Cannot `unban` and `wipedb` at the same time bruh???', flags=hikari.MessageFlag.EPHEMERAL)
+    return
+
+  user = int(user)
+
+  if not unban and user == admin_id:
+    await responder(":x: You can't ban yourself...", flags=hikari.MessageFlag.EPHEMERAL)
+    return
+
+  banned = GDB['banned']
+
+  suffix = ''
+
+  if drop_db:
+    udb: U | Database = Database(user)
+    udb.drop_db()
+    suffix += ' and dropped their database'
+
+  if user in banned:
+    if unban:
+      banned.remove(user)
+      message = f'{S.YES} Unbanned'
+    else:
+      message = f'{S.WARN} User already banned:'
+  else:
+    if unban:
+      message = f'{S.WARN} User was not banned:'
+    else:
+      banned.add(user)
+      message = ':hammer: Banned'
+  GDB['banned'] = banned
+  await responder(f'{message} {tcr.discord.IFYs.userify(user)}{suffix}', flags=hikari.MessageFlag.EPHEMERAL)
+
+
 async def r_remind(
   responder: Callable[[str], Coroutine],
   text: str,
@@ -107,6 +154,7 @@ async def _wrong_index(r: list[Reminder], responder: Callable[[hikari.Embed], Co
   desc = f'Choose an index from range: `1-{len(r)}`' if r else f"You don't have any reminders to {verb}. Schedule a reminder like this: `30m finish this bot`"
   return await responder(EMBED.generic_text_error('Invalid index', desc))
 
+
 async def r_cancel(
   responder: Callable[[str], Coroutine],
   user: int,
@@ -146,8 +194,25 @@ async def r_view(
     idx = _a.result
 
   try:
-    rem = r[idx-1]
-  except KeyError:
+    if idx < 0:
+      rem = r[idx]
+    else:
+      rem = r[idx - 1]
+  except IndexError:
     return await _wrong_index(r, responder, 'view')
   else:
     return await responder(EMBED.reminder_view(rem))
+
+
+async def rr_del(
+  responder: Callable[[str], Coroutine],
+  message: hikari.Message,
+  referenced: hikari.PartialMessage,
+):
+  """### R(Reply): Delete this message if it's authored by this bot."""
+
+  if referenced.author.id == BOT.get_me().id:
+    with contextlib.suppress(hikari.NotFoundError):
+      await referenced.delete()
+  else:
+    await responder(**RESP.not_my_message(reply=message))

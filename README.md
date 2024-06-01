@@ -30,6 +30,9 @@ If i change my username for some reason (or discord again fucks the username sys
 - [ ] MAKE STATS LIKE: FIRST INTERACTED WITH THE BOT.
 - [ ] Add option to backup your reminders to a file and to load them later.
 - [ ] Add to the reminder: `This reminder was sent ... too late`.
+- [ ] Add /help
+- [ ] make all flags work
+- [ ] Finish validators
 
 # Todo v2
 - [X] Add vaidators for BANNER & BANNER_COLORS
@@ -41,7 +44,7 @@ If i change my username for some reason (or discord again fucks the username sys
   - P2 and `P2 \> ` highlight for reminders that have been set for **1 month or more**
   - P3 and `P3 ` highlight for reminders that have been set for **1 week or more**
   - No priority-highlight for other reminders
-- [ ] `n*` syntar2x: `3*1h test` -> do the same as typing `1h test` 3 times
+- [ ] `n*` syntax: `3*1h test` -> do the same as typing `1h test` 3 times
 - [ ] Validate settings value with SETTING_VALID_SONMETHING_CHARACTERS
 - [ ] When responding to creating a reminder: "Sure! I'll remind you in..." add setting to append something like (it's idx=...)
   - For example: `Sure! I'll remind you in 1 hour. (id=19)`

@@ -87,3 +87,7 @@ def build_reminder(
     recursion_tstr=recursion_tstr,
     attachments=attachments,
   )
+
+
+def did_as_i_said(s: str) -> bool:
+  return s == 'Yes, do as I say!'
