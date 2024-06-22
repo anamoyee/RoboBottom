@@ -53,7 +53,7 @@ class EMBED:
     if rem.is_flag(CTF.HASH_HIDDEN):
       desc = '`>> This reminder was hidden <<`\nIts contents were irrecoverably lost!'
     else:
-      desc = str(rem)
+      desc = rem.text
 
     return embed(
       '🔕 Reminder cancelled!',
@@ -68,42 +68,110 @@ class EMBED:
     else:
       desc = rem.text
 
+    footer = f'Will trigger in {TIMESTR.to_str(-rem.expired_for())} ({TIMESTR.to_strf(-rem.expired_for())})'
+    if rem.attachments:
+      footer += f' + {rem.attachments_as_listabbrev().strip()}'
+
     return embed(
       f'📝 {"Hidden " if rem.is_flag(CTF.HASH_HIDDEN) else ""}Reminder #{rem.fetch_index()+1}',
       description=desc,
-      footer=f'Will trigger in {TIMESTR.to_str(-rem.expired_for())} ({TIMESTR.to_datestr(-rem.expired_for())})',
+      footer=footer,
       color=S.EMBED_COLORS['secondary'],
     )
 
   @staticmethod
-  def user_settings_single(key: str, value: Any) -> hikari.Embed:
+  def import_confirmer(import_obj: ExportedDataTD, mode: Literal['append', 'overwrite'], invalid_keys: list[str]) -> hikari.Embed:
+    desc = "This will:"
+
+    def sortkey(key: str):
+      if key == 'reminders':
+        return ''
+      return key
+
+    keys = sorted(import_obj.keys(), key=sortkey)
+
+    for key in keys:
+      if key == 'reminders':
+        desc += f'\n- **{mode.upper()}** reminders (any expired reminders will be skipped)'
+      else:
+        desc += f"\n- **OVERWRITE** {key}"
+
+    if invalid_keys:
+      invalid_keys_formatted = ', '.join(f'`{k}`' for k in invalid_keys)
+
+    color = S.EMBED_COLORS['success']
+
+    if '\n' not in desc:
+      color = S.EMBED_COLORS['error']
+      desc = "This file doesnt seem to contain any valid changes to the database (confirming will do nothing). Please check the file integrity and contact the bot developer in case of any issues."
+      if invalid_keys:
+        desc += f"\n\nThis issue might be due to the file containing invalid keys:\n{invalid_keys_formatted}"
+    elif invalid_keys:
+      color = S.EMBED_COLORS['colon'] # orange halfway between success and error i guess?
+      desc += f'\nThere were also invalid keys in the file: {invalid_keys_formatted}'
+
     return embed(
-      f'User settings: {key.title()}',
-      f'Currently set to: **`{value}`** ',
-      color=S.EMBED_COLORS['settings'],
+      "Are you sure you want to import this file?",
+      desc,
+      color=color,
+    )
+
+  # @staticmethod
+  # def user_settings_single(key: str, value: Any) -> hikari.Embed:
+  #   return embed(
+  #     f'User settings: {key.title()}',
+  #     f'Currently set to: **`{value}`** ',
+  #     color=S.EMBED_COLORS['settings'],
+  #   )
+
+  # @staticmethod
+  # def setting_changed(key: str, value: str) -> hikari.Embed:
+  #   return embed(
+  #     f'Setting changed: {key.title()}',
+  #     f'Changed to: **`{value}`**',
+  #     color=S.EMBED_COLORS['settings'],
+  #   )
+
+  # @staticmethod
+  # def settings_invalid_characters() -> hikari.Embed:
+  #   return embed(
+  #     'Invalid setting value.',
+  #     'Only the following characters are allowed: `a-z`, `A-Z`, `0-9`, `_- `\nSetting value cannot be empty.',
+  #     color=S.EMBED_COLORS['error'],
+  #   )
+
+  # @staticmethod
+  # def settings_value_too_long() -> hikari.Embed:
+  #   return embed(
+  #     'Invalid setting value.',
+  #     f'Setting value cannot be longer than {SETTINGS_VALUE_MAX_LENGTH} characters.',
+  #     color=S.EMBED_COLORS['error'],
+  #   )
+
+  @staticmethod
+  def fuck_confirm(rem: Reminder) -> hikari.Embed:
+    return embed(
+      'Are you sure you want to cancel the latest reminder?',
+      f'You set this reminder {tcr.discord.IFYs.timeify(rem.created_at, style="R")} which is why I am asking you to confirm if you intended to cancel it. Click `Yes` to cancel the reminder, or `No` to keep it.',
+      color=S.EMBED_COLORS['cancelled'],
     )
 
   @staticmethod
-  def setting_changed(key: str, value: str) -> hikari.Embed:
+  def invalid_snowflake(user_id: int) -> hikari.Embed:
     return embed(
-      f'Setting changed: {key.title()}',
-      f'Changed to: **`{value}`**',
-      color=S.EMBED_COLORS['settings'],
-    )
-
-  @staticmethod
-  def settings_invalid_characters() -> hikari.Embed:
-    return embed(
-      'Invalid setting value.',
-      'Only the following characters are allowed: `a-z`, `A-Z`, `0-9`, `_- `\nSetting value cannot be empty.',
+      'Invalid snowflake',
+      f'`{user_id}` is not a valid snowflake',
       color=S.EMBED_COLORS['error'],
     )
 
   @staticmethod
-  def settings_value_too_long() -> hikari.Embed:
+  def not_registered_in_db(user_id: int, *, you_are: bool = False) -> hikari.Embed:
+    if not tcr.discord.is_snowflake(user_id, allow_string=True):
+      return EMBED.invalid_snowflake(user_id)
+
     return embed(
-      'Invalid setting value.',
-      f'Setting value cannot be longer than {SETTINGS_VALUE_MAX_LENGTH} characters.',
+      'Not registered in the database',
+      f"{'You are' if you_are else 'This user is'} not registered in the database: {tcr.discord.IFYs.userify(user_id)}",
       color=S.EMBED_COLORS['error'],
     )
 
@@ -147,7 +215,7 @@ class RESP:
     """
     pages = []
 
-    for remslice in tcr.batched(list(enumerate(r, start=1)), S.REMINDER_LIST_REMINDERS_PER_PAGE) or [[]]:
+    for remslice in tcr.batched(list(enumerate(r, start=1)), S.REMINDER_LIST_REMINDERS_PER_PAGE, back_to_front=True) or [[]]:
       pages.append(nav.Page(embed=EMBED.reminder_list(remslice, len(r))))
 
     return nav.NavigatorView(pages=pages, items=[x() for x in (S.REMINDER_LIST_NAVBAR_ITEMS if len(pages) > 1 else S.REMINDER_LIST_NAVBAR_ITEMS_ONE_PAGE)], **kwargs)

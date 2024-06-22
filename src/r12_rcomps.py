@@ -1,5 +1,12 @@
 from r11_tasks import *
 
+YOU_DONT_HAVE_ANY_REMINDERS_TO = "You don't have any reminders to %s. Schedule a reminder like this: `30m finish this bot`"
+
+
+async def _wrong_index(r: list[Reminder], responder: Callable[[hikari.Embed], Coroutine], verb: str, flags=hikari.MessageFlag.NONE):
+  desc = f'Choose an index from range: `1-{len(r)}`' if r else YOU_DONT_HAVE_ANY_REMINDERS_TO % verb
+  return await responder(EMBED.generic_text_error('Invalid index', desc), flags=flags)
+
 
 async def rd_run(
   responder: Callable[[str], Coroutine],
@@ -86,6 +93,58 @@ async def rd_ban(
   await responder(f'{message} {tcr.discord.IFYs.userify(user)}{suffix}', flags=hikari.MessageFlag.EPHEMERAL)
 
 
+if True:  # rd_dev_...
+
+  async def rd_dev_now(*, responder: Callable[[str], Coroutine], user_id: int, idx: int):
+    if not Database.exists(user_id):
+      await responder(EMBED.not_registered_in_db(user_id), flags=hikari.MessageFlag.EPHEMERAL)
+      return
+
+    db: U = Database(user_id)
+    try:
+      idx = user_facing_to_python_r_idx(db['r'], idx)
+    except IndexError:
+      await _wrong_index(db['r'], responder, 'dev-now', flags=hikari.MessageFlag.EPHEMERAL)
+      return
+    else:
+      rem = db['r'][idx]
+      rem.remove_from_db(db)
+      await rem.send()
+      await responder(f'{S.YES}', flags=hikari.MessageFlag.EPHEMERAL)
+
+  async def rd_dev_get(*, responder: Callable[[str], Coroutine], user_id: int, idx: int):
+    if not Database.exists(user_id):
+      await responder(EMBED.not_registered_in_db(user_id), flags=hikari.MessageFlag.EPHEMERAL)
+      return
+
+    db: U = Database(user_id)
+    try:
+      idx = user_facing_to_python_r_idx(db['r'], idx)
+    except IndexError:
+      await _wrong_index(db['r'], responder, 'dev-now', flags=hikari.MessageFlag.EPHEMERAL)
+      return
+    else:
+      await responder(tcr.codeblock(tcr.fmt_iterable(db['r'][idx], syntax_highlighting=False), langcode='py'), flags=hikari.MessageFlag.EPHEMERAL)
+
+  async def rd_dev_guilds(*, responder: Callable[[str], Coroutine]):
+    count = await get_guild_count(force_refetch=True)
+
+    await debugpond(responder, count, flags=hikari.MessageFlag.EPHEMERAL)
+
+  async def rd_dev_users(*, responder: Callable[[str], Coroutine]):
+    users = Database.iter_all_path_names()
+    users = list(users)
+
+    await responder(
+      tcr.codeblocks(
+        str(len(users)),
+        tcr.fmt_iterable(users, syntax_highlighting=False),
+        langcodes=('py', 'py'),
+      ),
+      flags=hikari.MessageFlag.EPHEMERAL,
+    )
+
+
 async def r_remind(
   responder: Callable[[str], Coroutine],
   text: str,
@@ -131,7 +190,7 @@ async def r_remind(
   await responder(out, flags=flags_hide_on_guild(ctx_or_event))
 
 
-async def r_viewlist(
+async def r_list(
   user: int,
   channel: hikari.SnowflakeishOr[hikari.TextableChannel],
 ):
@@ -150,11 +209,6 @@ async def r_viewlist(
     MCL.start_view(navigator)
 
 
-async def _wrong_index(r: list[Reminder], responder: Callable[[hikari.Embed], Coroutine], verb: str):
-  desc = f'Choose an index from range: `1-{len(r)}`' if r else f"You don't have any reminders to {verb}. Schedule a reminder like this: `30m finish this bot`"
-  return await responder(EMBED.generic_text_error('Invalid index', desc))
-
-
 async def r_cancel(
   responder: Callable[[str], Coroutine],
   user: int,
@@ -165,17 +219,14 @@ async def r_cancel(
   db: U = Database(user)
   r = db['r']
 
-  if able_result := tcr.able(int, text):
-    idx = able_result
-  else:
-    await _wrong_index(r, responder, 'cancel')
-
   try:
-    rem = r.pop(idx)
+    rem = r.pop(user_facing_to_python_r_idx(r, text))
   except IndexError:
     return await _wrong_index(r, responder, 'cancel')
 
-  await responder(EMBED.reminder_canceled(rem))
+  db['r'] = r
+
+  await responder(EMBED.reminder_canceled(rem), attachments=hidden_or(rem, rem.attachments))
 
 
 async def r_view(
@@ -188,20 +239,51 @@ async def r_view(
   db: U = Database(user)
   r = db['r']
 
-  if not (_a := tcr.able(int, text)):
-    return await _wrong_index(r, responder, 'view')
-  else:
-    idx = _a.result
-
   try:
-    if idx < 0:
-      rem = r[idx]
-    else:
-      rem = r[idx - 1]
+    rem = r[user_facing_to_python_r_idx(r, text)]
   except IndexError:
     return await _wrong_index(r, responder, 'view')
   else:
-    return await responder(EMBED.reminder_view(rem))
+    return await responder(EMBED.reminder_view(rem), attachments=hidden_or(rem, rem.attachments))
+
+
+async def r_fuck(
+  responder: Callable[[str], Coroutine],
+  message: hikari.Message,
+  user: int,
+):
+  """Cancel last scheduled reminder - add a confirmation if it was long ago."""
+
+  db: U = Database(user)
+
+  if db['r']:
+
+    def key_recently_scheduled(rem: Reminder):
+      return rem.created_at
+
+    rem = sorted(db['r'], key=key_recently_scheduled, reverse=True)[0]
+
+    async def canceling_callback(_: miru.Button = None, ctx: miru.ViewContext = None, *, responder=responder, rem=rem, message=message):
+      rem.remove_from_db()
+      await responder(EMBED.reminder_canceled(rem), reply=message if ctx is None else ctx.message)
+
+    if (int(time.time()) - rem.created_at) >= S.SUSPICIOUS_RIPPLE_CANCEL_TIME:
+      await tcr.discord.confirm(
+        responder,
+        MCL,
+        yes_callback=canceling_callback,
+        no_callback=tcr.avoid,
+        disable_on_click=True,
+        responder_kwargs={
+          'embeds': [EMBED.fuck_confirm(rem), EMBED.reminder_view(rem)],
+          'reply': message,
+        },
+      )
+    else:
+      await canceling_callback()
+
+  else:
+    await responder(EMBED.generic_text_error('No reminders to cancel', YOU_DONT_HAVE_ANY_REMINDERS_TO % 'cancel'), reply=message)
 
 
 async def rr_del(

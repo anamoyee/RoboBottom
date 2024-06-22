@@ -9,7 +9,6 @@ A clone/remake of **[RoboTop](https://robotop.xyz)**'s reminder system. RoboTop 
 ```
 pip install -r requirements.txt
 ```
-<!--1. Go to `settings.py` and change your settings accordingly.-->
 1. Create an application on **[Discord Developer Portal](https://discord.com/developers/applications)** and grant it all priviliged gateway intents.
 2. The bot will try to find a file called `TOKEN.txt` up to two directories away (in cwd, parent & parent of parent). Create it and populate it with the bot's token.
 3. Run the bot with the following command (`python3`/`python3.11` on linux)
@@ -25,11 +24,28 @@ If you have any questions contact me on discord `@thecreatorrrr`\
 If i change my username for some reason (or discord again fucks the username system up) here's my id `<@507642999992352779>`
 
 # Todo v3
-- [ ] make basic stuff work
+- [ ] when viewing or receiving a reminder, if the message failed to send, send two files: reminder raw as if it was exported (json) ans the reminder text (txt) with at the bottom of the text files all the attachment URLs if any
+- [ ] finish /backup import
+- [ ] seamless #year channel integration (but in DMs) and it reminds you of the events.
+  - Input made by giving an exact date of the event with year & a recursion string of exactly 1 year
+- [x] add dev cmds:
+  - [x] add `$users` (get amount of unique users using the bot)
+  - [x] add `$servers` (get amount of servers using the bot)
+  - [x] add `$get` for getting the raw reminder ansi printed
+- [ ] recursive strings
+- [ ] make settings display and work
+- [x] make a `fuck` command that undos the latest reminder schedule
+- [x] make basic stuff work
+- [x] make attachments visible when viewing reminder
+- [x] make attachments visible when viewing list of reminders (🗃📝)
+- [ ] make reminder `text` with {placeholders}
+- [ ] make reminder `time` with {placeholders}
 - [x] fix revcounter
-- [ ] MAKE STATS LIKE: FIRST INTERACTED WITH THE BOT.
-- [ ] Add option to backup your reminders to a file and to load them later.
-- [ ] Add to the reminder: `This reminder was sent ... too late`.
+- [ ] do something with loops not stopping on shutdown
+  - And what's wrong with shutting down? it adds terminated tasks youll
+- [x] MAKE STATS LIKE: FIRST INTERACTED WITH THE BOT.
+- [ ] [EXPORT] Add option to backup your reminders to a file and to load them later.
+- [x] Add to the reminder: `This reminder was sent ... too late`.
 - [ ] Add /help
 - [ ] make all flags work
 - [ ] Finish validators

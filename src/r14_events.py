@@ -12,7 +12,7 @@ async def onStartedEvent(event: hikari.StartedEvent):
     GUILD_COUNT = await get_guild_count()
 
   if True:  # Start Tasks
-    task_reminder.start(bot=BOT, acl=ACL)
+    task_reminder.start()
     task_backup.start()
     c.log('All tasks started')
 
@@ -22,7 +22,11 @@ async def onStoppingEvent(event: hikari.StoppingEvent):
   if True:  # Stop Tasks
     for task in TASKS:
       task.stop()
-    c.log('All tasks stopped')
+
+    while task_reminder._task and not task_reminder._task.done():
+      await asyncio.sleep(0.1)
+
+    c.log(f'Task shutdown status: {tcr.fmt_iterable([task._task.done() if task._task else True for task in TASKS], syntax_highlighting=True).replace("True", "OK").replace("False", "FAILED")}')
 
 
 @BOT.listen(arc.StoppingEvent)
@@ -63,13 +67,16 @@ async def onDMMessageCreateEvent(event: hikari.DMMessageCreateEvent):
   scontent_without_identifier = scontent.removeprefix(identifier)
 
   if scontent in P.DM_CMD_ALIASES('list'):
-    await r_viewlist(event.author.id, event.channel_id)
+    await r_list(event.author.id, event.channel_id)
     return
   elif identifier in P.DM_CMD_ALIASES('cancel'):
     await r_cancel(event.message.respond, event.author.id, scontent_without_identifier)
     return
   elif identifier in P.DM_CMD_ALIASES('view'):
     await r_view(event.message.respond, event.author.id, scontent_without_identifier)
+    return
+  elif identifier in P.DM_CMD_ALIASES('fuck'):
+    await r_fuck(event.message.respond, event.message, event.author.id)
     return
   else:
     await r_remind(event.message.respond, scontent, user=event.author.id, ctx_or_event=event, replyto=event.message.referenced_message)

@@ -1,9 +1,8 @@
-tcrutils>=12.0.176
-hikari>=2.0.0.dev122
+tcrutils[discord]>=12.0.203
+hikari>=2.0.0.dev126
 hikari-miru>=4.1.1,<5.0.0
-hikari-arc>=1.3.1
-hikari-arc[cron]
-hikari-lightbulb>=2.3.5
+hikari-arc[cron]>=1.3.4
 attr==0.3.2
 typing-extensions>=4.5.0
 colored>=2.2.4
+pytz>=2024.1

@@ -1,3 +1,4 @@
+import hikari.errors
 import hikari.locales
 from r12_rcomps import *
 
@@ -91,7 +92,7 @@ async def cmd_remind(
 
 
 if True:  # /privacy <...>
-  GROUP_PRIVACY = ACL.include_slash_group('privacy', 'Privacy related commands (some dangerous/data-deleting!)')
+  GROUP_PRIVACY = ACL.include_slash_group('privacy', 'Privacy related commands (some dangerous/data-deleting!)' + testmode())
 
   DOASISAY_OPTION = arc.Option[str, arc.StrParams('Type exactly "Yes, do as I say!" to confirm this potentially dangerous action', min_length=17, max_length=17)]
 
@@ -145,12 +146,148 @@ if True:  # /privacy <...>
       case 'reminders':
         db['r'] = U.defaults['r']()
 
-    raise ValueError('idk')
+    await ctx.respond(f'{S.YES} Done! You might want to also clean up your discord message history with {S.SLASH_COMMAND_MENTIONS["privacy purge"]}', flags=hikari.MessageFlag.EPHEMERAL)
 
-    cmd_mention = tcr.discord.IFYs.commandify("privacy purge", S.SLASH_COMMAND_IDS)
 
-    text = f'{S.YES} Done! You might want to also clean up your discord message history with {cmd_mention}'
-    await ctx.respond(text, flags=hikari.MessageFlag.EPHEMERAL)
+if True:  # /backup <...>
+  GROUP_BACKUP = ACL.include_slash_group('backup', 'Backup your data' + testmode(), autodefer=arc.AutodeferMode.EPHEMERAL)
+
+  @GROUP_BACKUP.include
+  @arc.slash_subcommand('export', 'Download your data as a file.' + testmode())
+  @dms_only
+  async def cmd_backup_export(ctx: arc.GatewayContext):
+    db: U = Database(ctx.author.id)
+
+    now_unix = int(time.time())
+    can_take_backup_on = db['last_taken_backup'] + S.USER_BACKUP_COOLDOWN
+
+    if can_take_backup_on > now_unix:
+      await ctx.respond(
+        f"{S.NO} You can only take one backup per {TIMESTR.to_str(S.USER_BACKUP_COOLDOWN)}. You can take next backup {tcr.discord.IFYs.timeify(can_take_backup_on, style='R')}",
+        flags=hikari.MessageFlag.EPHEMERAL,
+      )
+      return
+
+    db['last_taken_backup'] = now_unix
+
+    reminders_with_nones = [rem.export() for rem in db['r']]
+
+    exported_data: ExportedDataTD = {
+      'settings': db['settings'].export(),
+      'reminders': [x for x in reminders_with_nones if x is not None],
+    }
+
+    filename = S.USER_BACKUP_EXPORT_FILENAME.format(author_id=ctx.author.id, datetime=datetime.datetime.now(), author_username=ctx.author.username)
+    attachment = hikari.files.Bytes(json.dumps(exported_data, indent=2).encode('utf-8'), filename)
+
+    content = f"Here's your backup as a JSON file. You might need to ask an administrator to import it back in (use {S.SLASH_COMMAND_MENTIONS['backup import']} for help)."
+
+    if None in reminders_with_nones:
+      content += f'\n{S.WARN} You have `#` hidden reminder(s), those will be left out of the backup.'
+
+    if any(rem.attachments for rem in db['r']):
+      content += f"\n{S.WARN} You have reminder(s) with attachments, their attachments may be missing due to discord's dumbassness"
+
+    content += f"\n{S.WARN} You may edit the raw data found within the file but you're on your own then. Manual editing is not really supported and may brick your savefile."
+
+    await ctx.respond(content, flags=hikari.MessageFlag.EPHEMERAL, attachment=attachment)
+
+  @GROUP_BACKUP.include
+  @arc.slash_subcommand('import', 'Import your data from an export.' + testmode())
+  @dms_only
+  async def cmd_backup_import(
+    ctx: arc.GatewayContext,
+    file: arc.Option[hikari.Attachment, arc.AttachmentParams('The file to import (The file your or any discord account got from /backup export)')],
+    mode: arc.Option[str, arc.StrParams('The mode to use (Applies to reminders only, settings are alwayys overwritten!)', choices=['append', 'overwrite'])] = 'append',
+  ):
+    if ctx.author.id not in S.DEV_IDS:
+      await ctx.respond('Please contact a developer so they can import your data (WORK IN PROGRESS - CHANGE THIS MESSAGE SOMEDAY)', flags=hikari.MessageFlag.EPHEMERAL)
+
+    try:
+      obj: ExportedDataTD = json.loads(await file.read())
+    except json.JSONDecodeError:
+      await ctx.respond(f'{S.NO} The file you provided contains invalid JSON', flags=hikari.MessageFlag.EPHEMERAL)
+      return
+
+    if not isinstance(obj, dict):
+      await ctx.respond(f'{S.NO} The file you provided contains invalid structure (outermost must be a dict)', flags=hikari.MessageFlag.EPHEMERAL)
+      return
+
+    allowed_keys = ExportedDataTD.__annotations__.keys()
+
+    data, leftover = {k: v for k, v in obj.items() if k in allowed_keys}, {k: v for k, v in obj.items() if k not in allowed_keys}
+
+    async def yes_callback(btn: miru.Button, vctx: miru.ViewContext, *, data: ExportedDataTD = data, ctx=ctx, mode=mode):
+      if ctx.author.id != vctx.author.id:
+        await vctx.respond('# What would you do if someone touched YOUR buttons??', flags=hikari.MessageFlag.EPHEMERAL)
+        return
+
+      db: U = Database(ctx.author.id)
+
+      if 'reminders' in data:
+        n_added = 0
+        n_skipped = 0
+
+        try:
+          reminders_parsed = []
+          last_i = 0
+          for i, rem in enumerate(data['reminders']):
+            last_i = i
+            parsed = Reminder.from_export(rem, vctx.author.id)
+            if parsed.expired():
+              n_skipped += 1
+            else:
+              n_added += 1
+              reminders_parsed.append(parsed)
+        except ReminderFromExportMismatchedKeysError as e:
+          rest = f'\n\nThe issue arised during parsing of reminder idx={last_i}, missing_keys={e.missing!r}, extra_keys={e.extra!r}'
+
+          await vctx.respond(f'{S.NO} There was an error parsing your `reminders` (mismatched keys). Make sure the data is valid and contact a developer in case of any issues.'+rest, flags=hikari.MessageFlag.EPHEMERAL)
+          return
+        except (ValueError, TypeError, AttributeError):
+          await vctx.respond(f'{S.NO} There was an error parsing your `reminders`. Make sure the data is valid and contact a developer in case of any issues', flags=hikari.MessageFlag.EPHEMERAL)
+          return
+
+        if mode == 'overwrite':
+          db['r'] = reminders_parsed
+        else:
+          for rem in reminders_parsed:
+            db.append_reminder(rem)
+
+        msg = f'{S.YES if n_added else S.NO} Reminders processed in {mode} mode...\n{n_added} added'
+        if n_skipped:
+          msg += f', {n_skipped} skipped due to them being in the past'
+        msg += '.'
+
+        data.pop('reminders')
+
+        await vctx.respond(msg, flags=hikari.MessageFlag.EPHEMERAL)
+
+      if 'settings' in data:
+        try:
+          settings = UserSettings(**data['settings'])
+        except TypeError:
+          await vctx.respond(f'{S.NO} There was an error parsing your `settings`. Make sure the data is valid and contact a developer in case of any issues', flags=hikari.MessageFlag.EPHEMERAL)
+
+        db['s'] = settings
+
+        data.pop('settings')
+
+        await vctx.respond(f'{S.YES} Settings processed...', flags=hikari.MessageFlag.EPHEMERAL)
+
+      if data:
+        await vctx.respond(somehow_you_managed_to('import invalid data'), flags=hikari.MessageFlag.EPHEMERAL)
+      else:
+        await vctx.respond(f'{S.YES} All done, your data has been imported')
+
+    await tcr.discord.confirm(
+      ctx.respond, MCL,
+      yes_callback=yes_callback,
+      no_callback=tcr.avoid,
+      responder_kwargs={
+        "embed": EMBED.import_confirmer(import_obj=data, mode=mode, invalid_keys=list(leftover.keys())),
+      }
+    )
 
 # @ACL.include
 # @arc.slash_command(
@@ -184,55 +321,73 @@ if True:  # /privacy <...>
 #   MCL.start_view(navigator)
 
 if True:  # *dev_only_commands*
+  GROUP_DEV = ACL.include_slash_group('dev', 'Developer cmdlets' + testmode(), autodefer=arc.AutodeferMode.EPHEMERAL, guilds=S.DEV_EANBLED_GUILDS)
 
-  @ACL.include
-  @arc.slash_command('debug', 'Debug' + testmode(), guilds=S.DEV_EANBLED_GUILDS)
+  @GROUP_DEV.include
+  @arc.slash_subcommand('now', 'Trigger a reminder immediately' + testmode())
   @dev_only_cmd
-  @bannable_command
-  async def cmd_debug(
+  async def cmd_dev_now(
     ctx: arc.GatewayContext,
+    idx: arc.Option[int, arc.IntParams('The reminder index to trigger')],
+    user_id: arc.Option[str, arc.StrParams('User in question')] = None,
   ):
-    raise TypeError('test')
-    # await debugpond(ctx, 'Nothing to debug')
-    await debugpond(ctx, 'Nothing to debug')
+    await rd_dev_now(responder=ctx.respond, user_id=(ctx.author.id if user_id is None else user_id), idx=idx)
 
-  @ACL.include
-  @arc.slash_command('run', 'Run a py cmd' + testmode(), guilds=S.DEV_EANBLED_GUILDS)
+  @GROUP_DEV.include
+  @arc.slash_subcommand('get', 'Get a reminder as a codeblock' + testmode())
   @dev_only_cmd
-  @bannable_command
-  async def cmd_run(
+  async def cmd_dev_get(
     ctx: arc.GatewayContext,
-    code: arc.Option[str, arc.StrParams('The code to run')] = None,
-    file: arc.Option[hikari.Attachment, arc.AttachmentParams('The file to run')] = None,
+    idx: arc.Option[int, arc.IntParams('The reminder index to get')],
+    user_id: arc.Option[str, arc.StrParams('User in question')] = None,
+  ):
+    await rd_dev_get(responder=ctx.respond, user_id=(ctx.author.id if user_id is None else user_id), idx=idx)
+
+  @GROUP_DEV.include
+  @arc.slash_subcommand('guilds', 'Fetch the current guild count & update it.' + testmode())
+  @dev_only_cmd
+  async def cmd_dev_guilds(ctx: arc.GatewayContext):
+    await rd_dev_guilds(responder=ctx.respond)
+
+  @GROUP_DEV.include
+  @arc.slash_subcommand('users', 'Show the current amount of users in the database & list their IDs.' + testmode())
+  @dev_only_cmd
+  async def cmd_dev_users(ctx: arc.GatewayContext):
+    await rd_dev_users(responder=ctx.respond)
+
+  @GROUP_DEV.include
+  @arc.slash_subcommand('run', 'Run a py cmd' + testmode())
+  @dev_only_cmd
+  async def cmd_dev_run(
+    ctx: arc.GatewayContext,
+    code: arc.Option[str, arc.StrParams('The code to run')],
     do_await: arc.Option[bool, arc.BoolParams('await the result if prompted to?', name='await')] = True,
-    do_exec: arc.Option[bool, arc.BoolParams('use exec() instead of eval(). retval = _', name='exec')] = None,
+    do_exec: arc.Option[bool, arc.BoolParams('use exec() instead of eval(). retval = _', name='exec')] = False,
   ):
-    if code is None and file is None:
-      await errpond(ctx, 'Exactly one of `code` or `file` is required')
+    await rd_run(ctx.respond, code, do_await=do_await, do_exec=do_exec)
+
+  @GROUP_DEV.include
+  @arc.slash_subcommand('runfile', 'Run a py file' + testmode())
+  @dev_only_cmd
+  async def cmd_dev_runfile(
+    ctx: arc.GatewayContext,
+    file: arc.Option[hikari.Attachment, arc.AttachmentParams('The file to run (utf-8)')],
+    do_await: arc.Option[bool, arc.BoolParams('await the result if prompted to?', name='await')] = True,
+    do_exec: arc.Option[bool, arc.BoolParams('use exec() instead of eval(). retval = _', name='exec')] = True,
+  ):
+    code = await file.read()
+    try:
+      code = code.decode('utf-8')
+    except UnicodeDecodeError:
+      await errpond(ctx, 'File must be UTF-8 encoded')
       return
-
-    if code is not None and file is not None:
-      await errpond(ctx, 'Only one of `code` or `file` is allowed')
-      return
-
-    if do_exec is None:
-      do_exec = file is not None  # exec is by default True if file is supplied
-
-    if file:
-      code = await file.read()
-      try:
-        code = code.decode('utf-8')
-      except UnicodeDecodeError:
-        await errpond(ctx, 'File must be UTF-8 encoded')
-        return
 
     await rd_run(ctx.respond, code, do_await=do_await, do_exec=do_exec)
 
-  @ACL.include
-  @arc.slash_command('dbdump', 'Dump database' + testmode(), guilds=S.DEV_EANBLED_GUILDS)
+  @GROUP_DEV.include
+  @arc.slash_subcommand('dbdump', 'Dump database' + testmode())
   @dev_only_cmd
-  @bannable_command
-  async def cmd_dbdump(
+  async def cmd_dev_dbdump(
     ctx: arc.GatewayContext,
     db: arc.Option[str, arc.StrParams('Database to dump (g, v, u.id)')],
     asfile: arc.Option[bool, arc.BoolParams('Dump as file vs as codeblock')] = False,
@@ -272,21 +427,21 @@ if True:  # *dev_only_commands*
         outdb.drop_db()
         await ctx.respond(f'Dropped db `{db}`', flags=flags)
 
-  @ACL.include
-  @arc.slash_command('ban', 'Ban a user' + testmode(), guilds=S.DEV_EANBLED_GUILDS)
+  @GROUP_DEV.include
+  @arc.slash_subcommand('ban', 'Ban or unban a user' + testmode())
   @dev_only_cmd
-  async def cmd_ban(
+  async def cmd_dev_ban(
     ctx: arc.GatewayContext,
     user: arc.Option[str, arc.StrParams('The User ID to ban')],
     unban: arc.Option[bool, arc.BoolParams('Unban the user instead?')] = False,
-    drop_db: arc.Option[bool, arc.BoolParams("Wipe the banned user's database?")] = False,
+    drop_db: arc.Option[bool, arc.BoolParams("DANGEROUS: Wipe the banned user's database?")] = False,
   ):
     await rd_ban(ctx.respond, admin_id=ctx.author.id, user=user, unban=unban, drop_db=drop_db)
 
-  @ACL.include
-  @arc.slash_command('banlist', 'Show all banned users' + testmode(), guilds=S.DEV_EANBLED_GUILDS)
+  @GROUP_DEV.include
+  @arc.slash_subcommand('banlist', 'Show all banned users' + testmode())
   @dev_only_cmd
-  async def cmd_banlist(ctx: arc.GatewayContext):
+  async def cmd_dev_banlist(ctx: arc.GatewayContext):
     banned = GDB['banned']
 
     text = '# Banned Users\n'
@@ -297,3 +452,22 @@ if True:  # *dev_only_commands*
       text += 'There are no banned users yet!'
 
     await ctx.respond(tcr.cut_at(text, tcr.discord.DiscordLimits.Message.LENGTH_SAFE), flags=hikari.MessageFlag.EPHEMERAL)
+
+  @GROUP_DEV.include
+  @arc.slash_subcommand('shutdown', 'Shut down the bot' + testmode())
+  @dev_only_cmd
+  async def cmd_dev_shutdown(ctx: arc.GatewayContext):
+    await ctx.respond('Shutting down...', flags=hikari.MessageFlag.EPHEMERAL)
+    await BOT.close()
+
+  @GROUP_DEV.include
+  @arc.slash_subcommand('debug', 'Debug' + testmode())
+  @dev_only_cmd
+  async def cmd_dev_debug(
+    ctx: arc.GatewayContext,
+  ):
+    try:
+      await ctx.respond(attachment=hikari.URL('https://sdfgfksfgjskfhjgksdfhjgksdgsdfgsd.com'))
+    except Exception as e:
+      c(f'caught {tcr.extract_error(e)}')
+      await ctx.respond(f'caught {tcr.extract_error(e)}')

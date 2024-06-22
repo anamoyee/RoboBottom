@@ -36,9 +36,9 @@ def flags_hide_on_guild(ctx_or_event: arc.GatewayContext | hikari.GuildMessageCr
 
 def somehow_you_managed_to(do_what: str, *, about_to: bool = False) -> str:
   if about_to:
-    return f'Somehow you were about to {do_what}, please tell me how you managed to do it, DM me: <@{S.CREATED_BY["id"]}> (or add me as friend on discord @{S.CREATED_BY["name"]} if you can\'t click on the mention)'
+    return f'{S.NO} Somehow you were about to {do_what} (you were about to trigger a bug), please tell me how you managed to do it, DM me: <@{S.CREATED_BY["id"]}> (or add me as friend on discord @{S.CREATED_BY["name"]} if you can\'t click on the mention)'
   else:
-    return f'Somehow you managed to {do_what}, please tell me how you did this, DM me: <@{S.CREATED_BY["id"]}> (or add me as friend on discord @{S.CREATED_BY["name"]} if you can\'t click on the mention)'
+    return f'{S.NO} Somehow you managed to {do_what} (you triggered a bug), please tell me how you did this, DM me: <@{S.CREATED_BY["id"]}> (or add me as friend on discord @{S.CREATED_BY["name"]} if you can\'t click on the mention)'
 
 
 def build_reminder(
@@ -67,12 +67,11 @@ def build_reminder(
   try:
     offset = TIMESTR.to_int(tstr)
 
+    if offset <= 0:
+      raise TextErrpondError('Invalid time', f'You cannot set a negative or zero delay.')
+
     if offset < S.MINIMUM_REMINDER_TIME:
-      raise TimeoutError
-  except TimeoutError as e:
-    raise TextErrpondError('Invalid time', f'You cannot set a time shorter than **`{TIMESTR.to_str(S.MINIMUM_REMINDER_TIME)}`**') from e
-  except tcr.error.ConfigurationError as e:
-    raise TextErrpondError('Invalid time', 'Time must be strictly positive') from e
+      raise TextErrpondError('Invalid time', f'You cannot set a time shorter than **`{TIMESTR.to_str(S.MINIMUM_REMINDER_TIME)}`**')
   except Exception as e:
     raise TextErrpondError('Invalid time', tcr.codeblock(tcr.extract_error(e), langcode='')) from e
 
@@ -91,3 +90,71 @@ def build_reminder(
 
 def did_as_i_said(s: str) -> bool:
   return s == 'Yes, do as I say!'
+
+
+def user_facing_to_python_r_idx(r: list[Reminder], idx_text: str) -> int:
+  """Convert a user-inputed index to a reminder list index. For example `'1'`->`0`, `'-1'` -> `-1`.
+
+  Raise IndexError if no reminder at that index is found.
+  """
+  if not (_a := tcr.able(int, idx_text)):
+    raise IndexError('Invalid index. Unable to convert to int.')
+
+  idx = _a.result
+
+  if idx == 0:
+    raise IndexError('Invalid index. Zero not allowed.')
+
+  if idx > 0:
+    idx -= 1
+
+  r[idx]
+  return idx
+
+
+@tcr.timeit
+def backup_all_databases() -> p.Path:
+  if not S.DB_DIRECTORY_BACKUP.exists():
+    S.DB_DIRECTORY_BACKUP.mkdir(parents=True)
+
+  if not S.DB_DIRECTORY.exists():
+    raise RuntimeError('Database directory missing on backup')
+
+  max_items = S.MAX_BACKUPS_BEFORE_DELETING_OLDEST - 1
+
+  current_time_corrected = datetime.datetime.now(tz=S.GLOBAL_TIMEZONE) + datetime.timedelta(
+    seconds=30
+  )  # Shifted forward by 30s due to issues with it being sth like 23:59:59 the previous day and seconds are cut off in the default format specifier anyway
+  current_time_str = current_time_corrected.strftime(S.BACKUP_DIRECTORY_NAME_FORMAT)
+
+  items = list(S.DB_DIRECTORY_BACKUP.iterdir())
+  found = len(items)
+
+  if S.MAX_BACKUPS_BEFORE_DELETING_OLDEST > 0 and found > max_items:
+    c.log(f'Deleting old backup(s) due to policy of max {S.MAX_BACKUPS_BEFORE_DELETING_OLDEST} backups ({found} found + the one being made right now)')
+    items_with_ctime = [(item, item.stat().st_ctime) for item in items]
+    items_with_ctime.sort(key=lambda x: x[1])
+    num_to_remove = len(items) - max_items
+    for item, _ in items_with_ctime[:num_to_remove]:
+      c.log(f'  rm {item}')
+      if item.is_dir():
+        shutil.rmtree(item)
+      else:
+        item.unlink()
+
+  backup_path = S.DB_DIRECTORY_BACKUP / current_time_str
+
+  shutil.copytree(S.DB_DIRECTORY, backup_path)
+
+  return backup_path
+
+
+T1 = TypeVar('T1')
+T2 = TypeVar('T2')
+BLANK_OF_T1 = object()
+
+def hidden_or(rem: Reminder, ifvisible: T1, ifhidden: T2 = BLANK_OF_T1) -> T1 | T2:
+  if rem.is_flag(CTF.HASH_HIDDEN):
+    return ifhidden if ifhidden is not BLANK_OF_T1 else type(ifvisible)()
+  else:
+    return ifvisible

@@ -32,5 +32,6 @@ if True:  # Functional
       'cancel': ('c', 'cancel', 'cancel reminder', 'cancel rem', 'cancelreminder', 'cancelrem'),
       'view': ('v', 'view', 'view reminder', 'view rem', 'viewreminder', 'viewrem'),
       'del': ('delete', 'delthis', 'del this', 'delete this', 'deletethis', 'remove', 'removethis', 'removethis'),
+      'fuck': ('fucjk', 'shit', 'waitno', 'wait no', '💩'),
     }
   )

@@ -4,13 +4,6 @@ from r01_types import *
 class S:
   """Defines configuration for RoboBottom."""
 
-  FORCE_TESTMODE = None  # Default: None
-  """Force testmode app-wide. Will add "- Testmode" in some places to indicate that the bot is running in testmode.
-  - `None` &nbsp;&nbsp;→ Don't force either option, True for Windows, False for other OSes
-  - `True` &nbsp;&nbsp;→ Always run in testmode
-  - `False` → Never run in testmode
-  """
-
   NO: str = ':x:'
   """'Something failed or could not be completed or an error occured' emoji/prefix."""
   YES: str = ':white_check_mark:'
@@ -35,8 +28,8 @@ class S:
   DB_DIRECTORY_BACKUP: p.Path = DB_DIRECTORY.with_name(f'{DB_DIRECTORY.name}2')
   """The directory where the database backups are stored."""
 
-  MAX_BACKUPS_BEFORE_DELETING_OLDEST: int = 10
-  """If this amount of backups is present, the oldest backup will be deleted to not take so much disk space."""
+  MAX_BACKUPS_BEFORE_DELETING_OLDEST: int = 31  # A month of backups should be enough (assuming the default backup chron of backup once every 24 hours)
+  """If this amount of backups is present, the oldest backup will be deleted to not take so much disk space. TO NOT DELETE ANY BACKUPS SET THIS TO 0 - WARNING: your disk may fill up - each backup is a complete copy!"""
 
   BACKUP_CRON: str = '0 0 * * *'  # default: Take a backup once every day at midnight
   """The cron schedule for taking a backup of the entire database.
@@ -45,6 +38,27 @@ class S:
   - https://arc.hypergonial.com/api_reference/utils/loops/#arc.utils.loops.CronLoop (hikari-arc is the library this bot uses)
   - https://en.wikipedia.org/wiki/Cron
   """
+
+  BACKUP_DIRECTORY_NAME_FORMAT: str = '%Y-%m-%d_%H%M'
+  """How each of the backups' respective folders should be named. Example: 2022-03-18_0000.
+
+  Seconds are shifted by 30 seconds forward due to the fact that the cron scheduler somehow starts the function a bit early so it registers as sth like 23:59:59 the previous day so i just chopped off the seconds so it's not visible.
+  """
+
+  GLOBAL_TIMEZONE: datetime.tzinfo = pytz.timezone('Europe/Warsaw')
+  """The global timezone used for global events in need of coordination, like backups. Also a default timezone for users."""
+
+  USER_BACKUP_EXPORT_FILENAME: str = '{author_id}_{datetime:%Y-%m-%d_%H%M}_robobockup.json'
+  """The file which user receives when they export their data.
+
+  Available placeholders:
+  - `{author_id}` (str)
+  - `{author_username}` (str)
+  - `{datetime}` (datetime.datetime)
+  """
+
+  USER_BACKUP_COOLDOWN: int = 15 * 60  # 15 minutes
+  """How many seconds have to pass between usages of /backup export for the same user for it to succeed."""
 
   MINIMUM_REMINDER_TIME: int = 15  # seconds
   """The minimum time a reminder has to be scheduled for to be accepted. Otherwise an error is shown to the user."""
@@ -69,6 +83,7 @@ class S:
     'reminder': 0xFFFF00,
     'cancelled': 0xFF0000,
     'error': 0xFF0000,
+    'success': 0x00FF00,
   }
   """Defines the color of the stripe on the left side of each embed from that category.
 
@@ -121,6 +136,7 @@ class S:
   """Number of characters a single reminder can take until it's cut off with an elipsis."""
 
   REMINDER_LIST_MAX_TOTAL_REMINDERS_PER_USER: int = REMINDER_LIST_REMINDERS_PER_PAGE * 10  # 10 pages should be MORE THAN ENOUGH...
+  """Number of reminders a user can have in total."""
 
   NAVBAR_LABEL: dict[str, str] = {
     'prev': '<< Page {page}',
@@ -146,14 +162,31 @@ class S:
   when pressing the enter key to send the message.
   """
 
-  SLASH_COMMAND_IDS = {
-    'privacy purge': 1246239256863576074,
-  }
+  SLASH_COMMAND_MENTIONS: dict[str, str] = FallbackDict(
+    {
+      x: tcr.discord.IFYs.commandify(x, y)
+      for x, y in {
+        'privacy purge': 1246239256863576074,  # Only change the numbers!
+        # 'backup export': 1,
+      }.items()
+    },
+    fallback=lambda _, x: f'/{x}',
+  )
   """Used for `</command:id>` notation for clickable commands in chat. You have to change this if you change bots (two different bot accounts from the discord developer portal) or the slash commands won't display properly
 
   To obtain a discord command ID, enable developer mode in settings, then select the command in the chat by typing / and its name, then right click on the top bar and select "Copy ID".
   https://i.sstatic.net/e7XGm.png
   https://stackoverflow.com/questions/73983897/how-do-i-get-the-id-of-a-slash-command-and-mention-it
+  """
+
+  SUSPICIOUS_RIPPLE_CANCEL_TIME = 3 * 60  # 3 minutes
+  """If user uses a `fuck` command after this amount of time after scheduling their most recent reminder, they will be prompted to confirm this action."""
+
+  FORCE_TESTMODE = None  # Default: None
+  """[DEV] Force testmode app-wide. Will add "- Testmode" in some places to indicate that the bot is running in testmode.
+  - `None` &nbsp;&nbsp;→ Don't force either option, True for Windows, False for other OSes
+  - `True` &nbsp;&nbsp;→ Always run in testmode
+  - `False` → Never run in testmode
   """
 
   DEV_IDS: tuple[tcr.discord.Snowflake] = (

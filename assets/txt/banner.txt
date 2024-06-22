@@ -5,7 +5,7 @@
 # COMMENT # Font: Colossal (https://patorjk.com/software/taag/#p=display&f=Colossal&t=RoboTop)
 # COMMENT # PS: there is a special variable 'BC' which is a copy of the S(ettings).BANNER_COLORS list
 
-{BC[0]}8888888b.          888               {BC[1]}888888b.            888    888
+{BC[0]}8888888b.          888               {BC[1]}888888b.            888    888{testmode()}
 {BC[0]}888   Y88b         888               {BC[1]}888  "88b           888    888
 {BC[0]}888    888         888               {BC[1]}888  .88P           888    888
 {BC[0]}888   d88P .d88b.  88888b.   .d88b.  {BC[1]}8888888K.   .d88b.  888888 888888 .d88b.   .d88b.d88b.

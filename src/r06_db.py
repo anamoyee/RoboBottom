@@ -1,34 +1,18 @@
 from r05_embed import *
 
-if True:  # DB Hints
-
-  class U(TD):
-    r: list[Reminder]
-
-  U.defaults = {
-    'r': list,
-  }
-
-  class V(TD):
-    revolution: int
-
-  V.defaults = {
-    'revolution': int,
-  }
-
-  class G(TD):
-    banned: set[int]
-
-  G.defaults = {
-    'banned': set,
-  }
-
+if True:  # DB Setup
+  # set td.defaults for U, V, G
+  [(lambda td: setattr(td, 'defaults', {x: getattr(td, x) for x in dir(td) if (not tcr.isdunder(x) and x not in dir(dict))}))(x) for x in (U, V, G)]
 
 if True:  # DB Types
 
   class Database(tcr.ShelveDB):
     directory = DB_USERS_PATH
     defaults = U.defaults
+
+    def __init__(self, alnum_id: str | int) -> None:
+      super().__init__(alnum_id)
+      self['first_seen']  # Trigger the defaults mechanism
 
     def append_reminder(self, rem: Reminder) -> None:
       """Append a reminder object to that user's reminder list in their database.

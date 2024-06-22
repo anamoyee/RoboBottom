@@ -15,7 +15,11 @@ async def fetch_guild_count(*, printout: bool = True):
 
 
 async def errpond(
-  ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent, e: str | Exception = '', embed_color: int = S.EMBED_COLORS['error'], flags=hikari.MessageFlag.EPHEMERAL, **responder_kwargs
+  ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcr.discord.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
+  e: str | Exception = '',
+  embed_color: int = S.EMBED_COLORS['error'],
+  flags=hikari.MessageFlag.EPHEMERAL,
+  **responder_kwargs,
 ):
   if not e:
     e = 'No further information provided'
@@ -28,7 +32,7 @@ async def errpond(
 
 
 async def text_errpond(
-  ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent,
+  ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcr.discord.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
   title: str,
   description: str = 'No further information provided',
   embed_callable: Callable = EMBED.generic_text_error,
@@ -40,6 +44,11 @@ async def text_errpond(
   return await responder(embed_callable(title, description), flags=flags, **responder_kwargs)
 
 
-async def debugpond(ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent, obj: Any, flags=hikari.MessageFlag.EPHEMERAL, **responder_kwargs):
+async def debugpond(
+  ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcr.discord.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
+  obj: Any,
+  flags=hikari.MessageFlag.EPHEMERAL,
+  **responder_kwargs,
+):
   responder = tcr.getattr_queue(ctx, 'respond', 'message.respond', default=ctx)
   return await responder(tcr.codeblock(tcr.fmt_iterable(obj), langcode='py'), flags=flags, **responder_kwargs)
