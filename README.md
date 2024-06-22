@@ -24,6 +24,9 @@ If you have any questions contact me on discord `@thecreatorrrr`\
 If i change my username for some reason (or discord again fucks the username system up) here's my id `<@507642999992352779>`
 
 # Todo v3
+- [ ] make attachments fallback to a file containing a list of links with an explaination if any failed to attach (hikari.HTTPError when sending)
+- [ ] use arc hooks
+- [ ] make banner not use eval
 - [ ] when viewing or receiving a reminder, if the message failed to send, send two files: reminder raw as if it was exported (json) ans the reminder text (txt) with at the bottom of the text files all the attachment URLs if any
 - [ ] finish /backup import
 - [ ] seamless #year channel integration (but in DMs) and it reminds you of the events.

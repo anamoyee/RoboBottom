@@ -1,5 +1,3 @@
-__import__('os').system('pip install --upgrade tcrutils') if 't' in __import__('sys').argv else ''  # fmt: skip
-
 from r14_events import *
 
 

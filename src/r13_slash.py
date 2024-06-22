@@ -3,44 +3,29 @@ import hikari.locales
 from r12_rcomps import *
 
 
-def dev_only_cmd(func: Callable):
-  """Only users in the S.DEV_IDS can use this command."""
+async def dev_only_hook(ctx: arc.GatewayContext) -> arc.HookResult:
+  """Aborts execution if user is not authorised to run this dev command. Notifies user by responding."""
+  if ctx.author.id not in S.DEV_IDS:
+    await ctx.respond(**RESP.not_dev())
+    return arc.HookResult(abort=True)
+  return arc.HookResult()
 
-  @wraps(func)
-  async def wrapper(*args, **kwargs):
-    if args[0].author.id not in S.DEV_IDS:
-      return await args[0].respond(**RESP.not_dev())
-    return await func(*args, **kwargs)
+async def bannable_hook(ctx: arc.GatewayContext) -> arc.HookResult:
+  """Aborts execution if user is banned. Notifies user by responding."""
+  if ctx.author.id in GDB['banned']:
+    await ctx.respond(**RESP.banned())
+    return arc.HookResult(abort=True)
+  return arc.HookResult()
 
-  return wrapper
-
-
-def bannable_command(func: Callable):
-  """Users banned using /ban cannot use this command."""
-
-  @wraps(func)
-  async def wrapper(*args, **kwargs):
-    if args[0].author.id in GDB['banned']:
-      return await args[0].respond(**RESP.banned())
-    return await func(*args, **kwargs)
-
-  return wrapper
-
-
-def dms_only(func: Callable):
-  """Can only be used in DMs."""
-
-  @wraps(func)
-  async def wrapper(*args, **kwargs):
-    if args[0].guild_id is not None:
-      return await args[0].respond(**await RESP.must_use_dms(user_id=args[0].author.id))
-    return await func(*args, **kwargs)
-
-  return wrapper
-
+async def dms_only_hook(ctx: arc.GatewayContext) -> arc.HookResult:
+  """Aborts execution if user is not in a DM channel."""
+  if ctx.guild_id is not None:
+    await ctx.respond(**await RESP.must_use_dms(user_id=ctx.author.id))
+    return arc.HookResult(abort=True)
+  return arc.HookResult()
 
 def do_as_i_say(func: Callable):
-  """Ensures "Yes, do as I said!" confirmation."""
+  """Ensures the "Yes, do as I said!" confirmation as a slash cmd argument."""
 
   @wraps(func)
   async def wrapper(*args, **kwargs):
@@ -51,10 +36,10 @@ def do_as_i_say(func: Callable):
 
   return wrapper
 
-
 @ACL.include
+@arc.with_hook(bannable_hook)
+@arc.with_hook(dms_only_hook)
 @arc.slash_command('botstatus', 'View some (partially made up) details about the bot' + testmode())
-@bannable_command
 async def cmd_botstatus(
   ctx: arc.GatewayContext,
 ) -> None:
@@ -82,8 +67,9 @@ async def cmd_botstatus(
 
 
 @ACL.include
+@arc.with_hook(bannable_hook)
+@arc.with_hook(dms_only_hook)
 @arc.slash_command('remind', 'Set a reminder!' + testmode())
-@bannable_command
 async def cmd_remind(
   ctx: arc.GatewayContext,
   reminder: arc.Option[str, arc.StrParams('The reminder (use /help for help)', min_length=1, max_length=418)],
@@ -93,12 +79,12 @@ async def cmd_remind(
 
 if True:  # /privacy <...>
   GROUP_PRIVACY = ACL.include_slash_group('privacy', 'Privacy related commands (some dangerous/data-deleting!)' + testmode())
+  GROUP_PRIVACY.add_hook(dms_only_hook)
 
   DOASISAY_OPTION = arc.Option[str, arc.StrParams('Type exactly "Yes, do as I say!" to confirm this potentially dangerous action', min_length=17, max_length=17)]
 
   @GROUP_PRIVACY.include
   @arc.slash_subcommand('purge', 'PURGE ALL MESSAGES IN THIS DM CHANNEL (DANGEROUS!)' + testmode())
-  @dms_only
   @do_as_i_say
   async def cmd_privacy_purge(
     ctx: arc.GatewayContext,
@@ -131,7 +117,6 @@ if True:  # /privacy <...>
 
   @GROUP_PRIVACY.include
   @arc.slash_subcommand('wipe', 'Wipe ALL or PART OF DATABASE associated with your discord ID. (DANGEROUS!)' + testmode())
-  @dms_only
   @do_as_i_say
   async def cmd_privacy_wipe(
     ctx: arc.GatewayContext,
@@ -151,10 +136,11 @@ if True:  # /privacy <...>
 
 if True:  # /backup <...>
   GROUP_BACKUP = ACL.include_slash_group('backup', 'Backup your data' + testmode(), autodefer=arc.AutodeferMode.EPHEMERAL)
+  GROUP_BACKUP.add_hook(bannable_hook)
+  GROUP_BACKUP.add_hook(dms_only_hook)
 
   @GROUP_BACKUP.include
   @arc.slash_subcommand('export', 'Download your data as a file.' + testmode())
-  @dms_only
   async def cmd_backup_export(ctx: arc.GatewayContext):
     db: U = Database(ctx.author.id)
 
@@ -194,7 +180,6 @@ if True:  # /backup <...>
 
   @GROUP_BACKUP.include
   @arc.slash_subcommand('import', 'Import your data from an export.' + testmode())
-  @dms_only
   async def cmd_backup_import(
     ctx: arc.GatewayContext,
     file: arc.Option[hikari.Attachment, arc.AttachmentParams('The file to import (The file your or any discord account got from /backup export)')],
@@ -322,10 +307,10 @@ if True:  # /backup <...>
 
 if True:  # *dev_only_commands*
   GROUP_DEV = ACL.include_slash_group('dev', 'Developer cmdlets' + testmode(), autodefer=arc.AutodeferMode.EPHEMERAL, guilds=S.DEV_EANBLED_GUILDS)
+  GROUP_DEV.add_hook(dev_only_hook)
 
   @GROUP_DEV.include
   @arc.slash_subcommand('now', 'Trigger a reminder immediately' + testmode())
-  @dev_only_cmd
   async def cmd_dev_now(
     ctx: arc.GatewayContext,
     idx: arc.Option[int, arc.IntParams('The reminder index to trigger')],
@@ -335,7 +320,6 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('get', 'Get a reminder as a codeblock' + testmode())
-  @dev_only_cmd
   async def cmd_dev_get(
     ctx: arc.GatewayContext,
     idx: arc.Option[int, arc.IntParams('The reminder index to get')],
@@ -345,19 +329,16 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('guilds', 'Fetch the current guild count & update it.' + testmode())
-  @dev_only_cmd
   async def cmd_dev_guilds(ctx: arc.GatewayContext):
     await rd_dev_guilds(responder=ctx.respond)
 
   @GROUP_DEV.include
   @arc.slash_subcommand('users', 'Show the current amount of users in the database & list their IDs.' + testmode())
-  @dev_only_cmd
   async def cmd_dev_users(ctx: arc.GatewayContext):
     await rd_dev_users(responder=ctx.respond)
 
   @GROUP_DEV.include
   @arc.slash_subcommand('run', 'Run a py cmd' + testmode())
-  @dev_only_cmd
   async def cmd_dev_run(
     ctx: arc.GatewayContext,
     code: arc.Option[str, arc.StrParams('The code to run')],
@@ -368,7 +349,6 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('runfile', 'Run a py file' + testmode())
-  @dev_only_cmd
   async def cmd_dev_runfile(
     ctx: arc.GatewayContext,
     file: arc.Option[hikari.Attachment, arc.AttachmentParams('The file to run (utf-8)')],
@@ -386,7 +366,6 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('dbdump', 'Dump database' + testmode())
-  @dev_only_cmd
   async def cmd_dev_dbdump(
     ctx: arc.GatewayContext,
     db: arc.Option[str, arc.StrParams('Database to dump (g, v, u.id)')],
@@ -429,7 +408,6 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('ban', 'Ban or unban a user' + testmode())
-  @dev_only_cmd
   async def cmd_dev_ban(
     ctx: arc.GatewayContext,
     user: arc.Option[str, arc.StrParams('The User ID to ban')],
@@ -440,7 +418,6 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('banlist', 'Show all banned users' + testmode())
-  @dev_only_cmd
   async def cmd_dev_banlist(ctx: arc.GatewayContext):
     banned = GDB['banned']
 
@@ -455,19 +432,16 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('shutdown', 'Shut down the bot' + testmode())
-  @dev_only_cmd
   async def cmd_dev_shutdown(ctx: arc.GatewayContext):
     await ctx.respond('Shutting down...', flags=hikari.MessageFlag.EPHEMERAL)
     await BOT.close()
 
   @GROUP_DEV.include
   @arc.slash_subcommand('debug', 'Debug' + testmode())
-  @dev_only_cmd
   async def cmd_dev_debug(
     ctx: arc.GatewayContext,
   ):
     try:
       await ctx.respond(attachment=hikari.URL('https://sdfgfksfgjskfhjgksdfhjgksdgsdfgsd.com'))
-    except Exception as e:
-      c(f'caught {tcr.extract_error(e)}')
-      await ctx.respond(f'caught {tcr.extract_error(e)}')
+    except hikari.HTTPError:
+      await ctx.respond('attachments failed to attach')

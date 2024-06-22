@@ -1,4 +1,4 @@
-tcrutils[discord]>=12.0.203
+tcrutils[discord]>=12.0.204
 hikari>=2.0.0.dev126
 hikari-miru>=4.1.1,<5.0.0
 hikari-arc[cron]>=1.3.4
