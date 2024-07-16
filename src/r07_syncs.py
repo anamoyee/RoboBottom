@@ -31,14 +31,18 @@ def random_sure() -> str:
 
 def flags_hide_on_guild(ctx_or_event: arc.GatewayContext | hikari.GuildMessageCreateEvent) -> Literal[hikari.MessageFlag.NONE, hikari.MessageFlag.EPHEMERAL]:
   """Return `hikari.MessageFlag.EPHEMERAL` if request originated from a guild, else `hikari.MessageFlag.NONE`."""
-  return hikari.MessageFlag.EPHEMERAL if (isinstance(ctx_or_event, hikari.GuildMessageCreateEvent) and hasattr(ctx_or_event, 'guild_id')) else hikari.MessageFlag.NONE
+  return hikari.MessageFlag.EPHEMERAL if (hasattr(ctx_or_event, 'guild_id') and ctx_or_event.guild_id is not None) else hikari.MessageFlag.NONE
+
+
+def please_tell_me_how_you(what: str = 'did this') -> str:
+  return f'Please tell me how you {what}, DM me: <@{S.CREATED_BY["id"]}> (or add me as friend on discord @{S.CREATED_BY["name"]} if you can\'t click on the mention)'
 
 
 def somehow_you_managed_to(do_what: str, *, about_to: bool = False) -> str:
   if about_to:
-    return f'{S.NO} Somehow you were about to {do_what} (you were about to trigger a bug), please tell me how you managed to do it, DM me: <@{S.CREATED_BY["id"]}> (or add me as friend on discord @{S.CREATED_BY["name"]} if you can\'t click on the mention)'
+    return f'{S.NO} Somehow you were about to {do_what} (you were about to trigger a bug).\n{please_tell_me_how_you("did this")}'
   else:
-    return f'{S.NO} Somehow you managed to {do_what} (you triggered a bug), please tell me how you did this, DM me: <@{S.CREATED_BY["id"]}> (or add me as friend on discord @{S.CREATED_BY["name"]} if you can\'t click on the mention)'
+    return f'{S.NO} Somehow you managed to {do_what} (you triggered a bug).\n{please_tell_me_how_you("did this")}'
 
 
 def build_reminder(
@@ -66,14 +70,14 @@ def build_reminder(
 
   try:
     offset = TIMESTR.to_int(tstr)
-
-    if offset <= 0:
-      raise TextErrpondError('Invalid time', f'You cannot set a negative or zero delay.')
-
-    if offset < S.MINIMUM_REMINDER_TIME:
-      raise TextErrpondError('Invalid time', f'You cannot set a time shorter than **`{TIMESTR.to_str(S.MINIMUM_REMINDER_TIME)}`**')
   except Exception as e:
     raise TextErrpondError('Invalid time', tcr.codeblock(tcr.extract_error(e), langcode='')) from e
+
+  if not testmode() and offset <= 0:
+    raise TextErrpondError('Invalid time', f'You cannot set a negative or zero delay.')
+
+  if not testmode() and offset < S.MIN_REMINDER_TIME:
+    raise TextErrpondError('Invalid time', f'You cannot set a time shorter than **`{TIMESTR.to_str(S.MIN_REMINDER_TIME)}`**')
 
   return Reminder(
     user=user,
@@ -149,12 +153,18 @@ def backup_all_databases() -> p.Path:
   return backup_path
 
 
-T1 = TypeVar('T1')
-T2 = TypeVar('T2')
-BLANK_OF_T1 = object()
+NEW_INSTANCE_OF_IFVISIBLE = object()
 
-def hidden_or(rem: Reminder, ifvisible: T1, ifhidden: T2 = BLANK_OF_T1) -> T1 | T2:
+
+def hidden_or(rem: Reminder, ifvisible, ifhidden=NEW_INSTANCE_OF_IFVISIBLE):
   if rem.is_flag(CTF.HASH_HIDDEN):
-    return ifhidden if ifhidden is not BLANK_OF_T1 else type(ifvisible)()
+    return ifhidden if ifhidden is not NEW_INSTANCE_OF_IFVISIBLE else type(ifvisible)()
   else:
     return ifvisible
+
+
+def get_slash_command_mentions() -> tcr.discord.types.CommandIDsDict[str, hikari.Snowflake]:
+  if not hasattr(get_slash_command_mentions, '_slash_command_mentions'):
+    get_slash_command_mentions._slash_command_mentions = tcr.discord.get_slash_command_ids(ACL)
+
+  return get_slash_command_mentions._slash_command_mentions

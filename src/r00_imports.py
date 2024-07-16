@@ -1,6 +1,8 @@
 import asyncio
+import builtins
 import contextlib
 import datetime
+import inspect
 import io
 import json
 import os
@@ -12,10 +14,12 @@ import shutil
 import string
 import sys
 import time
+import traceback
 import typing as t
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from functools import partial, wraps
+from types import ModuleType
 from typing import Any, Literal, NotRequired, Self, TypeVar, Unpack
 from typing import TypedDict as TD
 from uuid import uuid1 as get_uwuid
@@ -25,6 +29,7 @@ import arc
 import attr as atr
 import hikari
 import miru
+import pydantic as pd
 import pytz
 import tcrutils as tcr
 from colored import Back, Fore, Style

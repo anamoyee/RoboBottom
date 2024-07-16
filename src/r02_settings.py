@@ -1,4 +1,28 @@
-from r01_types import *
+import datetime
+import pathlib as p
+from collections.abc import Callable
+from typing import Any, NotRequired, Unpack
+from typing import TypedDict as TD
+
+import hikari
+import pytz
+import r01_types as m_types
+import tcrutils as tcr
+from colored import Back, Fore, Style
+
+# from r01_types import *
+
+
+class ActivityTD(TD):
+  name: str
+  type: NotRequired[Unpack[hikari.ActivityType]]
+  state: NotRequired[str | None]
+  url: NotRequired[str | None]
+
+
+class CreatedByTD(TD):
+  id: int
+  name: str
 
 
 class S:
@@ -60,8 +84,11 @@ class S:
   USER_BACKUP_COOLDOWN: int = 15 * 60  # 15 minutes
   """How many seconds have to pass between usages of /backup export for the same user for it to succeed."""
 
-  MINIMUM_REMINDER_TIME: int = 15  # seconds
+  MIN_REMINDER_TIME: int = 15  # seconds
   """The minimum time a reminder has to be scheduled for to be accepted. Otherwise an error is shown to the user."""
+
+  MAX_REMINDER_TIME_IN_TIMEOUT: int = 60 * 1  # seconds
+  """The maximum time a reminder's timeout can be set to, if higher the reminder is instead moved to archive. Timeout is set when the reminder fails to be sent repeatedly."""
 
   BANNER: str | None = p.Path('assets/txt/banner.txt')  # Default: assets/txt/banner.txt
   """The banner ascii that is shown when the bot launches. Just edit the banner.txt file. When set to None, both this banner and the hikari default banner are not shown."""
@@ -82,6 +109,7 @@ class S:
     'secondary': 0x8000FF,
     'reminder': 0xFFFF00,
     'cancelled': 0xFF0000,
+    'archive': 0x808080,
     'error': 0xFF0000,
     'success': 0x00FF00,
   }
@@ -101,10 +129,24 @@ class S:
   > **Got it!** I'll remind you in **1 hour**
   """
 
-  RANDOM_SURES: list[str] = P.RANDOM_SURES
+  RANDOM_SURES: list[str] = list({
+    'Done!',
+    'Got it!',
+    'Sweet!',
+    'Awesome!',
+    'Great!',
+    'Roger!',
+    'Epic!',
+    'Gotcha!',
+    'Noted!',
+    'Sure thing!',
+    'Sounds good!',
+    'Heck yeah!',
+    'All done!',
+  })  # fmt: skip
   """Displays in the above prompt (if you choose so or leave the default value)."""
 
-  SORTKEY: Callable[[Reminder], Any] = lambda r: -r.unix  # Default: sort by time of expiry, reversed: lambda r: -r.unix
+  SORTKEY: Callable[[m_types.Reminder], Any] = lambda r: -r.unix  # Default: sort by time of expiry, reversed: lambda r: -r.unix
   """Defines how the reminders are sorted in the internal reminder list. This affects how they are displayed and which indices they occupy (used in cancelling)."""
 
   REMINDER_TASK_INTERVAL_SECONDS: int = 1 - 0.0069  # Default: 1 (with correction)
@@ -147,7 +189,7 @@ class S:
   PRINT_REVOLUTION: bool = True
   """Nice if you get the reference. If this is True, the bot on startup prints the revolution "On the eve of our {} revolution..." (aka the how many times this bot has booted up without changing versions)."""
 
-  ACCIDENTAL_SUFFIXES: set[str] = {"'", '\\'}
+  ACCIDENTAL_SUFFIXES: set[str] = {"'", '\\', ']'}
   """Those characters will be ignored if left at the end of an input string.
 
   For example:
@@ -162,25 +204,15 @@ class S:
   when pressing the enter key to send the message.
   """
 
-  SLASH_COMMAND_MENTIONS: dict[str, str] = FallbackDict(
-    {
-      x: tcr.discord.IFYs.commandify(x, y)
-      for x, y in {
-        'privacy purge': 1246239256863576074,  # Only change the numbers!
-        # 'backup export': 1,
-      }.items()
-    },
-    fallback=lambda _, x: f'/{x}',
-  )
-  """Used for `</command:id>` notation for clickable commands in chat. You have to change this if you change bots (two different bot accounts from the discord developer portal) or the slash commands won't display properly
-
-  To obtain a discord command ID, enable developer mode in settings, then select the command in the chat by typing / and its name, then right click on the top bar and select "Copy ID".
-  https://i.sstatic.net/e7XGm.png
-  https://stackoverflow.com/questions/73983897/how-do-i-get-the-id-of-a-slash-command-and-mention-it
-  """
-
   SUSPICIOUS_RIPPLE_CANCEL_TIME = 3 * 60  # 3 minutes
   """If user uses a `fuck` command after this amount of time after scheduling their most recent reminder, they will be prompted to confirm this action."""
+
+  ARCHIVE_SUFFIX: str = '@'
+  """Character used after the command name to signify its target to be the archive list.
+
+  - `c1` == cancel the first reminder
+  - `c&1` == remove the first reminder from the archive
+  """
 
   FORCE_TESTMODE = None  # Default: None
   """[DEV] Force testmode app-wide. Will add "- Testmode" in some places to indicate that the bot is running in testmode.
@@ -189,25 +221,30 @@ class S:
   - `False` → Never run in testmode
   """
 
-  DEV_IDS: tuple[tcr.discord.Snowflake] = (
+  DEV_IDS: tuple[hikari.Snowflake] = (
     507642999992352779,
   )  # This manages permissions, not credits, for example user that's NOT on that list CAN'T invoke commands, but /botstatus uses a separate entry, look lower on this list of settings
   """[DEV] A list of discord IDs of user accounts that are permitted to invoke developer functions (dangerous!)"""
 
-  DEFAULT_EANBLED_GUILDS: tuple[tcr.discord.Snowflake] | None = None  # (1145433323594842166,) # Default: None
+  DEFAULT_EANBLED_GUILDS: tuple[hikari.Snowflake] | None = None  # (1145433323594842166,) # Default: None
   """[DEV] The guilds' IDs in which the slash commands would be updated quicker, for development purposes only.
 
   To enable slash commands on all guilds set it to () or None"""
 
-  DEV_EANBLED_GUILDS: tuple[tcr.discord.Snowflake] | None = (1145433323594842166,)  # Default: None
+  DEV_EANBLED_GUILDS: tuple[hikari.Snowflake] | None = (1145433323594842166,)  # Default: None
   """[DEV] The guilds' IDs in which the developer slash commands are enabled.
 
   To enable dev commands on all guilds set it to () or None (NOT RECOMMENDED)."""
+
+  DEV_ERROR_CHANNEL: hikari.Snowflake | None = 1254892313981751296
+  """[DEV] The channel for any unhandled errors will appear on this channel as a red embed. Set this to None to disable this feature (all errors will be silently ignored)."""
 
   ### The following settings should not be modified.
 
   CREATED_BY: CreatedByTD = {'id': 507642999992352779, 'name': 'anamoyee'}  # Do not change or confusion will ensue (if a bug is ever triggered)
   """Should not be changed - my discord name & ID. This is rarely used to refer a user that stumbled upon a bug to me so i can fix it. This is also used in one line in credits."""
+  CREATED_BY_STR: str = f"@{CREATED_BY['name']} (discord_id={CREATED_BY['id']})"
+  """See above."""
 
   MAJOR_VERSION_TEMPLATE: str = '2.1.%s'
   """The non-patch versions are not incremented automatically on `$ cmp`"""

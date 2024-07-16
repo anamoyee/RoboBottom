@@ -1,13 +1,13 @@
-from r02_settings import *
+from r02_settings import S
+
+pass
+from r01_types import *
 
 TOKEN = tcr.get_token('TOKEN.txt', depth=3)  # 3-1 = 2 counting src/
 UPTIME = tcr.Uptime()
 VERSION = S.MAJOR_VERSION_TEMPLATE % p.Path('VERSION.txt').read_text().strip()
-# TIMESTR = tcr.timestr(allow_negative=False, allow_zero=False)
 TIMESTR = tcr.TStr(tzinfo=S.GLOBAL_TIMEZONE, splitter='!', fix_timezone=True)
 TESTMODE = (os.name == 'nt') if S.FORCE_TESTMODE is None else S.FORCE_TESTMODE
-
-GUILD_COUNT = -1  # -1 Means not fetched yet
 
 DB_USERS_PATH = S.DB_DIRECTORY / 'users'
 DB_USERS_PATH.mkdir(exist_ok=True, parents=True)  # fmt: skip

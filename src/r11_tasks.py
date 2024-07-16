@@ -14,8 +14,12 @@ async def task_reminder() -> None:
   for _, db in Database.iter_all():
     for rem in db['r']:
       if rem.expired():
-        await rem.send()
-        rem.remove_from_db()
+        try:
+          await rem.send()
+        except TimeoutError:
+          pass
+        else:
+          rem.remove_from_db()
 
 
 @register_task

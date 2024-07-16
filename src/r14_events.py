@@ -7,10 +7,6 @@ async def onStartingEvent(event: hikari.StartingEvent): ...
 
 @BOT.listen(hikari.StartedEvent)
 async def onStartedEvent(event: hikari.StartedEvent):
-  if True:  # Guild Count
-    global GUILD_COUNT
-    GUILD_COUNT = await get_guild_count()
-
   if True:  # Start Tasks
     task_reminder.start()
     task_backup.start()
@@ -38,6 +34,7 @@ async def onStoppedEvent(event: hikari.StoppedEvent): ...
 
 
 @BOT.listen(hikari.DMMessageCreateEvent)
+@event_uncaught_error_handler_decorator
 async def onDMMessageCreateEvent(event: hikari.DMMessageCreateEvent):
   if not event.is_human:
     return
@@ -55,8 +52,11 @@ async def onDMMessageCreateEvent(event: hikari.DMMessageCreateEvent):
     return
 
   scontent = event.content or ''
-  if scontent and scontent[-1] in S.ACCIDENTAL_SUFFIXES:
+
+  if ((' ' not in scontent.strip()) or (' ' in scontent[:-1].strip())) and scontent[-1] in S.ACCIDENTAL_SUFFIXES:
     scontent = scontent[:-1]
+
+  scontent = scontent.strip()
 
   if not scontent:
     if event.message.attachments:
@@ -64,16 +64,21 @@ async def onDMMessageCreateEvent(event: hikari.DMMessageCreateEvent):
     return
 
   identifier = (scontent + ' ').split(' ', maxsplit=1)[0]
-  scontent_without_identifier = scontent.removeprefix(identifier)
 
-  if scontent in P.DM_CMD_ALIASES('list'):
-    await r_list(event.author.id, event.channel_id)
+  def startswith_and_strip(s: str, aliases: list[str]) -> str | Literal[False]:
+    for alias in aliases:
+      if s.startswith(alias):
+        return tcr.types.AlwaysTruthyStr(s.removeprefix(alias).strip())
+    return False
+
+  if text := startswith_and_strip(scontent, P.DM_CMD_ALIASES('list')):
+    await r_list(event.author.id, event.channel_id, archive=text.startswith(S.ARCHIVE_SUFFIX), text=text.removeprefix(S.ARCHIVE_SUFFIX))
     return
-  elif identifier in P.DM_CMD_ALIASES('cancel'):
-    await r_cancel(event.message.respond, event.author.id, scontent_without_identifier)
+  elif text := startswith_and_strip(scontent, P.DM_CMD_ALIASES('cancel')):
+    await r_cancel(event.message.respond, event.author.id, text.removeprefix(S.ARCHIVE_SUFFIX), archive=text.startswith(S.ARCHIVE_SUFFIX))
     return
-  elif identifier in P.DM_CMD_ALIASES('view'):
-    await r_view(event.message.respond, event.author.id, scontent_without_identifier)
+  elif text := startswith_and_strip(scontent, P.DM_CMD_ALIASES('view')):
+    await r_view(event.message.respond, event.author.id, text.removeprefix(S.ARCHIVE_SUFFIX), archive=text.startswith(S.ARCHIVE_SUFFIX))
     return
   elif identifier in P.DM_CMD_ALIASES('fuck'):
     await r_fuck(event.message.respond, event.message, event.author.id)

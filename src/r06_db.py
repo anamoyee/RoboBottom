@@ -28,6 +28,14 @@ if True:  # DB Types
       r = sorted(r, key=S.SORTKEY)
       self['r'] = r
 
+    def update_reminder(self, rem: Reminder) -> None:
+      """Remove reminder with the same uuid and append new one."""
+
+      r = self['r']
+      r = [x for x in r if x.uuid != rem.uuid]
+      self['r'] = r
+      self.append_reminder(rem)
+
     @classmethod
     def iter_all(cls) -> t.Iterator[tuple[str, 'U | Database']]:
       return super().iter_all()

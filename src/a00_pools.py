@@ -1,24 +1,5 @@
 import typing as t
 
-if True:  # Appearence
-  RANDOM_SURES = list(
-    {
-      'Done!',
-      'Got it!',
-      'Sweet!',
-      'Awesome!',
-      'Great!',
-      'Roger!',
-      'Epic!',
-      'Gotcha!',
-      'Noted!',
-      'Sure thing!',
-      'Sounds good!',
-      'Heck yeah!',
-      'All done!',
-    }
-  )
-
 if True:  # Functional
   if True:  # Types
 
@@ -32,6 +13,6 @@ if True:  # Functional
       'cancel': ('c', 'cancel', 'cancel reminder', 'cancel rem', 'cancelreminder', 'cancelrem'),
       'view': ('v', 'view', 'view reminder', 'view rem', 'viewreminder', 'viewrem'),
       'del': ('delete', 'delthis', 'del this', 'delete this', 'deletethis', 'remove', 'removethis', 'removethis'),
-      'fuck': ('fucjk', 'shit', 'waitno', 'wait no', '💩'),
+      'fuck': ('fk', 'fucjk', 'shit', 'waitno', 'wait no', '💩'),
     }
   )

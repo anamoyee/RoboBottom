@@ -9,7 +9,7 @@ async def _wrong_index(r: list[Reminder], responder: Callable[[hikari.Embed], Co
 
 
 async def rd_run(
-  responder: Callable[[str], Coroutine],
+  responder: tcr.discord.types.HikariResponder,
   code: str,
   *,
   do_await: bool = True,
@@ -47,7 +47,7 @@ async def rd_run(
 
 
 async def rd_ban(
-  responder: Callable[[str], Coroutine],
+  responder: tcr.discord.types.HikariResponder,
   *,
   admin_id: int,
   user: int,
@@ -95,7 +95,7 @@ async def rd_ban(
 
 if True:  # rd_dev_...
 
-  async def rd_dev_now(*, responder: Callable[[str], Coroutine], user_id: int, idx: int):
+  async def rd_dev_now(*, responder: tcr.discord.types.HikariResponder, user_id: int, idx: int):
     if not Database.exists(user_id):
       await responder(EMBED.not_registered_in_db(user_id), flags=hikari.MessageFlag.EPHEMERAL)
       return
@@ -112,7 +112,7 @@ if True:  # rd_dev_...
       await rem.send()
       await responder(f'{S.YES}', flags=hikari.MessageFlag.EPHEMERAL)
 
-  async def rd_dev_get(*, responder: Callable[[str], Coroutine], user_id: int, idx: int):
+  async def rd_dev_get(*, responder: tcr.discord.types.HikariResponder, user_id: int, idx: int):
     if not Database.exists(user_id):
       await responder(EMBED.not_registered_in_db(user_id), flags=hikari.MessageFlag.EPHEMERAL)
       return
@@ -126,12 +126,12 @@ if True:  # rd_dev_...
     else:
       await responder(tcr.codeblock(tcr.fmt_iterable(db['r'][idx], syntax_highlighting=False), langcode='py'), flags=hikari.MessageFlag.EPHEMERAL)
 
-  async def rd_dev_guilds(*, responder: Callable[[str], Coroutine]):
+  async def rd_dev_guilds(*, responder: tcr.discord.types.HikariResponder):
     count = await get_guild_count(force_refetch=True)
 
     await debugpond(responder, count, flags=hikari.MessageFlag.EPHEMERAL)
 
-  async def rd_dev_users(*, responder: Callable[[str], Coroutine]):
+  async def rd_dev_users(*, responder: tcr.discord.types.HikariResponder):
     users = Database.iter_all_path_names()
     users = list(users)
 
@@ -146,7 +146,7 @@ if True:  # rd_dev_...
 
 
 async def r_remind(
-  responder: Callable[[str], Coroutine],
+  responder: tcr.discord.types.HikariResponder,
   text: str,
   *,
   user: int,
@@ -193,15 +193,21 @@ async def r_remind(
 async def r_list(
   user: int,
   channel: hikari.SnowflakeishOr[hikari.TextableChannel],
+  *,
+  text: str,
+  archive: bool,
 ):
-  """Send a list of user's reminders."""
+  """### R: Send a list of user's reminders."""
   channel = await BOT.rest.create_dm_channel(user)
 
   db: U = Database(user)
 
-  r = db['r']
+  if archive:
+    r = db['archive']
+  else:
+    r = db['r']
 
-  navigator: nav.NavigatorView = RESP.reminder_list(r)
+  navigator: nav.NavigatorView = RESP.reminder_list(r, archive=archive)
 
   builder = await navigator.build_response_async(MCL, start_at=len(navigator.pages) - 1)
   await builder.send_to_channel(channel=channel)
@@ -210,49 +216,75 @@ async def r_list(
 
 
 async def r_cancel(
-  responder: Callable[[str], Coroutine],
+  responder: tcr.discord.types.HikariResponder,
   user: int,
   text: str,
+  *,
+  archive: bool,
 ):
   """### R: Cancel a reminder."""
 
   db: U = Database(user)
-  r = db['r']
+
+  if archive:
+    r = db['archive']
+  else:
+    r = db['r']
 
   try:
     rem = r.pop(user_facing_to_python_r_idx(r, text))
   except IndexError:
     return await _wrong_index(r, responder, 'cancel')
 
-  db['r'] = r
+  if archive:
+    db['archive'] = r
+  else:
+    db['r'] = r
 
-  await responder(EMBED.reminder_canceled(rem), attachments=hidden_or(rem, rem.attachments))
+  try:
+    await respond_with_attachments_or_send_urls_as_file(responder, EMBED.reminder_canceled(rem, archive=archive), attachments=hidden_or(rem, rem.attachments))
+  except Exception:
+    await responder(somehow_you_managed_to('break the code that lets you view the reminder after it has been cancelled'))
+    if testmode():
+      raise
 
 
 async def r_view(
-  responder: Callable[[str], Coroutine],
+  responder: tcr.discord.types.HikariResponder,
   user: int,
   text: str,
+  *,
+  archive: bool,
 ):
   """### R: View a reminder as embed and send."""
 
   db: U = Database(user)
-  r = db['r']
+  if archive:
+    r = db['archive']
+  else:
+    r = db['r']
 
   try:
-    rem = r[user_facing_to_python_r_idx(r, text)]
+    idx = user_facing_to_python_r_idx(r, text)
+    rem = r[idx]
+    idx = r.index(rem)
   except IndexError:
     return await _wrong_index(r, responder, 'view')
-  else:
-    return await responder(EMBED.reminder_view(rem), attachments=hidden_or(rem, rem.attachments))
+
+  try:
+    await respond_with_attachments_or_send_urls_as_file(responder, EMBED.reminder_view(rem, idx, archive=archive), attachments=hidden_or(rem, rem.attachments))
+  except Exception:
+    await responder(somehow_you_managed_to('break the code that lets you view the reminder'))
+    if testmode():
+      raise
 
 
 async def r_fuck(
-  responder: Callable[[str], Coroutine],
+  responder: tcr.discord.types.HikariResponder,
   message: hikari.Message,
   user: int,
 ):
-  """Cancel last scheduled reminder - add a confirmation if it was long ago."""
+  """### R: Cancel last scheduled reminder - add a confirmation if it was long ago."""
 
   db: U = Database(user)
 
@@ -287,7 +319,7 @@ async def r_fuck(
 
 
 async def rr_del(
-  responder: Callable[[str], Coroutine],
+  responder: tcr.discord.types.HikariResponder,
   message: hikari.Message,
   referenced: hikari.PartialMessage,
 ):

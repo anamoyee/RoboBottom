@@ -20,38 +20,49 @@ python src/robobottom.py
 > You may use Python 3.12 if it works for you however i cannot guarantee it. Please use Python 3.11 if possible.
 
 ## Contact
-If you have any questions contact me on discord `@thecreatorrrr`\
+If you have any questions contact me on discord `@anamoyee`\
 If i change my username for some reason (or discord again fucks the username system up) here's my id `<@507642999992352779>`
 
 # Todo v3
+- [ ] Switch settings to pydantic
+- [ ] Switch Reminder to pydantic
+- [ ] Reminder archive: New list (.) toggle/switch to view expired reminders (& search)
+  - [ ] Fuck timeout: add reminders to archive and instead of timeout bool whether it was triggered or not, then notify the user if there are any reminders in the archive which have not been triggered
 - [ ] make attachments fallback to a file containing a list of links with an explaination if any failed to attach (hikari.HTTPError when sending)
-- [ ] use arc hooks
-- [ ] make banner not use eval
-- [ ] when viewing or receiving a reminder, if the message failed to send, send two files: reminder raw as if it was exported (json) ans the reminder text (txt) with at the bottom of the text files all the attachment URLs if any
-- [ ] finish /backup import
+- [ ] make banner not use eval (tcr.execute)
 - [ ] seamless #year channel integration (but in DMs) and it reminds you of the events.
   - Input made by giving an exact date of the event with year & a recursion string of exactly 1 year
+- [ ] recursive strings
+- [ ] make settings display and work
+- [ ] make reminder `text` with {placeholders}
+- [ ] make reminder `time` with {placeholders}
+- [ ] (?) do something with loops not stopping on shutdown
+  - And what's wrong with shutting down? it adds terminated tasks
+- [ ] Add /help
+- [ ] Finish validators
+- [x] in-discord error logging & add the following error handlers
+  - [x] arc handler (research how to) - replicate the default one to enable in-discord logging
+    - This should also show more detail on dev commands
+  - [x] GMCE handler (kind of replicate arc, such that it responds with :x: and logs errors)
+- [x] handle bot being blocked (if send fails with the block error add timeout)
+- [x] handle view & cancel attachments issue (not using safemode)
+  - [x] view
+  - [x] cancel
+- [x] use arc hooks
+- [x] when viewing or receiving a reminder, if the message failed to send, send two files: reminder raw as if it was exported (json) ans the reminder text (txt) with at the bottom of the text files all the attachment URLs if any
+- [x] finish /backup import
 - [x] add dev cmds:
   - [x] add `$users` (get amount of unique users using the bot)
   - [x] add `$servers` (get amount of servers using the bot)
   - [x] add `$get` for getting the raw reminder ansi printed
-- [ ] recursive strings
-- [ ] make settings display and work
 - [x] make a `fuck` command that undos the latest reminder schedule
 - [x] make basic stuff work
 - [x] make attachments visible when viewing reminder
 - [x] make attachments visible when viewing list of reminders (🗃📝)
-- [ ] make reminder `text` with {placeholders}
-- [ ] make reminder `time` with {placeholders}
 - [x] fix revcounter
-- [ ] do something with loops not stopping on shutdown
-  - And what's wrong with shutting down? it adds terminated tasks youll
 - [x] MAKE STATS LIKE: FIRST INTERACTED WITH THE BOT.
-- [ ] [EXPORT] Add option to backup your reminders to a file and to load them later.
+- [x] [EXPORT] Add option to backup your reminders to a file and to load them later.
 - [x] Add to the reminder: `This reminder was sent ... too late`.
-- [ ] Add /help
-- [ ] make all flags work
-- [ ] Finish validators
 
 # Todo v2
 - [X] Add vaidators for BANNER & BANNER_COLORS

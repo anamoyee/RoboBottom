@@ -1,5 +1,3 @@
-import hikari.errors
-import hikari.locales
 from r12_rcomps import *
 
 
@@ -10,6 +8,7 @@ async def dev_only_hook(ctx: arc.GatewayContext) -> arc.HookResult:
     return arc.HookResult(abort=True)
   return arc.HookResult()
 
+
 async def bannable_hook(ctx: arc.GatewayContext) -> arc.HookResult:
   """Aborts execution if user is banned. Notifies user by responding."""
   if ctx.author.id in GDB['banned']:
@@ -17,12 +16,14 @@ async def bannable_hook(ctx: arc.GatewayContext) -> arc.HookResult:
     return arc.HookResult(abort=True)
   return arc.HookResult()
 
+
 async def dms_only_hook(ctx: arc.GatewayContext) -> arc.HookResult:
   """Aborts execution if user is not in a DM channel."""
   if ctx.guild_id is not None:
     await ctx.respond(**await RESP.must_use_dms(user_id=ctx.author.id))
     return arc.HookResult(abort=True)
   return arc.HookResult()
+
 
 def do_as_i_say(func: Callable):
   """Ensures the "Yes, do as I said!" confirmation as a slash cmd argument."""
@@ -36,9 +37,9 @@ def do_as_i_say(func: Callable):
 
   return wrapper
 
+
 @ACL.include
 @arc.with_hook(bannable_hook)
-@arc.with_hook(dms_only_hook)
 @arc.slash_command('botstatus', 'View some (partially made up) details about the bot' + testmode())
 async def cmd_botstatus(
   ctx: arc.GatewayContext,
@@ -68,7 +69,6 @@ async def cmd_botstatus(
 
 @ACL.include
 @arc.with_hook(bannable_hook)
-@arc.with_hook(dms_only_hook)
 @arc.slash_command('remind', 'Set a reminder!' + testmode())
 async def cmd_remind(
   ctx: arc.GatewayContext,
@@ -130,8 +130,11 @@ if True:  # /privacy <...>
         db.drop_db()
       case 'reminders':
         db['r'] = U.defaults['r']()
+        db['archive'] = U.defaults['archive']()
 
-    await ctx.respond(f'{S.YES} Done! You might want to also clean up your discord message history with {S.SLASH_COMMAND_MENTIONS["privacy purge"]}', flags=hikari.MessageFlag.EPHEMERAL)
+    await ctx.respond(
+      f'{S.YES} Done! You might want to also clean up your discord message history with {get_slash_command_mentions().mentions_named()["privacy purge"]}', flags=hikari.MessageFlag.EPHEMERAL
+    )
 
 
 if True:  # /backup <...>
@@ -227,7 +230,10 @@ if True:  # /backup <...>
         except ReminderFromExportMismatchedKeysError as e:
           rest = f'\n\nThe issue arised during parsing of reminder idx={last_i}, missing_keys={e.missing!r}, extra_keys={e.extra!r}'
 
-          await vctx.respond(f'{S.NO} There was an error parsing your `reminders` (mismatched keys). Make sure the data is valid and contact a developer in case of any issues.'+rest, flags=hikari.MessageFlag.EPHEMERAL)
+          await vctx.respond(
+            f'{S.NO} There was an error parsing your `reminders` (mismatched keys). Make sure the data is valid and contact a developer in case of any issues.' + rest,
+            flags=hikari.MessageFlag.EPHEMERAL,
+          )
           return
         except (ValueError, TypeError, AttributeError):
           await vctx.respond(f'{S.NO} There was an error parsing your `reminders`. Make sure the data is valid and contact a developer in case of any issues', flags=hikari.MessageFlag.EPHEMERAL)
@@ -254,7 +260,7 @@ if True:  # /backup <...>
         except TypeError:
           await vctx.respond(f'{S.NO} There was an error parsing your `settings`. Make sure the data is valid and contact a developer in case of any issues', flags=hikari.MessageFlag.EPHEMERAL)
 
-        db['s'] = settings
+        db['settings'] = settings
 
         data.pop('settings')
 
@@ -266,12 +272,13 @@ if True:  # /backup <...>
         await vctx.respond(f'{S.YES} All done, your data has been imported')
 
     await tcr.discord.confirm(
-      ctx.respond, MCL,
+      ctx.respond,
+      MCL,
       yes_callback=yes_callback,
       no_callback=tcr.avoid,
       responder_kwargs={
-        "embed": EMBED.import_confirmer(import_obj=data, mode=mode, invalid_keys=list(leftover.keys())),
-      }
+        'embed': EMBED.import_confirmer(import_obj=data, mode=mode, invalid_keys=list(leftover.keys())),
+      },
     )
 
 # @ACL.include
@@ -288,11 +295,11 @@ if True:  # /backup <...>
 #     return
 
 #   with shelve.open(get_db('u', ctx.author.id)) as udb:
-#     udb.setdefault('s', UserSettings())
+#     udb.setdefault('settings', UserSettings())
 
 #     def getattrer(key):
 #       try:
-#         return getattr(udb['s'], key)
+#         return getattr(udb['settings'], key)
 #       except AttributeError:
 #         return next(x.default for x in UserSettings.__attrs_attrs__ if x.name == key)
 
@@ -432,16 +439,80 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('shutdown', 'Shut down the bot' + testmode())
-  async def cmd_dev_shutdown(ctx: arc.GatewayContext):
-    await ctx.respond('Shutting down...', flags=hikari.MessageFlag.EPHEMERAL)
-    await BOT.close()
+  async def cmd_dev_shutdown(
+    ctx: arc.GatewayContext,
+    method: arc.Option[str, arc.StrParams('The method of shutdown', choices=('await BOT.close()', 'exit()', 'os._exit(0)'))] = 'await BOT.close()',
+  ):
+    methods = {
+      'await BOT.close()': (BOT.close, True),
+      'exit()': (exit, False),
+      'os._exit(0)': (lambda: os._exit(0), False),
+    }
+
+    func, should_await = methods[method]
+
+    await ctx.respond(f'Shutting down via `{method!s}`...', flags=hikari.MessageFlag.EPHEMERAL)
+
+    if should_await:
+      await func()
+    else:
+      func()
+
+  ERR_MAP = tcr.modules_error_map(builtins, hikari, arc, miru)
+
+  async def autocomplete_dev_error(data: arc.AutocompleteData) -> list[str]:
+    text = data.focused_option.value or ''
+    text = text.lower()
+
+    def sortkey(x: str) -> tuple:
+      dotted_x: str = f'.{x}' if '.' not in x else x
+      mod_name, exc_name = dotted_x.split('.', maxsplit=1)
+      mod_name, exc_name = mod_name.lower(), exc_name.lower()
+
+      return (
+        mod_name,
+        -exc_name.startswith(text),
+        -mod_name.startswith(text),
+        exc_name,
+        len(x),
+      )
+
+    filtered = filter(lambda x: text in x.lower(), ERR_MAP.keys())
+    sorted_ = sorted(filtered, key=sortkey)
+
+    return list(sorted_)[:25]
+
+  @GROUP_DEV.include
+  @arc.slash_subcommand('error', "Raise a (to-be-uncaught) exception in order to test the bot's error handling." + testmode())
+  async def cmd_dev_error(
+    ctx: arc.GatewayContext,
+    msg: arc.Option[str, arc.StrParams('The error message')] = None,
+    error: arc.Option[str, arc.StrParams('The error type', autocomplete_with=autocomplete_dev_error)] = 'RuntimeError',
+  ):
+    this_err_map = {x.lower(): y for x, y in ERR_MAP.items()}
+
+    if error.lower() not in this_err_map:
+      await ctx.respond(f'{S.NO} Invalid error type: `{tcr.discord.remove_markdown(error)}`', flags=hikari.MessageFlag.EPHEMERAL)
+
+    e = this_err_map[error.lower()]
+
+    if e in (SystemExit, KeyboardInterrupt):
+      await ctx.respond(f'{S.WARN} The error you chose (`{e.__name__!s}`) will cause the bot to shut down...', flags=hikari.MessageFlag.EPHEMERAL)
+
+    raise (e(msg) if msg is not None else e)
+
+  sub_group_info = GROUP_DEV.include_subgroup('info', 'info subgroup')
+
+  @sub_group_info.include
+  @arc.slash_subcommand('end', 'end cmd' + testmode())
+  async def cmd_dev_info(
+    ctx: arc.GatewayContext,
+  ):
+    await ctx.respond('aaaa')
 
   @GROUP_DEV.include
   @arc.slash_subcommand('debug', 'Debug' + testmode())
   async def cmd_dev_debug(
     ctx: arc.GatewayContext,
   ):
-    try:
-      await ctx.respond(attachment=hikari.URL('https://sdfgfksfgjskfhjgksdfhjgksdgsdfgsd.com'))
-    except hikari.HTTPError:
-      await ctx.respond('attachments failed to attach')
+    await debugpond(ctx, None, flags=hikari.MessageFlag.EPHEMERAL)

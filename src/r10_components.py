@@ -50,7 +50,7 @@ if True:  # Settings
     async def callback(self, ctx: miru.ViewContext):
       async def mcb(mod: miru.Modal, ctx: miru.ModalContext, values: list[str]) -> None:
         udb = Database(ctx.author.id)
-        us = udb['s']
+        us: UserSettings = udb['settings']
 
         if (not values[0]) or (not all(x in SETTINGS_VALUE_ALLOWED_CHARACTERS for x in values[0])):
           await ctx.respond(EMBED.settings_invalid_characters(), flags=hikari.MessageFlag.EPHEMERAL)
@@ -61,7 +61,7 @@ if True:  # Settings
           return
 
         setattr(us, SETTINGS_PAGE_KEYS[self.view.current_page], values[0])
-        udb['s'] = us
+        udb['settings'] = us
 
         self.view.pages[self.view.current_page] = EMBED.user_settings_single(SETTINGS_PAGE_KEYS[self.view.current_page], values[0])
         await self.view.message.edit(self.view.pages[self.view.current_page])
@@ -117,10 +117,3 @@ S.SETTINGS_NAVBAR_ITEMS = [
   SettingsNextNavButton,
   ChangeSettingNavButton,
 ]
-
-S.REMINDER_LIST_NAVBAR_ITEMS = [
-  PrevNavButton,
-  NextNavButton,
-]
-
-S.REMINDER_LIST_NAVBAR_ITEMS_ONE_PAGE = []
