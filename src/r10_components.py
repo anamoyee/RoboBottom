@@ -111,7 +111,7 @@ if True:  # Settings
       self.label = S.NAVBAR_LABEL['next'].replace('{page}', str(self.view.current_page + 2))
 
 
-S.SETTINGS_NAVBAR_ITEMS = [
+SETTINGS_NAVBAR_ITEMS = [
   SettingsPrevNavButton,
   partial(nav.IndicatorButton, style=hikari.ButtonStyle.SUCCESS),
   SettingsNextNavButton,

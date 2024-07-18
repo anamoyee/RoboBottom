@@ -1,31 +1,23 @@
-import datetime
-import pathlib as p
-from collections.abc import Callable
-from typing import Any, NotRequired, Unpack
-from typing import TypedDict as TD
-
-import hikari
-import pytz
-import r01_types as m_types
-import tcrutils as tcr
-from colored import Back, Fore, Style
-
-# from r01_types import *
+from r01_types import *
 
 
-class ActivityTD(TD):
+class _BM(pd.BaseModel):
+  class Config:
+    arbitrary_types_allowed=True
+
+class _Activity(_BM):
   name: str
-  type: NotRequired[Unpack[hikari.ActivityType]]
-  state: NotRequired[str | None]
-  url: NotRequired[str | None]
+  type: hikari.ActivityType
+  state: str | None
+  url: str | None
 
 
-class CreatedByTD(TD):
+class _CreatedBy(_BM):
   id: int
   name: str
 
 
-class S:
+class _GlobalSettings(_BM):
   """Defines configuration for RoboBottom."""
 
   NO: str = ':x:'
@@ -35,10 +27,10 @@ class S:
   WARN: str = ':warning:'
   """'No error occured but something went slightly wrong OR nothing happened due to your actions but you are notified of it' emoji/prefix."""
 
-  STATUS = hikari.Status.ONLINE
+  STATUS: hikari.Status = hikari.Status.ONLINE
   """Discord status (Online, Idle, etc.)"""
 
-  ACTIVITY: ActivityTD | None = {
+  ACTIVITY: _Activity | None = {
     'name': 'Testing...',  # ' - Testmode' will be added here if enabled
     'type': hikari.ActivityType.CUSTOM,
     'state': None,
@@ -146,7 +138,7 @@ class S:
   })  # fmt: skip
   """Displays in the above prompt (if you choose so or leave the default value)."""
 
-  SORTKEY: Callable[[m_types.Reminder], Any] = lambda r: -r.unix  # Default: sort by time of expiry, reversed: lambda r: -r.unix
+  SORTKEY: Callable[[Reminder], Any] = lambda r: -r.unix  # Default: sort by time of expiry, reversed: lambda r: -r.unix
   """Defines how the reminders are sorted in the internal reminder list. This affects how they are displayed and which indices they occupy (used in cancelling)."""
 
   REMINDER_TASK_INTERVAL_SECONDS: int = 1 - 0.0069  # Default: 1 (with correction)
@@ -155,7 +147,7 @@ class S:
   APOLOGISE_FOR_INCONVENIENCE_AFTER_EXPIRED_FOR: int = 30  # seconds
   """If reminder wasnt delivered within this many seconds after it expired, it'll contain a footer explaining the delay and apologising for the inconvenience."""
 
-  REMINDER_EXPIRED_FOOTER = 'Sorry for sending this reminder {expired_for} too late! >.<'
+  REMINDER_EXPIRED_FOOTER: str = 'Sorry for sending this reminder {expired_for} too late! >.<'
   """See above."""
 
   REMINDER_EMBED: dict[str, Any] = {
@@ -204,7 +196,7 @@ class S:
   when pressing the enter key to send the message.
   """
 
-  SUSPICIOUS_RIPPLE_CANCEL_TIME = 3 * 60  # 3 minutes
+  SUSPICIOUS_RIPPLE_CANCEL_TIME: int = 3 * 60  # 3 minutes
   """If user uses a `fuck` command after this amount of time after scheduling their most recent reminder, they will be prompted to confirm this action."""
 
   ARCHIVE_SUFFIX: str = '@'
@@ -214,7 +206,7 @@ class S:
   - `c&1` == remove the first reminder from the archive
   """
 
-  FORCE_TESTMODE = None  # Default: None
+  FORCE_TESTMODE: bool | None = None  # Default: None
   """[DEV] Force testmode app-wide. Will add "- Testmode" in some places to indicate that the bot is running in testmode.
   - `None` &nbsp;&nbsp;→ Don't force either option, True for Windows, False for other OSes
   - `True` &nbsp;&nbsp;→ Always run in testmode
@@ -223,7 +215,7 @@ class S:
 
   DEV_IDS: tuple[hikari.Snowflake] = (
     507642999992352779,
-  )  # This manages permissions, not credits, for example user that's NOT on that list CAN'T invoke commands, but /botstatus uses a separate entry, look lower on this list of settings
+  )  # This manages permissions, not credits, for example user that's NOT on that list CAN'T invoke commands - /botstatus credits use a separate entry, look lower on this list of settings
   """[DEV] A list of discord IDs of user accounts that are permitted to invoke developer functions (dangerous!)"""
 
   DEFAULT_EANBLED_GUILDS: tuple[hikari.Snowflake] | None = None  # (1145433323594842166,) # Default: None
@@ -241,10 +233,13 @@ class S:
 
   ### The following settings should not be modified.
 
-  CREATED_BY: CreatedByTD = {'id': 507642999992352779, 'name': 'anamoyee'}  # Do not change or confusion will ensue (if a bug is ever triggered)
+  CREATED_BY: _CreatedBy = {'id': 507642999992352779, 'name': 'anamoyee'}  # Do not change or confusion will ensue (if a bug is ever triggered)
   """Should not be changed - my discord name & ID. This is rarely used to refer a user that stumbled upon a bug to me so i can fix it. This is also used in one line in credits."""
   CREATED_BY_STR: str = f"@{CREATED_BY['name']} (discord_id={CREATED_BY['id']})"
   """See above."""
 
   MAJOR_VERSION_TEMPLATE: str = '2.1.%s'
   """The non-patch versions are not incremented automatically on `$ cmp`"""
+
+
+S = _GlobalSettings()

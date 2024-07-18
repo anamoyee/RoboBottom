@@ -305,7 +305,7 @@ if True:  # /backup <...>
 
 #     pages = [EMBED.user_settings_single(key, getattrer(key)) for key in SETTINGS_PAGE_KEYS]
 
-#   navigator = nav.NavigatorView(pages=pages, items=[x() for x in S.SETTINGS_NAVBAR_ITEMS])
+#   navigator = nav.NavigatorView(pages=pages, items=[x() for x in SETTINGS_NAVBAR_ITEMS])
 
 #   builder = await navigator.build_response_async(MCL)
 
@@ -501,14 +501,19 @@ if True:  # *dev_only_commands*
 
     raise (e(msg) if msg is not None else e)
 
-  sub_group_info = GROUP_DEV.include_subgroup('info', 'info subgroup')
-
-  @sub_group_info.include
-  @arc.slash_subcommand('end', 'end cmd' + testmode())
-  async def cmd_dev_info(
+  @GROUP_DEV.include
+  @arc.slash_subcommand('breakpoint', 'Invoke a (synchronous) breakpoint in the bot process.' + testmode())
+  async def cmd_dev_breakpoint(
     ctx: arc.GatewayContext,
+    type: arc.Option[str, arc.StrParams('The type of breakpoint', choices=('tcr.breakpoint()', 'built-in breakpoint()'))] = 'tcr.breakpoint()',
   ):
-    await ctx.respond('aaaa')
+    await ctx.respond('Triggering a breakpoint.')
+
+    match type:
+      case 'tcr.breakpoint()':
+        tcr.breakpoint()
+      case 'built-in breakpoint()':
+        breakpoint()
 
   @GROUP_DEV.include
   @arc.slash_subcommand('debug', 'Debug' + testmode())
