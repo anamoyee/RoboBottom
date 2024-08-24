@@ -74,7 +74,7 @@ if True:  # DEFAULT_ENABLED_GUILDS
     )
   if S.DEFAULT_EANBLED_GUILDS is None:
     S.DEFAULT_EANBLED_GUILDS = ()
-  if not all(tcr.discord.is_snowflake(x, allow_string=False) for x in S.DEFAULT_EANBLED_GUILDS):
+  if not all(tcrd.is_snowflake(x, allow_string=False) for x in S.DEFAULT_EANBLED_GUILDS):
     raise RBSettingsError(
       'S.DEFAULT_ENABLED_GUILDS must be a tuple of Snowflakes, ints that are in range((1 << 64) - 1), got: ',
       repr(S.DEFAULT_EANBLED_GUILDS),
@@ -89,7 +89,7 @@ if True:  # DEFAULT_ENABLED_GUILDS
     )
   if S.DEV_EANBLED_GUILDS is None:
     S.DEV_EANBLED_GUILDS = ()
-  if not all(tcr.discord.is_snowflake(x, allow_string=False) for x in S.DEV_EANBLED_GUILDS):
+  if not all(tcrd.is_snowflake(x, allow_string=False) for x in S.DEV_EANBLED_GUILDS):
     raise RBSettingsError(
       'S.DEFAULT_ENABLED_GUILDS must be a tuple of Snowflakes, ints that are in range((1 << 64) - 1), got: ',
       repr(S.DEV_EANBLED_GUILDS),

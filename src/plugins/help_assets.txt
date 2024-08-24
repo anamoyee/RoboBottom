@@ -1,0 +1,66 @@
+  HELPMSGS_DICT = {
+    'Cancel a reminder': embed(
+      'Cancelling Reminders',
+      'Use the following syntax: `cancel <1-99999>` where you specify the index of the reminder that you want to cancel.\nTo see the list of your reminders along with the indices type `list` or view its help by using </help:1146216876779774012> with section argument `list`',
+      color=S.EMBED_COLORS['primary'],
+      fields=[
+        (
+          'Example',
+          '`cancel 1`',
+          False,
+        ),
+      ],
+    ),
+    'Clear (cancel) all reminders': embed(
+      'Clearing all reminders',
+      'To clear (cancel) all reminders type `clear` (or any of its aliases) and it will remove all of your set reminders without reminding you',
+      color=S.EMBED_COLORS['primary'],
+      fields=[
+        (
+          'Aliases',
+          ', '.join(['`' + x + '`' for x in P.DM_CMD_ALIASES.get_n_shortest('wipe')]),
+          False,
+        ),
+      ],
+    ),
+    'Delete bot messages': embed(
+      "Deleting bot's messages",
+      'There are two ways...',
+      fields=[
+        (
+          'In bulk',
+          'Use the </delhistory:1153087533954113726> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**',
+          False,
+        ),
+        (
+          'One at a time',
+          f"Reply to a message you want to delete and as the message text send any of the following:\n{', '.join(f'`{x}`' for x in P.DM_CMD_ALIASES.get_n_shortest('del'))}",
+          False,
+        ),
+      ],
+      color=S.EMBED_COLORS['primary'],
+    ),
+    'Reply Actions': embed(
+      'Reply actions',
+      'To use reply actions reply to a message containing a reminder (Embed title must have `reminder`) and in your message provide only the time part of the reminder, for example: `1h20m`. This will intepret it as inhereting the reminder text from the replied-to message.',
+      color=S.EMBED_COLORS['primary'],
+      fields=[
+        (
+          'Flags',
+          'Flags are not supported, for now at least - if you use this method all message flags are zeroed out and if the message starts and ends with spoiler tags (hidden reminder) they are removed.',
+          False,
+        ),
+      ],
+    ),
+    'Report a bug': embed(
+      'Reporting a bug',
+      "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
+      color=S.EMBED_COLORS['primary'],
+    ),
+    'How to host this bot yourself': embed(
+      'How to host this bot',
+      "Detailed instructions are available **[here](https://github.com/TheCreatorrr333/RoboBottom)** as well as the bot's source code",
+      color=S.EMBED_COLORS['primary'],
+    ),
+    'the archive': 'this was added as a reminder to myself to add a helpmsg for the archive',
+  }

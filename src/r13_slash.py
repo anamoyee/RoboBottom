@@ -1,41 +1,5 @@
+from common.arc import *
 from r12_rcomps import *
-
-
-async def dev_only_hook(ctx: arc.GatewayContext) -> arc.HookResult:
-  """Aborts execution if user is not authorised to run this dev command. Notifies user by responding."""
-  if ctx.author.id not in S.DEV_IDS:
-    await ctx.respond(**RESP.not_dev())
-    return arc.HookResult(abort=True)
-  return arc.HookResult()
-
-
-async def bannable_hook(ctx: arc.GatewayContext) -> arc.HookResult:
-  """Aborts execution if user is banned. Notifies user by responding."""
-  if ctx.author.id in GDB['banned']:
-    await ctx.respond(**RESP.banned())
-    return arc.HookResult(abort=True)
-  return arc.HookResult()
-
-
-async def dms_only_hook(ctx: arc.GatewayContext) -> arc.HookResult:
-  """Aborts execution if user is not in a DM channel."""
-  if ctx.guild_id is not None:
-    await ctx.respond(**await RESP.must_use_dms(user_id=ctx.author.id))
-    return arc.HookResult(abort=True)
-  return arc.HookResult()
-
-
-def do_as_i_say(func: Callable):
-  """Ensures the "Yes, do as I said!" confirmation as a slash cmd argument."""
-
-  @wraps(func)
-  async def wrapper(*args, **kwargs):
-    if not did_as_i_said(kwargs['doasisay']):
-      await args[0].respond(f'{S.NO} You did not type the phrase correctly, make sure to use this command carefully!', flags=hikari.MessageFlag.EPHEMERAL)
-      return None
-    return await func(*args, **kwargs)
-
-  return wrapper
 
 
 @ACL.include
@@ -80,8 +44,6 @@ async def cmd_remind(
 if True:  # /privacy <...>
   GROUP_PRIVACY = ACL.include_slash_group('privacy', 'Privacy related commands (some dangerous/data-deleting!)' + testmode())
   GROUP_PRIVACY.add_hook(dms_only_hook)
-
-  DOASISAY_OPTION = arc.Option[str, arc.StrParams('Type exactly "Yes, do as I say!" to confirm this potentially dangerous action', min_length=17, max_length=17)]
 
   @GROUP_PRIVACY.include
   @arc.slash_subcommand('purge', 'PURGE ALL MESSAGES IN THIS DM CHANNEL (DANGEROUS!)' + testmode())
@@ -133,7 +95,7 @@ if True:  # /privacy <...>
         db['archive'] = U.defaults['archive']()
 
     await ctx.respond(
-      f'{S.YES} Done! You might want to also clean up your discord message history with {get_slash_command_mentions().mentions_named()["privacy purge"]}', flags=hikari.MessageFlag.EPHEMERAL
+      f'{S.YES} Done! You might want to also clean up your discord message history with {slash_mention("privacy purge")}', flags=hikari.MessageFlag.EPHEMERAL
     )
 
 
@@ -152,7 +114,7 @@ if True:  # /backup <...>
 
     if can_take_backup_on > now_unix:
       await ctx.respond(
-        f"{S.NO} You can only take one backup per {TIMESTR.to_str(S.USER_BACKUP_COOLDOWN)}. You can take next backup {tcr.discord.IFYs.timeify(can_take_backup_on, style='R')}",
+        f"{S.NO} You can only take one backup per {TIMESTR.to_str(S.USER_BACKUP_COOLDOWN)}. You can take next backup {tcrd.IFYs.timeify(can_take_backup_on, style='R')}",
         flags=hikari.MessageFlag.EPHEMERAL,
       )
       return
@@ -169,7 +131,7 @@ if True:  # /backup <...>
     filename = S.USER_BACKUP_EXPORT_FILENAME.format(author_id=ctx.author.id, datetime=datetime.datetime.now(), author_username=ctx.author.username)
     attachment = hikari.files.Bytes(json.dumps(exported_data, indent=2).encode('utf-8'), filename)
 
-    content = f"Here's your backup as a JSON file. You might need to ask an administrator to import it back in (use {S.SLASH_COMMAND_MENTIONS['backup import']} for help)."
+    content = f"Here's your backup as a JSON file. You might need to ask an administrator to import it back in (use {slash_mention('backup import')} for help)."
 
     if None in reminders_with_nones:
       content += f'\n{S.WARN} You have `#` hidden reminder(s), those will be left out of the backup.'
@@ -271,7 +233,7 @@ if True:  # /backup <...>
       else:
         await vctx.respond(f'{S.YES} All done, your data has been imported')
 
-    await tcr.discord.confirm(
+    await tcrd.confirm(
       ctx.respond,
       MCL,
       yes_callback=yes_callback,
@@ -407,7 +369,7 @@ if True:  # *dev_only_commands*
           await ctx.respond(file, flags=flags)
           path.unlink(missing_ok=True)
         else:
-          out = tcr.codeblocks(f'Dump of database {db}', text, langcodes=('txt', 'py'))
+          out = tcrd.codeblocks(f'Dump of database {db}', text, langcodes=('txt', 'py'))
           await ctx.respond(out, flags=flags)
       case 'drop':
         outdb.drop_db()
@@ -431,11 +393,11 @@ if True:  # *dev_only_commands*
     text = '# Banned Users\n'
 
     if banned:
-      text += '\n'.join(f'- {tcr.discord.IFYs.userify(x)} (`{x}`)' for x in banned)
+      text += '\n'.join(f'- {tcrd.IFYs.userify(x)} (`{x}`)' for x in banned)
     else:
       text += 'There are no banned users yet!'
 
-    await ctx.respond(tcr.cut_at(text, tcr.discord.DiscordLimits.Message.LENGTH_SAFE), flags=hikari.MessageFlag.EPHEMERAL)
+    await ctx.respond(tcr.cut_at(text, tcrd.DiscordLimits.Message.LENGTH_SAFE), flags=hikari.MessageFlag.EPHEMERAL)
 
   @GROUP_DEV.include
   @arc.slash_subcommand('shutdown', 'Shut down the bot' + testmode())
@@ -492,7 +454,7 @@ if True:  # *dev_only_commands*
     this_err_map = {x.lower(): y for x, y in ERR_MAP.items()}
 
     if error.lower() not in this_err_map:
-      await ctx.respond(f'{S.NO} Invalid error type: `{tcr.discord.remove_markdown(error)}`', flags=hikari.MessageFlag.EPHEMERAL)
+      await ctx.respond(f'{S.NO} Invalid error type: `{tcrd.remove_markdown(error)}`', flags=hikari.MessageFlag.EPHEMERAL)
 
     e = this_err_map[error.lower()]
 
@@ -502,7 +464,7 @@ if True:  # *dev_only_commands*
     raise (e(msg) if msg is not None else e)
 
   @GROUP_DEV.include
-  @arc.slash_subcommand('breakpoint', 'Invoke a (synchronous) breakpoint in the bot process.' + testmode())
+  @arc.slash_subcommand('breakpoint', 'Invoke a (synchronous) breakpoint in the bot proces  s.' + testmode())
   async def cmd_dev_breakpoint(
     ctx: arc.GatewayContext,
     type: arc.Option[str, arc.StrParams('The type of breakpoint', choices=('tcr.breakpoint()', 'built-in breakpoint()'))] = 'tcr.breakpoint()',
@@ -517,7 +479,17 @@ if True:  # *dev_only_commands*
 
   @GROUP_DEV.include
   @arc.slash_subcommand('debug', 'Debug' + testmode())
-  async def cmd_dev_debug(
-    ctx: arc.GatewayContext,
-  ):
-    await debugpond(ctx, None, flags=hikari.MessageFlag.EPHEMERAL)
+  async def cmd_dev_debug(ctx: arc.GatewayContext):
+    await debugpond(ctx, locals(), flags=hikari.MessageFlag.EPHEMERAL)
+
+  @ACL.include
+  @arc.slash_command('test1', autodefer=arc.AutodeferMode.EPHEMERAL)
+  async def cmd_test1(ctx: arc.GatewayContext):
+    await cmd_test2(ctx)
+
+  @ACL.include
+  @arc.slash_command('test2', autodefer=arc.AutodeferMode.EPHEMERAL)
+  async def cmd_test2(ctx: arc.GatewayContext):
+    await ctx.respond('hello from test2')
+
+

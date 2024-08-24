@@ -25,10 +25,6 @@ async def onStoppingEvent(event: hikari.StoppingEvent):
     c.log(f'Task shutdown status: {tcr.fmt_iterable([task._task.done() if task._task else True for task in TASKS], syntax_highlighting=True).replace("True", "OK").replace("False", "FAILED")}')
 
 
-@BOT.listen(arc.StoppingEvent)
-async def onArcStoppingEvent(event: arc.StoppingEvent): ...
-
-
 @BOT.listen(hikari.StoppedEvent)
 async def onStoppedEvent(event: hikari.StoppedEvent): ...
 

@@ -31,11 +31,13 @@ import hikari
 import miru
 import pydantic as pd
 import pytz
+import r14_events as R
+import tcrdiscord as tcrd
 import tcrutils as tcr
 from colored import Back, Fore, Style
 from hikari import ButtonStyle, Emoji, UndefinedType
 from hikari.undefined import UNDEFINED as UNDEFINED
 from miru import AutodeferOptions, ModalContext
 from miru.ext import menu, nav
+from tcrdiscord import embed, modal
 from tcrutils import console as c
-from tcrutils import embed, modal

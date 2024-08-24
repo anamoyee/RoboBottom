@@ -25,16 +25,17 @@ class EMBED:
     )
 
   @staticmethod
-  def reminder(rem: Reminder) -> hikari.Embed:
+  def reminder(rem: Reminder, min_rem_offset_for_from_x_ago_in_footer: int = tcr.t_hour) -> hikari.Embed:
     override_kwargs = {}
     if (expired_for := rem.expired_for(not_counting_timeout=True)) > S.APOLOGISE_FOR_INCONVENIENCE_AFTER_EXPIRED_FOR:
       if rem.timeout:
-        override_kwargs[
-          'footer'
-        ] = f"This reminder was sent {{expired_for}} too late because I wasn't able to reach you! (Have you blocked me?? :c). If you didnt block the bot, contact me, the developer: {S.CREATED_BY_STR!s}"
+        override_kwargs['footer'] = f"This reminder was sent {{expired_for}} too late because I wasn't able to reach you! (Have you blocked me?? :c). If you didnt block the bot, contact me, the developer: {S.CREATED_BY_STR!s}" # fmt: skip
       else:
         override_kwargs['footer'] = S.REMINDER_EXPIRED_FOOTER
       override_kwargs['footer'] = override_kwargs['footer'].replace('{expired_for}', TIMESTR.to_str(expired_for))
+
+    if rem.offset >= min_rem_offset_for_from_x_ago_in_footer:
+      override_kwargs['footer'] = f"From {TIMESTR.to_str(rem.offset)} ago\n{override_kwargs.get('footer', '')}".strip()
 
     desc = rem.text
 
@@ -193,7 +194,7 @@ This means I wasn't able to deliver it to you when it expired (for example you b
   def fuck_confirm(rem: Reminder) -> hikari.Embed:
     return embed(
       'Are you sure you want to cancel the latest reminder?',
-      f'You set this reminder {tcr.discord.IFYs.timeify(rem.created_at, style="R")} which is why I am asking you to confirm if you intended to cancel it. Click `Yes` to cancel the reminder, or `No` to keep it.',
+      f'You set this reminder {tcrd.IFYs.timeify(rem.created_at, style="R")} which is why I am asking you to confirm if you intended to cancel it. Click `Yes` to cancel the reminder, or `No` to keep it.',
       color=S.EMBED_COLORS['cancelled'],
     )
 
@@ -207,19 +208,19 @@ This means I wasn't able to deliver it to you when it expired (for example you b
 
   @staticmethod
   def not_registered_in_db(user_id: int, *, you_are: bool = False) -> hikari.Embed:
-    if not tcr.discord.is_snowflake(user_id, allow_string=True):
+    if not tcrd.is_snowflake(user_id, allow_string=True):
       return EMBED.invalid_snowflake(user_id)
 
     return embed(
       'Not registered in the database',
-      f"{'You are' if you_are else 'This user is'} not registered in the database: {tcr.discord.IFYs.userify(user_id)}",
+      f"{'You are' if you_are else 'This user is'} not registered in the database: {tcrd.IFYs.userify(user_id)}",
       color=S.EMBED_COLORS['error'],
     )
 
 
 class RESP:
   @staticmethod
-  async def must_use_dms(user_id: int, **kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> tcr.discord.types.HikariDictMessage:
+  async def must_use_dms(user_id: int, **kwargs: Unpack[tcrd.types.HikariDictMessage]) -> tcrd.types.HikariDictMessage:
     channel = await BOT.rest.create_dm_channel(user_id)
     return {
       'content': f':x: This command cannot be used outside of [DMs](<https://discord.com/channels/@me/{channel.id}>).',
@@ -228,7 +229,7 @@ class RESP:
     }
 
   @staticmethod
-  def not_dev(**kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> tcr.discord.types.HikariDictMessage:
+  def not_dev(**kwargs: Unpack[tcrd.types.HikariDictMessage]) -> tcrd.types.HikariDictMessage:
     return {
       'content': ':x: You are not allowed to use this command.',
       'flags': hikari.MessageFlag.EPHEMERAL,
@@ -236,7 +237,7 @@ class RESP:
     }
 
   @staticmethod
-  def banned(**kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> tcr.discord.types.HikariDictMessage:
+  def banned(**kwargs: Unpack[tcrd.types.HikariDictMessage]) -> tcrd.types.HikariDictMessage:
     return {
       'content': ':x: You are banned from using this bot.',
       'flags': hikari.MessageFlag.EPHEMERAL,
@@ -244,7 +245,7 @@ class RESP:
     }
 
   @staticmethod
-  def reminder_list(r: t.Iterable[Reminder], archive: bool = False, **kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> nav.NavigatorView:
+  def reminder_list(r: t.Iterable[Reminder], archive: bool = False, **kwargs: Unpack[tcrd.types.HikariDictMessage]) -> nav.NavigatorView:
     """List of user's reminders.
 
     After that:
@@ -267,11 +268,11 @@ class RESP:
     return nav.NavigatorView(pages=pages, items=(REMINDER_LIST_NAVBAR_ITEMS if (len(pages) > 1) else []), **kwargs)
 
   @staticmethod
-  def reminder(rem: Reminder) -> tcr.discord.types.HikariDictMessage:
+  def reminder(rem: Reminder) -> tcrd.types.HikariDictMessage:
     user_mentions = []
 
     if rem.is_flag(CTF.IMPORTANT):
-      content = f'# {tcr.discord.IFYs.userify(rem.user)}'
+      content = f'# {tcrd.IFYs.userify(rem.user)}'
       user_mentions.append(rem.user)
     else:
       content = hikari.UNDEFINED
@@ -284,7 +285,7 @@ class RESP:
     }
 
   @staticmethod
-  def reminder_safemode(rem: Reminder, e: hikari.HikariError) -> tcr.discord.types.HikariDictMessage:
+  def reminder_safemode(rem: Reminder, e: hikari.HikariError) -> tcrd.types.HikariDictMessage:
     parts = [
       f"""
 # There was an issue sending your reminder therefore a fallback method has been triggered.
@@ -312,7 +313,7 @@ class RESP:
     }
 
   @staticmethod
-  def not_my_message(do_what: str = 'do that', **kwargs: Unpack[tcr.discord.types.HikariDictMessage]) -> tcr.discord.types.HikariDictMessage:
+  def not_my_message(do_what: str = 'do that', **kwargs: Unpack[tcrd.types.HikariDictMessage]) -> tcrd.types.HikariDictMessage:
     return {
       'content': f"{S.NO} I can't {do_what} to a message I didn't send!.",
       'flags': hikari.MessageFlag.EPHEMERAL,

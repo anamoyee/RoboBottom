@@ -1,4 +1,5 @@
 import miru.context
+from common.banner import print_banner
 from r03_constants import *
 
 if True:  # Bot

@@ -9,7 +9,7 @@ async def _wrong_index(r: list[Reminder], responder: Callable[[hikari.Embed], Co
 
 
 async def rd_run(
-  responder: tcr.discord.types.HikariResponder,
+  responder: tcrd.types.HikariResponder,
   code: str,
   *,
   do_await: bool = True,
@@ -41,20 +41,20 @@ async def rd_run(
   else:
     errored = False
 
-  out = tcr.discord_error(result) if errored else tcr.codeblock(tcr.fmt_iterable(result), langcode='py')
+  out = tcrd.discord_error(result) if errored else tcrd.codeblock(tcr.fmt_iterable(result), langcode='py')
 
   await responder(out)
 
 
 async def rd_ban(
-  responder: tcr.discord.types.HikariResponder,
+  responder: tcrd.types.HikariResponder,
   *,
   admin_id: int,
   user: int,
   unban: bool,
   drop_db: bool,
 ):
-  if not tcr.discord.is_snowflake(user, allow_string=True):
+  if not tcrd.is_snowflake(user, allow_string=True):
     await responder(f""":x: Invalid user ID: `{user.replace('`', "'")}`""", flags=hikari.MessageFlag.EPHEMERAL)
     return
 
@@ -90,12 +90,12 @@ async def rd_ban(
       banned.add(user)
       message = ':hammer: Banned'
   GDB['banned'] = banned
-  await responder(f'{message} {tcr.discord.IFYs.userify(user)}{suffix}', flags=hikari.MessageFlag.EPHEMERAL)
+  await responder(f'{message} {tcrd.IFYs.userify(user)}{suffix}', flags=hikari.MessageFlag.EPHEMERAL)
 
 
 if True:  # rd_dev_...
 
-  async def rd_dev_now(*, responder: tcr.discord.types.HikariResponder, user_id: int, idx: int):
+  async def rd_dev_now(*, responder: tcrd.types.HikariResponder, user_id: int, idx: int):
     if not Database.exists(user_id):
       await responder(EMBED.not_registered_in_db(user_id), flags=hikari.MessageFlag.EPHEMERAL)
       return
@@ -112,7 +112,7 @@ if True:  # rd_dev_...
       await rem.send()
       await responder(f'{S.YES}', flags=hikari.MessageFlag.EPHEMERAL)
 
-  async def rd_dev_get(*, responder: tcr.discord.types.HikariResponder, user_id: int, idx: int):
+  async def rd_dev_get(*, responder: tcrd.types.HikariResponder, user_id: int, idx: int):
     if not Database.exists(user_id):
       await responder(EMBED.not_registered_in_db(user_id), flags=hikari.MessageFlag.EPHEMERAL)
       return
@@ -124,19 +124,19 @@ if True:  # rd_dev_...
       await _wrong_index(db['r'], responder, 'dev-now', flags=hikari.MessageFlag.EPHEMERAL)
       return
     else:
-      await responder(tcr.codeblock(tcr.fmt_iterable(db['r'][idx], syntax_highlighting=False), langcode='py'), flags=hikari.MessageFlag.EPHEMERAL)
+      await responder(tcrd.codeblock(tcr.fmt_iterable(db['r'][idx], syntax_highlighting=False), langcode='py'), flags=hikari.MessageFlag.EPHEMERAL)
 
-  async def rd_dev_guilds(*, responder: tcr.discord.types.HikariResponder):
+  async def rd_dev_guilds(*, responder: tcrd.types.HikariResponder):
     count = await get_guild_count(force_refetch=True)
 
     await debugpond(responder, count, flags=hikari.MessageFlag.EPHEMERAL)
 
-  async def rd_dev_users(*, responder: tcr.discord.types.HikariResponder):
+  async def rd_dev_users(*, responder: tcrd.types.HikariResponder):
     users = Database.iter_all_path_names()
     users = list(users)
 
     await responder(
-      tcr.codeblocks(
+      tcrd.codeblocks(
         str(len(users)),
         tcr.fmt_iterable(users, syntax_highlighting=False),
         langcodes=('py', 'py'),
@@ -146,26 +146,23 @@ if True:  # rd_dev_...
 
 
 async def r_remind(
-  responder: tcr.discord.types.HikariResponder,
+  responder: tcrd.types.HikariResponder,
   text: str,
   *,
   user: int,
   ctx_or_event: arc.Context | hikari.GuildMessageCreateEvent,
   replyto: hikari.PartialMessage | None = None,
 ) -> None:
-  """### R: Schedule a reminder on behalf of the invoker.
+  """### R: Schedule a reminder on behalf of the invoker."""
 
-  Args:
-    responder: The responder to call with the discord message.
-    text: The reminder text.
-    user: The discord user ID of the reminder's owner.
-  """
+  COUNT_DELAY_FROM_MESSAGE_ARRIVAL = text.startswith('^')
+  text = text.removeprefix('^')
 
   if replyto:
     if ' ' not in text:
       text += ' '
 
-    if not replyto.content:
+    if not replyto.content or (replyto.embeds and replyto.embeds[0].description):
       reply_content = None
     else:
       reply_content = replyto.content if replyto.content != '`' else ''
@@ -174,8 +171,15 @@ async def r_remind(
       text += reply_content
     else:
       text += replyto.embeds[0].description
+
   try:
-    rem = build_reminder(user, text, ctx_or_event=ctx_or_event)
+    kwargs = {}
+    if COUNT_DELAY_FROM_MESSAGE_ARRIVAL:
+      timestamp = snap_datetime_to_nearest_minute(replyto.timestamp)
+
+      kwargs['now_unix'] = round(timestamp.timestamp())
+
+    rem = build_reminder(user, text, ctx_or_event=ctx_or_event, **kwargs)
   except TextErrpondError as e:
     await e.execute(ctx_or_event)
     return
@@ -216,7 +220,7 @@ async def r_list(
 
 
 async def r_cancel(
-  responder: tcr.discord.types.HikariResponder,
+  responder: tcrd.types.HikariResponder,
   user: int,
   text: str,
   *,
@@ -250,7 +254,7 @@ async def r_cancel(
 
 
 async def r_view(
-  responder: tcr.discord.types.HikariResponder,
+  responder: tcrd.types.HikariResponder,
   user: int,
   text: str,
   *,
@@ -280,7 +284,7 @@ async def r_view(
 
 
 async def r_fuck(
-  responder: tcr.discord.types.HikariResponder,
+  responder: tcrd.types.HikariResponder,
   message: hikari.Message,
   user: int,
 ):
@@ -300,7 +304,7 @@ async def r_fuck(
       await responder(EMBED.reminder_canceled(rem), reply=message if ctx is None else ctx.message)
 
     if (int(time.time()) - rem.created_at) >= S.SUSPICIOUS_RIPPLE_CANCEL_TIME:
-      await tcr.discord.confirm(
+      await tcrd.confirm(
         responder,
         MCL,
         yes_callback=canceling_callback,
@@ -319,7 +323,7 @@ async def r_fuck(
 
 
 async def rr_del(
-  responder: tcr.discord.types.HikariResponder,
+  responder: tcrd.types.HikariResponder,
   message: hikari.Message,
   referenced: hikari.PartialMessage,
 ):

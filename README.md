@@ -24,6 +24,7 @@ If you have any questions contact me on discord `@anamoyee`\
 If i change my username for some reason (or discord again fucks the username system up) here's my id `<@507642999992352779>`
 
 # Todo v3
+- [ ] finish help.py plugin and its commands
 - [ ] Switch settings to pydantic
 - [ ] Switch Reminder to pydantic
 - [ ] Reminder archive: New list (.) toggle/switch to view expired reminders (& search)
@@ -38,8 +39,13 @@ If i change my username for some reason (or discord again fucks the username sys
 - [ ] make reminder `time` with {placeholders}
 - [ ] (?) do something with loops not stopping on shutdown
   - And what's wrong with shutting down? it adds terminated tasks
-- [ ] Add /help
 - [ ] Finish validators
+- [ ] Do a grep for `TODO` and impl all of them
+- [ ] Look through the previous todos and find any worthy checkboxes (either checked or unchecked since like, this is a v2) and maybe add them to this list
+- [x] `^` prefix to count time from the reminder delivery time instead of current time
+  - [x] Round the preceived delivery time to the nearest minute, **up or down**!
+- [x] add "from 4h ago" to the reminder footer
+- [x] r13_slash.py:181 impl slash command ids
 - [x] in-discord error logging & add the following error handlers
   - [x] arc handler (research how to) - replicate the default one to enable in-discord logging
     - This should also show more detail on dev commands
@@ -86,7 +92,6 @@ If i change my username for some reason (or discord again fucks the username sys
   - Suggest cancelling -1 rem
   - Suggest reporting bug
 - [ ] image support
-- [ ] add "from 4h ago" to the reminder footer
 - [ ] integrate the Melanie announcements to robobottom:
   - Attention all (1) passengers... Wilford Industries wishes you a good morning. The temperature outside is {get_temperature()} degrees Celsius. As we enter the Yukon Territory of the former Canada, we remind you, for your personal safety, be prepared to brace. We are {get_formated_days_since_birth()} from departure. At the tone, the exact time will be 0800 hours.
 - [ ] add a ".then()" functionality. When defining you can specify two reminders or more (with some new separator, very hard to accidentally type) or some other way maybe to have a 'next' button which schedules the reminder net in line if any for example:

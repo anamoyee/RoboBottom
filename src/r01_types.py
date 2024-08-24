@@ -103,7 +103,7 @@ if True:  # Reminder:
   class Reminder:
     """Represends a reminder contaning various information about itself and its owner."""
 
-    user: int = atr.field(validator=lambda _obj, _attr, value: tcr.discord.is_snowflake(value), converter=int, hash=False, eq=False)
+    user: int = atr.field(validator=lambda _obj, _attr, value: tcrd.is_snowflake(value), converter=int, hash=False, eq=False)
     """The Discord Snowflake of the user who requested the reminder."""
     unix: int = atr.field(converter=int, hash=False, eq=False)
     """The unix timestamp of when the reminder should be triggered."""
@@ -285,7 +285,7 @@ if True:  # Reminder:
       displayed_text = self.display_text()
 
       if not self.is_flag(CTF.HASH_HIDDEN):
-        displayed_text = tcr.discord.remove_markdown(displayed_text)
+        displayed_text = tcrd.remove_markdown(displayed_text)
 
       return displayed_text.replace('\n', '')
 
@@ -304,11 +304,11 @@ if True:  # Reminder:
       """The version displayed when viewing THE LIST of reminders. For the reminder itself and viewing it, it's managed manually."""
       # fmt: off
       text_front = f'{self.flags_as_listabbrev()}{self.attachments_as_listabbrev()}**'
-      text_back  =                                                                  f'** ({tcr.discord.IFYs.timeify(self.unix, style="R")})'
+      text_back  =                                                                  f'** ({tcrd.IFYs.timeify(self.unix, style="R")})'
       # fmt: on
 
       if self.timeout:
-        text_back += f' [🛑 {tcr.discord.IFYs.timeify(self.unix + self.timeout, style="R")}]'
+        text_back += f' [🛑 {tcrd.IFYs.timeify(self.unix + self.timeout, style="R")}]'
 
       text = tcr.cut_at(
         self.display_text_list_item(),

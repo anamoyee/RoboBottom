@@ -1,9 +1,11 @@
-from r01_types import *
+import r01_types as m_types
+from r00_imports import *
 
 
 class _BM(pd.BaseModel):
   class Config:
-    arbitrary_types_allowed=True
+    arbitrary_types_allowed = True
+
 
 class _Activity(_BM):
   name: str
@@ -82,7 +84,7 @@ class _GlobalSettings(_BM):
   MAX_REMINDER_TIME_IN_TIMEOUT: int = 60 * 1  # seconds
   """The maximum time a reminder's timeout can be set to, if higher the reminder is instead moved to archive. Timeout is set when the reminder fails to be sent repeatedly."""
 
-  BANNER: str | None = p.Path('assets/txt/banner.txt')  # Default: assets/txt/banner.txt
+  BANNER: p.Path | None = p.Path(__file__).parent.parent / 'assets/txt/banner.txt'  # Default: /assets/txt/banner.txt
   """The banner ascii that is shown when the bot launches. Just edit the banner.txt file. When set to None, both this banner and the hikari default banner are not shown."""
 
   BANNER_COLORS: tuple[str, str] = (
@@ -138,7 +140,7 @@ class _GlobalSettings(_BM):
   })  # fmt: skip
   """Displays in the above prompt (if you choose so or leave the default value)."""
 
-  SORTKEY: Callable[[Reminder], Any] = lambda r: -r.unix  # Default: sort by time of expiry, reversed: lambda r: -r.unix
+  SORTKEY: Callable[[m_types.Reminder], Any] = lambda r: -r.unix  # Default: sort by time of expiry, reversed: lambda r: -r.unix
   """Defines how the reminders are sorted in the internal reminder list. This affects how they are displayed and which indices they occupy (used in cancelling)."""
 
   REMINDER_TASK_INTERVAL_SECONDS: int = 1 - 0.0069  # Default: 1 (with correction)
@@ -166,7 +168,7 @@ class _GlobalSettings(_BM):
   REMINDER_LIST_REMINDERS_PER_PAGE: int = 24
   """Number of reminders per page in the reminder list."""
 
-  REMINDER_LIST_MAX_CHARS_PER_REMINDER: int = (tcr.discord.DiscordLimits.Embed.DESCRIPTION_SAFE - (5 * REMINDER_LIST_REMINDERS_PER_PAGE)) // REMINDER_LIST_REMINDERS_PER_PAGE
+  REMINDER_LIST_MAX_CHARS_PER_REMINDER: int = (tcrd.DiscordLimits.Embed.DESCRIPTION_SAFE - (5 * REMINDER_LIST_REMINDERS_PER_PAGE)) // REMINDER_LIST_REMINDERS_PER_PAGE
   """Number of characters a single reminder can take until it's cut off with an elipsis."""
 
   REMINDER_LIST_MAX_TOTAL_REMINDERS_PER_USER: int = REMINDER_LIST_REMINDERS_PER_PAGE * 10  # 10 pages should be MORE THAN ENOUGH...

@@ -50,6 +50,7 @@ def build_reminder(
   text: str,
   *,
   ctx_or_event: arc.Context | hikari.GuildMessageCreateEvent,
+  now_unix: int | None = None,
 ) -> Reminder:
   """Return an instance of Reminder, may raise TextErrpondError."""
   if ' ' not in text:  # '1h' -> '1h 1h'
@@ -71,17 +72,20 @@ def build_reminder(
   try:
     offset = TIMESTR.to_int(tstr)
   except Exception as e:
-    raise TextErrpondError('Invalid time', tcr.codeblock(tcr.extract_error(e), langcode='')) from e
+    raise TextErrpondError('Invalid time', tcrd.codeblock(tcr.extract_error(e), langcode='')) from e
 
-  if not testmode() and offset <= 0:
-    raise TextErrpondError('Invalid time', f'You cannot set a negative or zero delay.')
+  unix = (now_unix or time.time()) + offset
+  true_delay = (unix - time.time())
 
-  if not testmode() and offset < S.MIN_REMINDER_TIME:
-    raise TextErrpondError('Invalid time', f'You cannot set a time shorter than **`{TIMESTR.to_str(S.MIN_REMINDER_TIME)}`**')
+  # if not testmode() and true_delay <= 0:
+  #   raise TextErrpondError('Invalid time', f'You cannot set a negative or zero delay.')
+
+  if not testmode() and true_delay < S.MIN_REMINDER_TIME:
+    raise TextErrpondError('Invalid time', f'You cannot set a time shorter than **`{TIMESTR.to_str(S.MIN_REMINDER_TIME)}`** (got `{TIMESTR.to_str(true_delay)}`)')
 
   return Reminder(
     user=user,
-    unix=time.time() + offset,
+    unix=unix,
     text=content,
     tstr=tstr,
     offset=offset,
@@ -163,8 +167,29 @@ def hidden_or(rem: Reminder, ifvisible, ifhidden=NEW_INSTANCE_OF_IFVISIBLE):
     return ifvisible
 
 
-def get_slash_command_mentions() -> tcr.discord.types.CommandIDsDict[str, hikari.Snowflake]:
-  if not hasattr(get_slash_command_mentions, '_slash_command_mentions'):
-    get_slash_command_mentions._slash_command_mentions = tcr.discord.get_slash_command_ids(ACL)
+def _get_slash_command_mentions() -> tcrd.types.CommandIDsDict[str, hikari.Snowflake]:
+  if not hasattr(_get_slash_command_mentions, '_slash_command_mentions'):
+    _get_slash_command_mentions._slash_command_mentions = tcrd.get_slash_command_ids(ACL)
 
-  return get_slash_command_mentions._slash_command_mentions
+  return _get_slash_command_mentions._slash_command_mentions
+
+def slash_mention(name: str) -> str:
+  """Simplified version of `get_slash_command_mentions()`, lets you just get the </> slash mention by providing a cmd name."""
+  try:
+    return dict(_get_slash_command_mentions().mentions_named())[name]
+  except StopIteration:
+    return f'/{name}' # Fallback to text if commands havent been loaded yet somehow? This happened during testing: as in, a StopIteration was raised. I guess i should fix it in tcrutils but fuck it.
+
+def snap_datetime_to_nearest_minute(d: datetime.datetime, threshold: int = 5) -> datetime.datetime:
+  """(maybe) snap a datetime to the nearest minute, by a given threshold.
+
+  threshold=5, ::55s => ::59s:999999 μs
+  threshold=5, ::54s => ::unchanged (54) s:unchanged μs
+  threshold=5, ::6s => ::unchanged (6) s:unchanged μs
+  threshold=5, ::5s => ::0s:0 μs
+  """
+  if d.second <= threshold:
+    d = d.replace(second=0, microsecond=0)
+  if d.second >= 60 - threshold:
+    d = d.replace(second=59, microsecond=999999)
+  return d

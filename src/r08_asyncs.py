@@ -17,7 +17,7 @@ if True:  # Guild count
 if True:  # Custom responders
 
   async def errpond(
-    ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcr.discord.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
+    ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcrd.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
     e: str | Exception = '',
     embed_color: int = S.EMBED_COLORS['error'],
     flags=hikari.MessageFlag.EPHEMERAL,
@@ -27,13 +27,13 @@ if True:  # Custom responders
       e = 'No further information provided'
     responder = tcr.getattr_queue(ctx, 'respond', 'message.respond', default=ctx)
     return await responder(
-      embed('An error occured' if isinstance(e, str) else tcr.extract_error(e), e if isinstance(e, str) else tcr.codeblock(tcr.extract_traceback(e), langcode='py'), color=embed_color),
+      embed('An error occured' if isinstance(e, str) else tcr.extract_error(e), e if isinstance(e, str) else tcrd.codeblock(tcr.extract_traceback(e), langcode='py'), color=embed_color),
       flags=flags,
       **responder_kwargs,
     )
 
   async def text_errpond(
-    ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcr.discord.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
+    ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcrd.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
     title: str,
     description: str = 'No further information provided',
     embed_callable: Callable = EMBED.generic_text_error,
@@ -45,15 +45,15 @@ if True:  # Custom responders
     return await responder(embed_callable(title, description), flags=flags, **responder_kwargs)
 
   async def debugpond(
-    ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcr.discord.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
+    ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | Callable[[Unpack[tcrd.types.HikariDictMessage]], Coroutine[None, None, hikari.Message]],
     obj: Any,
     flags=hikari.MessageFlag.EPHEMERAL,
     **responder_kwargs,
   ):
     responder = tcr.getattr_queue(ctx, 'respond', 'message.respond', default=ctx)
-    return await responder(tcr.codeblock(tcr.fmt_iterable(obj), langcode='py'), flags=flags, **responder_kwargs)
+    return await responder(tcrd.codeblock(tcr.fmt_iterable(obj), langcode='py'), flags=flags, **responder_kwargs)
 
-  async def respond_with_attachments_safely(ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | tcr.discord.types.HikariResponder, *args, **kwargs) -> tuple[bool, hikari.Message]:
+  async def respond_with_attachments_safely(ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | tcrd.types.HikariResponder, *args, **kwargs) -> tuple[bool, hikari.Message]:
     """True == Success; False == Attachments failed to attach; error raised == Something else happened, not related to attachments."""
     responder = tcr.getattr_queue(ctx, 'respond', 'message.respond', default=ctx)
     try:
@@ -66,7 +66,7 @@ if True:  # Custom responders
     else:
       return (True, message)
 
-  async def respond_with_attachments_or_send_urls_as_file(ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | tcr.discord.types.HikariResponder, *args, **kwargs) -> hikari.Message:
+  async def respond_with_attachments_or_send_urls_as_file(ctx: arc.GatewayContext | hikari.GuildMessageCreateEvent | tcrd.types.HikariResponder, *args, **kwargs) -> hikari.Message:
     success, message = await respond_with_attachments_safely(ctx, *args, **kwargs)
 
     if success:
@@ -91,11 +91,11 @@ if True:  # Custom responders
         return await func(event, *args, **kwargs)
       except Exception as e:
         if S.DEV_ERROR_CHANNEL:
-          msg = f'## Unhandled command error in `{event.__class__.__name__}` triggered by {tcr.discord.IFYs.userify(event.author.id)}\n' + tcr.codeblocks(
+          msg = f'## Unhandled command error in `{event.__class__.__name__}` triggered by {tcrd.IFYs.userify(event.author.id)}\n' + tcrd.codeblocks(
             tcr.extract_error(e),
             tcr.extract_traceback(e),
             langcodes=('py', 'py'),
-            max_length=tcr.discord.DiscordLimits.Message.LENGTH_SAFEST,
+            max_length=tcrd.DiscordLimits.Message.LENGTH_SAFEST,
           )
 
           await BOT.rest.create_message(S.DEV_ERROR_CHANNEL, msg)
@@ -116,11 +116,11 @@ if True:  # Uncaught error handling
   @ACL.set_error_handler
   async def _cmd_uncaught_error_handler(ctx: arc.GatewayContext, e: Exception):
     if S.DEV_ERROR_CHANNEL:
-      msg = f'## Unhandled command error in `{ctx.command.display_name}` triggered by {tcr.discord.IFYs.userify(ctx.author.id)}\n' + tcr.codeblocks(
+      msg = f'## Unhandled command error in `{ctx.command.display_name}` triggered by {tcrd.IFYs.userify(ctx.author.id)}\n' + tcrd.codeblocks(
         tcr.extract_error(e),
         tcr.extract_traceback(e),
         langcodes=('py', 'py'),
-        max_length=tcr.discord.DiscordLimits.Message.LENGTH_SAFEST,
+        max_length=tcrd.DiscordLimits.Message.LENGTH_SAFEST,
       )
 
       await BOT.rest.create_message(S.DEV_ERROR_CHANNEL, msg)
