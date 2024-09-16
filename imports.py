@@ -318,119 +318,7 @@ class Embeds:
 
 EMBEDS = Embeds()
 
-HELPMSG_NONE = embed(
-  'General Help',
-  'Use </help:1146216876779774012> with section specified to get more info about it.',
-  fields=[
-    (
-      'Basic use',
-      """
-You don't need to use the robotop's prefix (`r!`) or any other prefix
-The bot is mainly usable in DMs where `r!remind ` prefix is implied
-It can also be used on servers with `/cmds` but all messages are ephemeral
-Bot's status and other statistics are available by using </botstatus:1146135130415579207>
-View credits by using </help:1146216876779774012> with section set to `Credits`
-View </help:1146216876779774012> with section argument set to `remind` for usage
-"""[1:-1],
-      False,
-    ),
-  ],
-  color=S.MAIN_COLOR,
-)
-HELPMSGS = {
-  'Introduction': HELPMSG_NONE,
-  'Remind - Syntax': EMBEDS.invalid_syntax_big(_in_help=True),
-  'List your reminders': embed(
-    'List of reminders',
-    'Simple. Shows you the list of reminders.',
-    color=S.MAIN_COLOR,
-    fields=[
-      (
-        'Usage & Example',
-        '`list`',
-        False,
-      ),
-      (
-        'Aliases',
-        ', '.join(['`' + x + '`' for x in S.ALIASES.LIST]),
-        False,
-      ),
-    ],
-  ),
-  'Cancel a reminder': embed(
-    'Cancelling Reminders',
-    'Use the following syntax: `cancel <1-99999>` where you specify the index of the reminder that you want to cancel.\nTo see the list of your reminders along with the indices type `list` or view its help by using </help:1146216876779774012> with section argument `list`',
-    color=S.MAIN_COLOR,
-    fields=[
-      (
-        'Example',
-        '`cancel 1`',
-        False,
-      ),
-    ],
-  ),
-  'Clear (cancel) all reminders': embed(
-    'Clearing all reminders',
-    'To clear (cancel) all reminders type `clear` (or any of its aliases) and it will remove all of your set reminders without reminding you',
-    color=S.MAIN_COLOR,
-    fields=[
-      (
-        'Aliases',
-        ', '.join(['`' + x + '`' for x in S.ALIASES.WIPE]),
-        False,
-      ),
-    ],
-  ),
-  'Delete bot messages': embed(
-    "Deleting bot's messages",
-    'There are two ways...',
-    fields=[
-      (
-        'In bulk',
-        'Use the </delhistory:1153087533954113726> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**',
-        False,
-      ),
-      (
-        'One at a time',
-        f"Reply to a message you want to delete and as the message text send any of the following:\n{', '.join(f'`{x}`' for x in S.ALIASES.DELETE)}",
-        False,
-      ),
-    ],
-    color=S.MAIN_COLOR,
-  ),
-  'Reply Actions': embed(
-    'Reply actions',
-    'To use reply actions reply to a message containing a reminder (Embed title must have `reminder`) and in your message provide only the time part of the reminder, for example: `1h20m`. This will intepret it as inhereting the reminder text from the replied-to message.',
-    color=S.MAIN_COLOR,
-    fields=[
-      (
-        'Flags',
-        'Flags are not supported, for now at least - if you use this method all message flags are zeroed out and if the message starts and ends with spoiler tags (hidden reminder) they are removed.',
-        False,
-      ),
-    ],
-  ),
-  'Report a bug': embed(
-    'Reporting a bug',
-    "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
-    color=S.MAIN_COLOR,
-  ),
-  'Credits': embed(
-    'Credits',
-    """
-**Originally created by:** **[Colon](https://gdcolon.com)** <:fluff:1146072273665654864>
-**Recreated by:** <@507642999992352779>
 
-RoboTop was really such a great bot. Perhaps the greatest i've ever used. After it shut down I really missed the reminders so I remade them! This is __not__ my original idea, most of the looks and functionality is remade to be exactly (or really close to) original **[Colon](https://gdcolon.com)**'s bot and I just made it reminders-only.
-"""[1:-1],
-    color='#ff8000',
-  ),
-  'How to host this bot yourself': embed(
-    'How to host this bot',
-    "Detailed instruction is available **[here](https://github.com/TheCreatorrr333/RoboBottom)** as well as the bot's source code",
-    color=S.MAIN_COLOR,
-  ),
-}
 
 
 def multichar_lstrip(input_string, text_to_remove):
@@ -944,3 +832,118 @@ async def send_paged_message_and_wait(
   message = await responder(**pages[page], components=view.build())
   await view.start(message)
   await view.wait()
+
+
+HELPMSG_NONE = embed(
+  'General Help',
+  'Use </help:1146216876779774012> with section specified to get more info about it.',
+  fields=[
+    (
+      'Basic use',
+      """
+You don't need to use the robotop's prefix (`r!`) or any other prefix
+The bot is mainly usable in DMs where `r!remind ` prefix is implied
+It can also be used on servers with `/cmds` but all messages are ephemeral
+Bot's status and other statistics are available by using </botstatus:1146135130415579207>
+View credits by using </help:1146216876779774012> with section set to `Credits`
+View </help:1146216876779774012> with section argument set to `remind` for usage
+"""[1:-1],
+      False,
+    ),
+  ],
+  color=S.MAIN_COLOR,
+)
+HELPMSGS = {
+  'Introduction': HELPMSG_NONE,
+  'Remind - Syntax': EMBEDS.invalid_syntax_big(_in_help=True),
+  'List your reminders': embed(
+    'List of reminders',
+    'Simple. Shows you the list of reminders.',
+    color=S.MAIN_COLOR,
+    fields=[
+      (
+        'Usage & Example',
+        '`list`',
+        False,
+      ),
+      (
+        'Aliases',
+        ', '.join(['`' + x + '`' for x in S.ALIASES.LIST]),
+        False,
+      ),
+    ],
+  ),
+  'Cancel a reminder': embed(
+    'Cancelling Reminders',
+    'Use the following syntax: `cancel <1-99999>` where you specify the index of the reminder that you want to cancel.\nTo see the list of your reminders along with the indices type `list` or view its help by using </help:1146216876779774012> with section argument `list`',
+    color=S.MAIN_COLOR,
+    fields=[
+      (
+        'Example',
+        '`cancel 1`',
+        False,
+      ),
+    ],
+  ),
+  'Clear (cancel) all reminders': embed(
+    'Clearing all reminders',
+    'To clear (cancel) all reminders type `clear` (or any of its aliases) and it will remove all of your set reminders without reminding you',
+    color=S.MAIN_COLOR,
+    fields=[
+      (
+        'Aliases',
+        ', '.join(['`' + x + '`' for x in S.ALIASES.WIPE]),
+        False,
+      ),
+    ],
+  ),
+  'Delete bot messages': embed(
+    "Deleting bot's messages",
+    'There are two ways...',
+    fields=[
+      (
+        'In bulk',
+        'Use the </delhistory:1153087533954113726> slash command in DMs to delete all messages in that channel that were sent by the bot. You will still have to delete your messages yourself. **__Be careful with this one!__**',
+        False,
+      ),
+      (
+        'One at a time',
+        f"Reply to a message you want to delete and as the message text send any of the following:\n{', '.join(f'`{x}`' for x in S.ALIASES.DELETE)}",
+        False,
+      ),
+    ],
+    color=S.MAIN_COLOR,
+  ),
+  'Reply Actions': embed(
+    'Reply actions',
+    'To use reply actions reply to a message containing a reminder (Embed title must have `reminder`) and in your message provide only the time part of the reminder, for example: `1h20m`. This will intepret it as inhereting the reminder text from the replied-to message.',
+    color=S.MAIN_COLOR,
+    fields=[
+      (
+        'Flags',
+        'Flags are not supported, for now at least - if you use this method all message flags are zeroed out and if the message starts and ends with spoiler tags (hidden reminder) they are removed.',
+        False,
+      ),
+    ],
+  ),
+  'Report a bug': embed(
+    'Reporting a bug',
+    "In order to report a bug add me on discord <@507642999992352779> and DM me the issue on hand and i will try to fix it. You may also suggest something to add/modify about the bot but I can't guarantee I will have the time to implement/modify that feature",
+    color=S.MAIN_COLOR,
+  ),
+  'Credits': embed(
+    'Credits',
+    """
+**Originally created by:** **[Colon](https://gdcolon.com)** <:fluff:1146072273665654864>
+**Recreated by:** <@507642999992352779>
+
+RoboTop was really such a great bot. Perhaps the greatest i've ever used. After it shut down I really missed the reminders so I remade them! This is __not__ my original idea, most of the looks and functionality is remade to be exactly (or really close to) original **[Colon](https://gdcolon.com)**'s bot and I just made it reminders-only.
+"""[1:-1],
+    color='#ff8000',
+  ),
+  'How to host this bot yourself': embed(
+    'How to host this bot',
+    "Detailed instruction is available **[here](https://github.com/TheCreatorrr333/RoboBottom)** as well as the bot's source code",
+    color=S.MAIN_COLOR,
+  ),
+}
