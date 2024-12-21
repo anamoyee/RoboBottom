@@ -1,0 +1,4 @@
+hikari>=2.1.0
+hikari-arc>=1.4.0
+hikari-miru>=4.2.0
+pydantic>=2.10.4
