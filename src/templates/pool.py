@@ -1,0 +1,15 @@
+SURES = {
+	"Done",
+	"Got it",
+	"Sweet",
+	"Awesome",
+	"Great",
+	"Roger",
+	"Epic",
+	"Gotcha",
+	"Noted",
+	"Sure thing",
+	"Sounds good",
+	"Heck yeah",
+	"All done",
+}
