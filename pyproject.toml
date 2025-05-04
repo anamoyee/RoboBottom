@@ -1,0 +1,13 @@
+[tool.ruff]
+extend = "C:/ruff.toml"
+target-version = "py313"
+indent-width = 4
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+enable_incomplete_feature = ["NewGenericSyntax"]
+explicit_package_bases = true
+exclude = "__main__\\.py"
