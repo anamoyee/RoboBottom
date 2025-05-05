@@ -10,7 +10,7 @@ class UnableToEnsureProfileError(UserGetsDetailsError):
 	"""User().ensure_profile() was called, but user has profiles, yet none are selected (bug or raw data alteration went wrong??)."""
 
 
-class User(ZooBM):
+class User(RbBM):
 	selected_profile_id: ProfileID | None = pd.Field(default=None)
 	profiles: GetByHashSet[Profile] = pd.Field(default_factory=GetByHashSet)
 
@@ -48,12 +48,12 @@ class User(ZooBM):
 		profile_id: ProfileID | None = None,
 	) -> Profile:
 		"""Create a new Profile with the given ProfileID and a default name, add it to the profiles set and return it."""
-		owner_user = await BOT.rest.fetch_user(owner)
+		# owner_user = await BOT.rest.fetch_user(owner)
 
 		if profile_id is None:
 			profile_id = ProfileID.get_random(p.id for p in self.profiles)
 
-		new_profile = Profile(id=profile_id, name=f"{owner_user.display_name}'s Zoo")
+		new_profile = Profile(**({"id": profile_id} if profile_id is not None else {}))
 
 		self.profiles.add(new_profile)
 

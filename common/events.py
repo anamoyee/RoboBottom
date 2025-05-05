@@ -1,8 +1,9 @@
-from prelude import *
 from tcrutils.aevents import BaseEvent
 
+from prelude import *
 
-class Event(ZooBM, BaseEvent): ...
+
+class Event(RbBM, BaseEvent): ...
 
 
 class ModsLoadedEvent(Event): ...

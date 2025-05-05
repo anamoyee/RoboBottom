@@ -1,3 +1,3 @@
-from .src.zoo import BOT
+from .src.rb import BOT
 
 BOT.run()

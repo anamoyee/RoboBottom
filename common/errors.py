@@ -1,2 +1,2 @@
-class ZooError(Exception):
-	"""Common base class for all zoo, mod or non-mod errors."""
+class ThisError(Exception):
+	"""Common base class for all of this bot, mod or non-mod, errors."""

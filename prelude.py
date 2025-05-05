@@ -12,6 +12,8 @@ from tcrutils.string import get_token
 from tcrutils.uptime import Uptime
 
 if os.name != "nt":
+	import asyncio
+
 	import uvloop
 
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -29,14 +31,14 @@ __TOKEN = get_token()
 
 
 def get_logger(name: str):
-	"""Get zoo.{name} logger, used with __name__, this is made to differentiate it from `hikari`, `arc`, etc. loggers."""
-	if not isinstance(name, str):  # strict check, due to f'{name}' converting it to string anyway and who wants a "zoo.<bytes object at 0xfffffff>" logger anyway
+	"""Get rb.{name} logger, used with __name__, this is made to differentiate it from `hikari`, `arc`, etc. loggers."""
+	if not isinstance(name, str):  # strict check, due to f'{name}' converting it to string anyway and who wants a "*.<Whatever object at 0xbadbed>" logger anyway
 		raise TypeError(f"get_logger called, but name isn't a str, found {name!r} instead.")
 
-	return _logging.getLogger(f"zoo.{name}")
+	return _logging.getLogger(f"rb.{name}")
 
 
-class ZooBM(pd.BaseModel):
+class RbBM(pd.BaseModel):
 	model_config = pd.ConfigDict(
 		arbitrary_types_allowed=True,
 		extra="forbid",

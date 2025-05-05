@@ -3,15 +3,16 @@ from pathlib import Path as _Path
 from typing import Any as _Any
 
 from hikari import Locale as L
-from prelude import *
 from tcrutils.import_ import load_package_dynamically as _load_package_dynamically
 from tcrutils.lang import Lang as _Lang
 
-from ..errors import ZooModError, _dataclass
+from prelude import *
+
+from ..errors import ModError, _dataclass
 
 if True:  # Errors
 
-	class LangImportError(ZooModError):
+	class LangImportError(ModError):
 		"""Base class for all errors related to lang imports."""
 
 	@_dataclass
@@ -78,12 +79,12 @@ def from_directory[V = _Any](directory: _Path) -> dict[L | None, dict[str, V]]:
 
 
 def merge_directory[K1, K2, V](lang: _Lang[K1, K2, V], directory: _Path) -> int:
-	_lang = from_directory(directory)
+	lang_from_directory = from_directory(directory)
 
-	for locale, pack in _lang.items():
+	for locale, pack in lang_from_directory.items():
 		lang.merge_localepack(locale, pack)
 
-	return len(_lang)
+	return len(lang_from_directory)
 
 
 def merge_directory_and_log(lang: _Lang[L, str, str], directory: _Path, c_log: _Callable[[str], None], names: tuple[str, str] = ("language pack", "language packs")) -> None:

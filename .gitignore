@@ -3,7 +3,3 @@
 .vscode/
 .venv/
 TOKEN*
-*.bat
-dev_assets/
-purgedb.py
-cv2.py

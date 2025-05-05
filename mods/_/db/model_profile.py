@@ -6,10 +6,7 @@ from typing import TYPE_CHECKING
 
 from prelude import *
 
-from ..models import Animal, HashEq_by
-
-if TYPE_CHECKING:
-	from _.commands.rescue import Rescue
+from ..models import HashEq_by
 
 
 class ProfileID(StrEnum):
@@ -90,51 +87,7 @@ class ProfileID(StrEnum):
 		return chosen
 
 
-# class _ProfileTerminal(ZooBM):
-# 	"""Represents the terminal-related data of this profile."""
-
-# 	unlocked: bool = False
-# 	"""Whether or not this profile has unlocked the terminal."""
-# 	admin: bool = False
-# 	"""Whether or not this profile has unlocked the terminal administrator access via the `$ adminunlock` command."""
-# 	commands_found: list[str] = pd.Field(default_factory=list)
-# 	"""All top-level (non-nested) terminal commands found, for example `zoo`, not `zoo goals`, `zoo items`, the unlocked command for both is `zoo`, the top level command."""
-# 	mechanic_points: int = 0
-# 	"""Amount of murphy points this profile contains."""
-# 	fishy: _ZooTerminalFishy | None = None
-# 	"""Info about the `$ fishy` minigame of this profile."""
-# 	garden: _ZooTerminalGarden | None = None
-# 	"""Info about the `$ garden` of this profile."""
-# 	cards: _ZooTerminalCards | None = None
-# 	"""Info about the cards of this profile."""
-# 	fusion: _ZooTerminalFusion | None = None
-# 	"""Info about the fusions & NFBs of this profile."""
-
-
-class ProfileSettings(ZooBM):
-	"""Represents the settings of this profile."""
-
-	private: bool = False
-
-
 @HashEq_by("id")
-class Profile(ZooBM):
+class Profile(RbBM):
 	id: ProfileID
 	"""The ProfileID of this profile, that is: `fox`, `cat`, `kitsune`, etc. encapsulated in a StrEnum."""
-	name: str
-	"""Zoo name of this profile."""
-
-	def set_name(self, name: str) -> None:
-		self.name = name
-
-	settings: ProfileSettings = {}
-
-	animals: defaultdict[str, int] = pd.Field(default_factory=lambda: defaultdict(int))
-
-	def fetch_owned_animals(self) -> dict[str, tuple[Animal, int]]:
-		return {animal_name: (Animal.from_name(animal_name), count) for (animal_name, count) in self.animals.items()}
-
-	# terminal: _ProfileTerminal = {}
-
-	async def apply_rescue(self, rescue: "Rescue") -> None:
-		self.animals[rescue.animal.name] += 1 if not rescue.is_pair else 2

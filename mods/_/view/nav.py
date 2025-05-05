@@ -51,7 +51,7 @@ class NextButton(nav.NextButton):
 
 
 class PagedView(NavigatorViewArcHelper, nav.NavigatorView):
-	"""Standard zoo paginator, any items are extra, this means the list already includes two buttons for pagination at row 0, positions 0 and 1. This does not support the zoo sorting."""
+	"""Standard paginator, any items are extra, this means the list already includes two buttons for pagination at row 0, positions 0 and 1. This does not support the zoo sorting."""
 
 	def __init__(
 		self,

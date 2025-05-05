@@ -4,7 +4,7 @@ from collections.abc import Hashable
 
 import arc
 
-from prelude import ZooBM, pd
+from prelude import RbBM, pd
 
 from ..tools import make_loopback_channel_link
 
@@ -51,14 +51,14 @@ def HashEq_by(attr_name: str):
 
 if True:  # Bases
 
-	class Object(ZooBM, ABC):
-		"""Common base class for all Zoo objects (like: items, animals, leaders, etc.)."""
+	class Object(RbBM, ABC):
+		"""Common base class for all app objects (like: reminders, etc.)."""
 
 
 if True:  # complex-ish object attribute provider ABCs
 
 	class HasEmoji(Object, ABC):
-		"""Represents a Zoo object with an emoji field."""
+		"""Represents an object with an emoji field."""
 
 		emoji: str
 		"""The emoji of this object. May be a unicode emoji or a markdown emoji ('<:emoji_name:emoji_id>')."""

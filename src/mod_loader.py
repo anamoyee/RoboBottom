@@ -2,18 +2,22 @@ import re as regex
 from collections import defaultdict, deque
 from collections.abc import Iterable
 
-from common.errors import ZooError
+from tcrutils.import_ import load_package_dynamically
+
+from common.errors import ThisError
 from common.models import Mod
 from prelude import *
-from tcrutils.import_ import load_package_dynamically
 
 MOD_ALLOWED_NAME = r"^[A-Za-z0-9_]+$"
 DEPENDENCIES_FILE_NAME = "dependencies.txt"
 
+MODS: dict[str, Mod] = {}
+"""Global containing currently loaded mods. Should be .updated(), not overwritten."""
+
 logger = get_logger("mod_loader")
 
 
-class ZooModDependencyError(ZooError):  # Not ZooModError since the error originates from the mod loader, not a mod itself
+class ModDependencyError(ThisError):  # Not ModError since the error originates from the mod loader, not a mod itself
 	"""There was an issue ordering mods to load by their dependencies because one or multiple mods have their dependencies misconfigured."""
 
 
@@ -46,7 +50,7 @@ def sorted_by_dependency(paths: Iterable[p.Path], dependencies: dict[str, list[s
 				zero_in_degree_queue.append(neighbor)
 
 	if len(sorted_modules) != len(in_degree):
-		raise ZooModDependencyError("A cycle was detected in the dependencies")
+		raise ModDependencyError("A cycle was detected in the dependencies")
 
 	return [path_dict[module] for module in sorted_modules]
 
@@ -72,14 +76,14 @@ async def load_mods_from_directory(path: p.Path) -> dict[str, Mod]:
 
 		for dep in deps:
 			if not regex.match(MOD_ALLOWED_NAME, dep):
-				raise ZooModDependencyError(f"Invalid dependency syntax: Mod {item.name!r} contains invalid dependency: {dep!r}")
+				raise ModDependencyError(f"Invalid dependency syntax: Mod {item.name!r} contains invalid dependency: {dep!r}")
 
 		dependencies[item.name] = deps
 
 	for mod_name, deps in dependencies.items():
 		for dep in deps:
 			if dep not in dependencies:
-				raise ZooModDependencyError(f"Mod {mod_name!r} has a dependency on {dep!r} which does not exist")
+				raise ModDependencyError(f"Mod {mod_name!r} has a dependency on {dep!r} which does not exist")
 
 	paths = path.iterdir()
 	paths = sorted_by_dependency(paths, dependencies)

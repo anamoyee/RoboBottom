@@ -2,7 +2,6 @@ from contextlib import ExitStack
 
 from _._version import __version__
 from _.db import GlobalDB, GuildDB, UserDB, VersionDB
-from _.models.animal import *
 from _.tools import OPTION_EPHEMERAL, ephemeral_from_bool
 from tcrutils.codeblock import codeblock, discord_exception
 from tcrutils.console import c

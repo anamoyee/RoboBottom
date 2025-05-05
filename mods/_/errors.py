@@ -6,17 +6,17 @@ from tcrutils.codeblock import codeblocks
 from tcrutils.extract_error import extract_error, extract_traceback
 
 from common.bot import ACL, BOT
-from common.errors import ZooError
+from common.errors import ThisError
 from prelude import *
 
 from .config import S
 
 
-class ZooModError(ZooError):
-	"""Common base class for all zoo errors coming from mods."""
+class ModError(ThisError):
+	"""Common base class for all errors coming from mods."""
 
 
-class UserGetsDetailsError(ZooModError):
+class UserGetsDetailsError(ModError):
 	"""Any error happend but also user gets to see an error message if this isnt caught. This is supposed to be subclassed since user also gets to see this errors `.__class__.__name__`. If this class is not subclassed, the class name will not be shown (annonymous error type).
 
 	You can disable this functionality `'_'`-mod-wide in the config.
@@ -49,7 +49,7 @@ async def handle_uncaught_errors(ctx: arc.GatewayContext, e: BaseException) -> N
 	if S.ENABLE_USER_GETS_DETAILS_ERRORS and isinstance(e, UserGetsDetailsError):
 		await ctx.respond(e.display_to_user())
 	else:
-		await ctx.respond("**Error!**")  # If the error is not of type UserGetsDetailsError, act like in normal zoo.
+		await ctx.respond("**Error!**")  # If the error is not of type UserGetsDetailsError, dont give details.
 
 	if S.ERROR_CHANNEL:
 		msg = f"## Unhandled command error in `{ctx.command.display_name}` triggered by {IFYs.userify(ctx.author.id)}\n" + codeblocks(

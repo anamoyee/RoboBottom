@@ -4,7 +4,7 @@ import time
 
 import psutil
 
-from common import ACL, BOT, zoo
+from common import ACL, BOT
 from prelude import *
 
 from .._version import __version__
@@ -30,12 +30,13 @@ async def cmd_botstatus(ctx: arc.GatewayContext) -> None:
 		hikari.Embed(
 			description=f"""
 **Originally Created by:** **[Colon](https://gdcolon.com)** {S.EMOJI.fluff}
-**This is a fan made recreation.** **[Here's Original](https://gdcolon.com/zoo/)**
+**This is a fan made recreation.** **[Here's Original](https://gdcolon.com/robotop/)**
 **Version:** v{__version__}
 **Uptime:** {UPTIME}
 **Servers:** {guild_number}
 **Python version:** v{".".join(str(x) for x in sys.version_info[:3])} (**光** v{hikari.__version__})
 **Memory usage:** {get_memory_usage():.2f} MB
+**Gearbot Reminders:** suck
 """[1:-1],
 			color=S.COLOR.PRIMARY,
 			# timestamp=datetime.datetime.now(tz=S.TZINFO),
@@ -45,7 +46,7 @@ async def cmd_botstatus(ctx: arc.GatewayContext) -> None:
 			icon=me.avatar_url,
 		)
 		.set_footer(
-			f"Ping: ... • Heartbeat Latency: {BOT.heartbeat_latency * 1000:.0f}ms",
+			f"Roundtrip Ping: ... • Heartbeat Latency: {BOT.heartbeat_latency * 1000:.0f}ms",
 		)
 	)
 

@@ -8,20 +8,6 @@ _ = {
 			"/.settings.name": "settings",
 			"/.settings.description": "Modify settings for your profile",
 		},
-		**{  # /terminal
-			"/.terminal.name": "terminal",
-			"/.terminal.description": "Run a command in the mysterious terminal",
-			"/.terminal:command.name": "command",
-			"/.terminal:command.description": "The command to run",
-		},
-		**{  # /animals
-			"/.animals.name": "animals",
-			"/.animals.description": "View your rescued animals",
-		},
-		**{
-			"/.rescue.name": "rescue",
-			"/.rescue.description": "Rescue an animal!",
-		},
 	},
 	**{  # slash command options
 		"/option.ephemeral.name": "ephemeral",

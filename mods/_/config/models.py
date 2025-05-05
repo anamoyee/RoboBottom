@@ -1,12 +1,13 @@
 import re as _regex
 from typing import Self
 
-from prelude import *
 from tcrutils import discord_ifys as IFYs
+
+from prelude import *
 
 if True:  # Author
 
-	class Author(ZooBM):
+	class Author(RbBM):
 		discord_id: int
 		discord_username: str
 
@@ -16,7 +17,7 @@ if True:  # Author
 
 if True:  # CustomEmoji & stuff
 
-	class CustomEmoji(ZooBM):
+	class CustomEmoji(RbBM):
 		name: str
 		id: str
 		animated: bool
@@ -44,7 +45,7 @@ if True:  # CustomEmoji & stuff
 			else:
 				raise ValueError(f"Invalid Discord markdown custom emoji format: {emoji_str!r}")
 
-	class CustomEmojiStaticBase(ZooBM):
+	class CustomEmojiStaticBase(RbBM):
 		"""Contains a converter ("validator") for all fields to convert them into CustomEmoji types."""
 
 		@pd.field_validator("*", mode="before")
@@ -58,7 +59,7 @@ if True:  # CustomEmoji & stuff
 
 if True:  # Color Palette
 
-	class ColorPaletteStatic(ZooBM):
+	class ColorPaletteStatic(RbBM):
 		# fmt: off
 		COLON:   int = 0xFF8000
 		PRIMARY: int = 0x8000FF  # ROL #$FF8000, #8

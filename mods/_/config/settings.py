@@ -8,11 +8,11 @@ from .models import *
 
 
 @_instance  # "S = S()", but with correct typhints, works on the latest pylance vscode extension version as of the time of writing this sentence
-class S(ZooBM):
+class S(RbBM):
 	"""Represents the main, shared settings of the entire bot itself, not only the `'_'` mod, since the builtin mod is always 'depended on' by other mods (hardcoded) (that means, you can access it through other mods) it can be used as a bot-wide config, though read-only. This is for looking up values to other mods, not storing values that are relevant only in your mod. For this make your own config in your mod, kind of like this one."""
 
 	AUTHOR: Author = Author(discord_id=507642999992352779, discord_username="anamoyee")
-	"""Author of the `'_'` mod, effectivelly myself, the author of the zoo.py rewrite."""
+	"""Author of the `'_'` mod, effectivelly myself, the author of the bot itself."""
 
 	### Submenus ############################################################################################################################################################
 
@@ -34,7 +34,7 @@ class S(ZooBM):
 	TZINFO: timezone = datetime.now().astimezone().tzinfo  # By default, the current machine's local timezone
 	"""Timezone used by the bot whenever the `datetime` module needs it."""
 
-	DB_DIRECTORY: p.Path = p.Path("~/CCLocalZoo").expanduser()
+	DB_DIRECTORY: p.Path = p.Path("~/CCLocalReminders").expanduser()
 	"""The directory where the database is stored."""
 
 	### Error Handling ######################################################################################################################################################

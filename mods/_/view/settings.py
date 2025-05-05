@@ -7,13 +7,13 @@ import miru
 from arc.client import GatewayContext
 from miru.ext import menu
 
-from prelude import ZooBM, c, pd
+from prelude import RbBM, c, pd
 
 from ..config import S
 from ..db import Profile, UserDB
 
 
-class _BaseSetting(ZooBM):
+class _BaseSetting(RbBM):
 	emoji: str
 	name: str
 	display_name: str
@@ -109,8 +109,8 @@ SETTINGS = [
 	# Setting(
 	# 	emoji="🏷",
 	# 	name="name",
-	# 	display_name="Zoo Name",
-	# 	description="The name of your zoo",
+	# 	display_name="Profile Name",
+	# 	description="The name of your profile",
 	# 	options=None,
 	# ),
 	PrivateSetting(),

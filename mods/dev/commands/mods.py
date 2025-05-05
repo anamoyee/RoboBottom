@@ -1,5 +1,6 @@
 from _.tools import OPTION_EPHEMERAL, OPTION_TO_FILE, dump_respond
-from common import zoo
+
+from mod_loader import MODS
 from prelude import *
 
 from ._base import GROUP_DEV
@@ -13,7 +14,7 @@ async def cmd_dev_objects_items(
 	to_file: OPTION_TO_FILE = False,
 ) -> None:
 	await dump_respond(
-		*zoo.mods.items(),
+		*MODS.items(),
 		ctx=ctx,
 		ephemeral=ephemeral,
 		to_file=to_file,

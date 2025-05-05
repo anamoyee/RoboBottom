@@ -1,4 +1,4 @@
-from _.models.item import ITEMS as BUILTIN_ITEMS
+from _.db import UserDB
 
 
 async def load() -> None:
@@ -13,4 +13,4 @@ async def loaded_print() -> str | object | None:
 	If a non-str object is returned it will be rich-printed if possible.
 	"""
 
-	return f"zoo.mods.{__name__}: Loaded successfully but with a custom message!"
+	return f"mods.{__name__}: Loaded successfully but with a custom message!"

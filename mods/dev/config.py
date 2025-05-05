@@ -4,7 +4,7 @@ from prelude import *
 
 
 @_instance
-class S(ZooBM):
+class S(RbBM):
 	DEV_IDS: set[int] = {507642999992352779}
 	"""Users from this set will be able to execute developer commands from this mod."""
 
