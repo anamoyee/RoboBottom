@@ -1,6 +1,20 @@
-[tool.ruff]
-extend = "~/.ruff.toml"
+[project]
+name = "robobottom"
+dynamic = ["version"]
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "hikari-arc>=2.1.0,<3.0.0",
+    "hikari-miru>=4.2.0,<5.0.0",
+    "hikari[speedups]>=2.3.1,<3.0.0",
+    "psutil>=7.0.0,<8",
+    "pydantic>=2.10.6",
+    "tcrutils>=13.1.31",
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
+    "uvloop>=0.20.0 ; sys_platform != 'win32'",
+]
+
+[tool.hatch.version]
+path = "mods/_/_version.py"
+pattern = '__version__(?:: str)? *= *\"(?P<version>[^\"]+)\"'

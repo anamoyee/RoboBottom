@@ -1,0 +1,9 @@
+hikari-arc<3.0.0,>=2.1.0
+hikari-miru<5.0.0,>=4.2.0
+hikari[speedups]<3.0.0,>=2.3.1
+psutil<8,>=7.0.0
+pydantic>=2.10.6
+tcrutils>=13.1.31
+
+[:sys_platform != "win32"]
+uvloop>=0.20.0
