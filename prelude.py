@@ -29,6 +29,10 @@ os.chdir(ROOT_PATH)
 __TOKEN = get_token()
 """The bot's token. Generally you will never use this variable, but it's here because i couldn't be bothered with making a file containing just this one line."""
 
+TESTMODE = __TOKEN.startswith("TEST:")
+"""Whether the bot is running in testmode, as specified by the token."""
+__TOKEN = __TOKEN.removeprefix("TEST:")
+
 
 def get_logger(name: str):
 	"""Get rb.{name} logger, used with __name__, this is made to differentiate it from `hikari`, `arc`, etc. loggers."""

@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-import hikari.snowflakes
 from tcrutils.decorator import instance as _instance
 
 from .emoji import CustomEmojiStatic
@@ -34,8 +33,9 @@ class S(RbBM):
 	TZINFO: timezone = datetime.now().astimezone().tzinfo  # By default, the current machine's local timezone
 	"""Timezone used by the bot whenever the `datetime` module needs it."""
 
-	DB_DIRECTORY: p.Path = p.Path("~/CCLocalReminders").expanduser()
+	DB_DIRECTORY: p.Path = p.Path("~/CCLocalReminders5").expanduser()
 	"""The directory where the database is stored."""
+	DB_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
 	### Error Handling ######################################################################################################################################################
 

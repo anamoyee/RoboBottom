@@ -3,7 +3,6 @@ import sys
 import time
 
 import psutil
-
 from common import ACL, BOT
 from prelude import *
 
@@ -43,7 +42,7 @@ async def cmd_botstatus(ctx: arc.GatewayContext) -> None:
 		)
 		.set_author(
 			name=me.display_name,
-			icon=me.avatar_url,
+			icon=me.make_avatar_url() or me.default_avatar_url,
 		)
 		.set_footer(
 			f"Roundtrip Ping: ... • Heartbeat Latency: {BOT.heartbeat_latency * 1000:.0f}ms",
