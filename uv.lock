@@ -245,7 +245,7 @@ wheels = [
 
 [[package]]
 name = "hikari"
-version = "2.3.1"
+version = "2.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -253,9 +253,9 @@ dependencies = [
     { name = "colorlog" },
     { name = "multidict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/87/7d6ae4bd18b9a93227c93f90f0259d7828a1d351b74c74d93429ab698dee/hikari-2.3.1.tar.gz", hash = "sha256:870d75424cdade5f3944d182d9fad6ae0e55016e7ce58713f24f30b557b36678", size = 1045335, upload-time = "2025-04-27T20:15:10.086Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/f6/b01226d433dfae3cabf7dbabd7cd8326d6c186bb03b7f4bd2125bec46176/hikari-2.3.2.tar.gz", hash = "sha256:1de322a84d402edb264d9e054d3a3e72ffbe3ccffea2f3f1476370ccf5b8609a", size = 1882598, upload-time = "2025-05-09T15:17:43.065Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/94/b80eb68d697000e789575f9e652f494809041f8bd73ac10c240b47e8a133/hikari-2.3.1-py3-none-any.whl", hash = "sha256:9f6283c8d6562d69523b97074a7a2747cc9c022c535389d7f031eb436337c1b7", size = 565669, upload-time = "2025-04-27T20:15:07.79Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/41/976f02fb6c00358f73a2108c5468b3ca0d61bb250b8ec0d01203d5f49bb4/hikari-2.3.2-py3-none-any.whl", hash = "sha256:4a52d24be8dc9ecf094e4119058971c03c5109dc5c406231003fe7ce8d3863c1", size = 573776, upload-time = "2025-05-09T15:17:40.935Z" },
 ]
 
 [package.optional-dependencies]
@@ -301,6 +301,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f1/70/7703c29685631f5a7590aa73f1f1d3fa9a380e654b86af429e0934a32f7d/idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9", size = 190490, upload-time = "2024-09-15T18:07:39.745Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/76/c6/c88e154df9c4e1a2a66ccf0005a88dfb2650c1dffb6f5ce603dfbd452ce3/idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3", size = 70442, upload-time = "2024-09-15T18:07:37.964Z" },
+]
+
+[[package]]
+name = "lark"
+version = "1.2.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/60/bc7622aefb2aee1c0b4ba23c1446d3e30225c8770b38d7aedbfb65ca9d5a/lark-1.2.2.tar.gz", hash = "sha256:ca807d0162cd16cef15a8feecb862d7319e7a09bdb13aef927968e45040fed80", size = 252132, upload-time = "2024-08-13T19:49:00.652Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/00/d90b10b962b4277f5e64a78b6609968859ff86889f5b898c1a778c06ec00/lark-1.2.2-py3-none-any.whl", hash = "sha256:c2276486b02f0f1b90be155f2c8ba4a8e194d42775786db622faccd652d8e80c", size = 111036, upload-time = "2024-08-13T19:48:58.603Z" },
 ]
 
 [[package]]
@@ -510,7 +519,7 @@ wheels = [
 ]
 
 [[package]]
-name = "robobottomv5"
+name = "robobottom"
 source = { virtual = "." }
 dependencies = [
     { name = "hikari", extra = ["speedups"] },
@@ -518,19 +527,33 @@ dependencies = [
     { name = "hikari-miru" },
     { name = "psutil" },
     { name = "pydantic" },
+    { name = "str2td" },
     { name = "tcrutils" },
     { name = "uvloop", marker = "sys_platform != 'win32'" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "hikari", extras = ["speedups"], specifier = ">=2.3.1,<3.0.0" },
+    { name = "hikari", extras = ["speedups"], specifier = ">=2.3.2,<3.0.0" },
     { name = "hikari-arc", specifier = ">=2.1.0,<3.0.0" },
     { name = "hikari-miru", specifier = ">=4.2.0,<5.0.0" },
     { name = "psutil", specifier = ">=7.0.0,<8" },
     { name = "pydantic", specifier = ">=2.10.6" },
+    { name = "str2td", specifier = ">=0.0.5" },
     { name = "tcrutils", specifier = ">=13.1.31" },
     { name = "uvloop", marker = "sys_platform != 'win32'", specifier = ">=0.20.0" },
+]
+
+[[package]]
+name = "str2td"
+version = "0.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lark" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/24/b0/10cd228ab34f837090e5dda31ac11ab295bd3502ec721915c2b7bf4ee963/str2td-0.0.5.tar.gz", hash = "sha256:13461e9bf02647f092065fb1694e0b82fc3a81f705e5499357e65eaa186eee75", size = 15324, upload-time = "2025-05-14T19:53:20.064Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2e/64/aa7c361e5bf2ac407ab2dba6bc24bb5765b3cc229064c622c952a8d3d98f/str2td-0.0.5-py3-none-any.whl", hash = "sha256:07c964ab6f42ee2efbecb9bceaf00329adb1b70a9acce24c2ebbc713628853c7", size = 10021, upload-time = "2025-05-14T19:53:18.781Z" },
 ]
 
 [[package]]
