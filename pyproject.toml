@@ -1,7 +1,7 @@
 [project]
-name = "hikari-botbase"
+name = "robobottom"
 dynamic = ["version"]
-description = "hikari-botbase: Add your description here"
+description = "RoboBottom Discord Bot - A Python recreation of Colon's RoboTop Reminder System."
 readme = "README.md"
 requires-python = ">=3.12" # hikari-botbase: change on clone, possibly
 dependencies = [
