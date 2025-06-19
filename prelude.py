@@ -30,14 +30,15 @@ __TOKEN = get_token()
 """The bot's token. Generally you will never use this variable, but it's here because i couldn't be bothered with making a file containing just this one line."""
 
 TESTMODE = __TOKEN.startswith("TEST:")
-"""Whether the bot is running in testmode, as specified by the token."""
+"""Whether the bot is running in testmode (development mode), as specified by the token. Should be used sparingly, because it can cause unexpected bugs in prod, while not causing any in testmode."""
 __TOKEN = __TOKEN.removeprefix("TEST:")
 
 
 def get_logger(name: str):
 	"""Get bot.{name} logger, used with __name__, this is made to differentiate it from `hikari`, `arc`, etc. loggers."""
-	if not isinstance(name, str):  # strict check, due to f'{name}' converting it to string anyway and who wants a "*.<Whatever object at 0xbadbed>" logger anyway
-		raise TypeError(f"get_logger called, but name isn't a str, found {name!r} instead.")
+	if not isinstance(name, str):
+		# strict isinstance check (as opposed to just f-string {...}'ing it), due to f'{name}' converting it to string anyway and who wants a "*.<Whatever object at 0xbadbed>" logger anyway
+		raise TypeError(f"get_logger called, but name isn't a str, found {name!r} ({type(name)!r}) instead.")
 
 	return _logging.getLogger(f"bot.{name}")
 
