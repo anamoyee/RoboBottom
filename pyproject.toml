@@ -3,7 +3,7 @@ name = "robobottom"
 dynamic = ["version"]
 description = "RoboBottom Discord Bot - A Python recreation of Colon's RoboTop Reminder System."
 readme = "README.md"
-requires-python = ">=3.12" # hikari-botbase: change on clone, possibly
+requires-python = "==3.12.8"
 dependencies = [
 	"hikari-arc>=2.1.1,<3.0.0",
 	"hikari-miru>=4.2.0,<5.0.0",
