@@ -36,6 +36,7 @@ _ = {
 			**{
 				"/command": "You do not have permission to use this command.",
 				"button": "You do not have permission to press this button.",
+				"select": "You do not have permission to press this select menu.",
 				"permbanned": "Your account has been permanently banned from using this bot as per the bot's [terms of service](https://documents.anamoyee.pages.gay/robobottom/tos).",
 			},
 		),
