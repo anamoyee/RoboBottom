@@ -1,5 +1,7 @@
 from prelude import *
 
+logger = get_logger(__name__)
+
 
 async def load() -> None:
 	from common.events import ModsLoadedEvent
@@ -10,9 +12,5 @@ async def load() -> None:
 
 	...  # Load translations first
 
-	from . import commands, models
+	from . import commands, db, models
 	from . import config as _config
-
-	@ModsLoadedEvent.subscribe
-	async def on_mods_loaded(event: ModsLoadedEvent):
-		c(event)
