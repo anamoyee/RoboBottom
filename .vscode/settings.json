@@ -13,5 +13,8 @@
 		".editorconfig": true,
 		".vscode/": true,
 		".rgignore": true
+	},
+	"files.readonlyInclude": {
+		"mods/_/**": true
 	}
 }
