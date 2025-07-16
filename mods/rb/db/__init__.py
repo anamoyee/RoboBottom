@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Any
 from mods._.events import DatabaseInitEvent
 from prelude import *
 
+from .. import models
+
 
 def mixin_RbProfile():
 	"""Should be only called once. Mixes in RbProfile to the root Profile class, should be stackable (should be able to be used by other mods simultaneously)."""
@@ -13,10 +15,10 @@ def mixin_RbProfile():
 	##################################################################
 
 	class RbProfile(model_profile.Profile):
-		reminders: list[str] = pd.Field(default_factory=list)
+		reminders: list[models.Reminder] = pd.Field(default_factory=list)
 
-		def test_method(self):
-			return f"test from: {self.display_name=}"
+		def sort_reminders(self):
+			self.reminders.sort(key=models.Reminder.sort_key)
 
 	##################################################################
 

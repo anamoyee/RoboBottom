@@ -12,5 +12,9 @@ async def load() -> None:
 
 	...  # Load translations first
 
-	from . import commands, db, models
+	from . import commands, db, loops, models
 	from . import config as _config
+
+	@ModsLoadedEvent.subscribe
+	async def on_mods_loaded(event: ModsLoadedEvent):
+		loops.send_reminder_loop.start()

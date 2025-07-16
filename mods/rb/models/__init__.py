@@ -1,1 +1,1 @@
-from ._base import Reminder
+from .reminder import Reminder
