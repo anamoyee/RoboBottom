@@ -37,9 +37,13 @@ class ReminderFlag(StrFlag):
 
 class Reminder(Object):
 	text: str
+	"""The text content of this reminder."""
 	unix: datetime
+	"""The time at which this reminder is due."""
 	flag: ReminderFlag = 0
+	"""The flags associated with this reminder."""
 	chan: int | None = None
+	"""The ID of the target channel for this reminder."""
 
 	@pd.field_validator("unix", mode="before")
 	@classmethod
