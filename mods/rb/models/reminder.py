@@ -92,56 +92,58 @@ class Reminder(Object):
 
 		return self
 
-	class _DisplayBase:
-		rem: "Reminder"
+	if True:
 
-		def __init__(self, *, dbkey: str | int, user: User, prof: "RbProfile") -> None:
-			self.user = user
-			self.prof = prof
-			self.dbkey = str(dbkey)
+		class _DisplayBase:
+			rem: "Reminder"
 
-		def _set_reminder(self, reminder: "Reminder", /) -> None:
-			self.rem = reminder
+			def __init__(self, *, dbkey: str | int, user: User, prof: "RbProfile") -> None:
+				self.user = user
+				self.prof = prof
+				self.dbkey = str(dbkey)
 
-		def to_embed_description(self) -> str:
-			text = self.rem.text
+			def _set_reminder(self, reminder: "Reminder", /) -> None:
+				self.rem = reminder
 
-			if self.rem.flag & ReminderFlag.HIDDEN:
-				text = f"||{simple_escape_text(text, escapes='||')}||"
+			def to_embed_description(self) -> str:
+				text = self.rem.text
 
-			return text
+				if self.rem.flag & ReminderFlag.HIDDEN:
+					text = f"||{simple_escape_text(text, escapes='||')}||"
 
-		def to_message_flags(self) -> hikari.MessageFlag:
-			return hikari.MessageFlag.NONE
+				return text
 
-		def to_content(self) -> hikari.UndefinedOr[str]:
-			return hikari.UNDEFINED
+			def to_message_flags(self) -> hikari.MessageFlag:
+				return hikari.MessageFlag.NONE
 
-		def to_embed(self) -> hikari.UndefinedOr[Embed]:
-			return hikari.UNDEFINED
-
-		def to_hikari_dict(self) -> dict:
-			return {
-				"content": self.to_content(),
-				"user_mentions": True,
-				"embed": self.to_embed(),
-				"flags": self.to_message_flags(),
-			}
-
-	class RemindDisplay(_DisplayBase):
-		def to_content(self) -> hikari.UndefinedOr[str]:
-			if not self.rem.flag & ReminderFlag.IMPORTANT:
+			def to_content(self) -> hikari.UndefinedOr[str]:
 				return hikari.UNDEFINED
 
-			return f"# <@{self.dbkey}>"
+			def to_embed(self) -> hikari.UndefinedOr[Embed]:
+				return hikari.UNDEFINED
 
-		def to_embed(self) -> Embed:
-			return Embed(
-				title="🔔 Reminder!",
-				description=self.to_embed_description(),
-				color=0xFFFF00,
-			)
+			def to_hikari_dict(self) -> dict:
+				return {
+					"content": self.to_content(),
+					"user_mentions": True,
+					"embed": self.to_embed(),
+					"flags": self.to_message_flags(),
+				}
 
-	class ScheduledDisplay(_DisplayBase):
-		def to_content(self) -> str:
-			return f"Okay! Will remind you in: {self.rem.to_discord_timestamp(style='R')}"
+		class RemindDisplay(_DisplayBase):
+			def to_content(self) -> hikari.UndefinedOr[str]:
+				if not self.rem.flag & ReminderFlag.IMPORTANT:
+					return hikari.UNDEFINED
+
+				return f"# <@{self.dbkey}>"
+
+			def to_embed(self) -> Embed:
+				return Embed(
+					title="🔔 Reminder!",
+					description=self.to_embed_description(),
+					color=0xFFFF00,
+				)
+
+		class ScheduledDisplay(_DisplayBase):
+			def to_content(self) -> str:
+				return f"Okay! Will remind you in: {self.rem.to_discord_timestamp(style='R')}"
