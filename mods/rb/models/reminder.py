@@ -39,6 +39,7 @@ class Reminder(Object):
 	text: str
 	unix: datetime
 	flag: ReminderFlag = 0
+	chan: int | None = None
 
 	@pd.field_validator("unix", mode="before")
 	@classmethod
