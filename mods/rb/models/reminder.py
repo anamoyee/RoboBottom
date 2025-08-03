@@ -36,6 +36,8 @@ class ReminderFlag(StrFlag):
 
 
 class Reminder(Object):
+	user: int
+	"""The discord ID of the owner of this reminder."""
 	text: str
 	"""The text content of this reminder."""
 	unix: datetime
@@ -67,9 +69,9 @@ class Reminder(Object):
 		"""Send this reminder as a message in a DM to the user."""
 		display._set_reminder(self)
 
-		channel = await BOT.rest.create_dm_channel(display.dbkey)
+		channel = await self.fetch_channel()
 
-		await channel.send(**display.to_hikari_dict())
+		return await channel.send(**display.to_hikari_dict())
 
 	async def respond_to(self, *, display: "Reminder._DisplayBase", ctx: arc.GatewayContext, ephemeral: bool = False):
 		"""Respond with this reminder to an arc.GatewayContext."""
@@ -79,7 +81,7 @@ class Reminder(Object):
 
 		dct["flags"] |= ephemeral_from_bool(ephemeral)
 
-		await ctx.respond(**dct)
+		return await ctx.respond(**dct)
 
 	def schedule_to_profile(self, profile: "RbProfile"):
 		"""Save this reminder in the database for later sending.
@@ -92,15 +94,25 @@ class Reminder(Object):
 
 		return self
 
-	if True:
+	async def fetch_channel(self) -> hikari.TextableChannel | hikari.DMChannel:
+		if self.chan is None:
+			return await (await BOT.rest.fetch_user(self.user)).fetch_dm_channel()
+
+		channel = await BOT.rest.fetch_channel(self.chan)
+
+		if not isinstance(channel, hikari.TextableChannel):
+			raise ValueError(f"Reminder.fetch_channel: {self.chan=} is not a TextableChannel.")  # noqa: TRY004 <-- Not a type issue, the self.chan value is invalid.
+
+		return channel
+
+	if True:  # class Display
 
 		class _DisplayBase:
 			rem: "Reminder"
 
-			def __init__(self, *, dbkey: str | int, user: User, prof: "RbProfile") -> None:
+			def __init__(self, *, user: User, prof: "RbProfile") -> None:
 				self.user = user
 				self.prof = prof
-				self.dbkey = str(dbkey)
 
 			def _set_reminder(self, reminder: "Reminder", /) -> None:
 				self.rem = reminder
@@ -109,7 +121,7 @@ class Reminder(Object):
 				text = self.rem.text
 
 				if self.rem.flag & ReminderFlag.HIDDEN:
-					text = f"||{simple_escape_text(text, escapes='||')}||"
+					text = f"||{simple_escape_text(text, escapes=('||',))}||"
 
 				return text
 
@@ -119,14 +131,14 @@ class Reminder(Object):
 			def to_content(self) -> hikari.UndefinedOr[str]:
 				return hikari.UNDEFINED
 
-			def to_embed(self) -> hikari.UndefinedOr[Embed]:
-				return hikari.UNDEFINED
+			def to_embeds(self) -> list[Embed]:
+				return []
 
 			def to_hikari_dict(self) -> dict:
 				return {
 					"content": self.to_content(),
 					"user_mentions": True,
-					"embed": self.to_embed(),
+					"embeds": self.to_embeds(),
 					"flags": self.to_message_flags(),
 				}
 
@@ -135,14 +147,16 @@ class Reminder(Object):
 				if not self.rem.flag & ReminderFlag.IMPORTANT:
 					return hikari.UNDEFINED
 
-				return f"# <@{self.dbkey}>"
+				return f"# <@{self.rem.user}>"
 
-			def to_embed(self) -> Embed:
-				return Embed(
-					title="🔔 Reminder!",
-					description=self.to_embed_description(),
-					color=0xFFFF00,
-				)
+			def to_embeds(self) -> list[Embed]:
+				return [
+					Embed(
+						title="🔔 Reminder!",
+						description=self.to_embed_description(),
+						color=0xFFFF00,
+					)
+				]
 
 		class ScheduledDisplay(_DisplayBase):
 			def to_content(self) -> str:

@@ -1,5 +1,4 @@
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 import arc
 from mods._.config import S
@@ -22,7 +21,6 @@ async def send_reminder_loop():
 						try:
 							await rem.send(
 								Reminder.RemindDisplay(
-									dbkey=dbkey,
 									user=user,
 									prof=prof,
 								)

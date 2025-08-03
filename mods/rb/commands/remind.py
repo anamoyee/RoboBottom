@@ -18,18 +18,21 @@ async def cmd_remind(
 	ctx: arc.GatewayContext,
 	text: arc.Option[str, arc.StrParams(**LANG.get_arc_command("/.remind:text"))],
 	ephemeral: OPTION_EPHEMERAL = False,
+	here: arc.Option[bool, arc.BoolParams(**LANG.get_arc_command("/.remind:here"))] = False,
 ) -> None:
 	with UserDB(ctx.author.id) as user:
 		prof = user.ensure_profile(ctx)
 
 		await (
 			Reminder(
+				user=ctx.author.id,
 				text=text,
-				unix=datetime.now(tz=S1.TZINFO) + Δ(seconds=3),
+				unix=datetime.now(tz=S1.TZINFO) + Δ(seconds=10),
+				chan=(None if not here else ctx.channel.id),
 			)
 			.schedule_to_profile(prof)
 			.respond_to(
-				display=Reminder.ScheduledDisplay(dbkey=ctx.author.id, user=user, prof=prof),
+				display=Reminder.ScheduledDisplay(user=user, prof=prof),
 				ctx=ctx,
 				ephemeral=ephemeral,
 			)
