@@ -8,6 +8,8 @@ from prelude import *
 
 
 class StrFlag(_BaseFlag):
+	NONE: Self
+
 	def __init_subclass__(cls) -> None:
 		try:
 			cls.NONE  # noqa: B018
@@ -54,6 +56,24 @@ class StrFlag(_BaseFlag):
 				raise ValueError(f"{cls.__name__}.from_str: invalid symbol: {symbol_str}") from e
 
 		return result
+
+	@classmethod
+	def from_str_prefix(cls, s: str, /) -> tuple[Self, str]:
+		symbols = cls._checked_make_symbol_associations()
+		symbols_inv = {v: k for k, v in symbols.items()}
+
+		result = cls.NONE
+
+		i = 0
+		while i < len(s):
+			symbol_str = s[i]
+			try:
+				result |= symbols_inv[symbol_str]
+				i += 1
+			except KeyError:
+				break
+
+		return result, s[i:]
 
 	def __str__(self) -> str:
 		symbols = self._checked_make_symbol_associations()

@@ -21,19 +21,28 @@ async def cmd_remind(
 	here: arc.Option[bool, arc.BoolParams(**LANG.get_arc_command("/.remind:here"))] = False,
 ) -> None:
 	with UserDB(ctx.author.id) as user:
-		prof = user.ensure_profile(ctx)
+		prof = user.ensure_profile(ctx.author)
+
+		now = datetime.now(tz=S1.TZINFO)
+
+		try:
+			rem = await Reminder.from_str(
+				text,
+				now=now,
+				user=ctx.author.id,
+				chan_author=ctx.author,
+				chan_guild=ctx.get_guild(),
+				chan_here_channel=ctx.channel if here else None,
+			)
+		except Reminder.InvalidSyntaxError as e:
+			await ctx.respond(e.display(), flags=hikari.MessageFlag.EPHEMERAL)
 
 		await (
-			Reminder(
-				user=ctx.author.id,
-				text=text,
-				unix=datetime.now(tz=S1.TZINFO) + Δ(seconds=10),
-				chan=(None if not here else ctx.channel.id),
-			)
+			(rem)
 			.schedule_to_profile(prof)
-			.respond_to(
+			.respond_with(
+				ctx.respond,
 				display=Reminder.ScheduledDisplay(user=user, prof=prof),
-				ctx=ctx,
 				ephemeral=ephemeral,
 			)
 		)
