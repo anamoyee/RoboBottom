@@ -1,0 +1,14 @@
+[project]
+name = "robobottom-archive"
+version = "0.74.0"
+description = "robobottom archive"
+readme = "README.md"
+requires-python = "==3.12.11"
+dependencies = [
+    "hikari==2.1.1",
+    "hikari-lightbulb==2.3.5.post1",
+    "hikari-miru==4.2.0",
+    "hikari-arc==1.4.0",
+    "colored==2.2.4",
+    "tcrutils==13.0.15"
+]
