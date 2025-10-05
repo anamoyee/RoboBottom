@@ -1,8 +1,8 @@
 if True:  # \/ Imports
   import sys
 
-  if sys.version_info[:2] != (3, 11):
-    raise NotImplementedError('Use python 3.11')
+#  if sys.version_info[:2] != (3, 11):
+#    raise NotImplementedError('Use python 3.11')
   import asyncio
   import contextlib
   import datetime
