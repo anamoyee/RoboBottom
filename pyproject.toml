@@ -1,0 +1,18 @@
+[project]
+name = 'robobottom9'
+dynamic = ['version']
+description = 'RoboBottomV9 Discord Bot as PyPI package for easy deployment'
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+# [project.scripts]
+# robobottom9 = "robobottom9.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/robobottom9/_version.py"
+pattern = '__version__(?:: str)? *= *\"(?P<version>[^\"]+)\"'
