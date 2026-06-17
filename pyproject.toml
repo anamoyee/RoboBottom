@@ -1,18 +1,29 @@
 [project]
-name = 'robobottom9'
-dynamic = ['version']
-description = 'RoboBottomV9 Discord Bot as PyPI package for easy deployment'
-readme = "README.md"
+name            = 'robobottom9'
+dynamic         = ['version']
+description     = 'RoboBottomV9 Discord Bot as PyPI package for easy deployment'
+readme          = "README.md"
 requires-python = ">=3.14"
-dependencies = [
-    "platformdirs==4.10.0",
-    "pydantic==2.13.4",
+
+dependencies = [ #
+	"hikari>=2.5.0",
+	"hikari-arc>=2.3.0",
+	"platformdirs==4.10.0",
+	"pydantic==2.13.4",
+	# __main__
+	"arguably>=1.3.0",
+	"rich==15.0.0",
+	"tcrutils>=13.1.39", # REMOVE IN PRODUCTION
 ]
 
+[project.scripts]
+robobottom  = "robobottom9.__main__:cli"
+robobottom9 = "robobottom9.__main__:cli"
+
 [build-system]
-requires = ["hatchling"]
+requires      = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "src/robobottom9/_version.py"
+path    = "src/robobottom9/_version.py"
 pattern = '__version__(?:: str)? *= *\"(?P<version>[^\"]+)\"'
