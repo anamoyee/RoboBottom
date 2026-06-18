@@ -11,6 +11,10 @@ from . import App, error
 from . import __version__ as __version__
 
 
+class NoTokenProvidedError(error.RbDisplayError):
+	"""Raised when no token is provided via any of the ways to do so."""
+
+
 @arguably.command()
 def __root__(
 	token: str | None = None,
@@ -27,51 +31,52 @@ def __root__(
 		ValueError: If token is not provided via any of the ways to do so.
 	"""  # noqa: DOC502 # disabled due to this rule being too dumb to notice assignment, and it is required for adding a note (add_note doesnt return self... damn i wish it just did!!!)
 
-	if True:  # cli improvements
-		try:
-			terminal_width = os.get_terminal_size().columns
-		except OSError:
-			terminal_width = 100
-
-		rich.traceback.install(
-			width=terminal_width,
-			show_locals=tb_show_locals,
-			word_wrap=True,
+	def make_app() -> App:
+		return App(
+			TOKEN=token,
 		)
 
-	if True:  # get token
-		if token is None:
-			token = os.environ.get("TOKEN")
+	if True:  # machinery
+		if True:  # cli improvements
+			try:
+				terminal_width = os.get_terminal_size().columns
+			except OSError:
+				terminal_width = 100
 
-		if token is None:
-			token = get_token(default="") or None
+			rich.traceback.install(
+				width=terminal_width,
+				show_locals=tb_show_locals,
+				word_wrap=True,
+			)
 
-		if token is None:
-			msg = "No token provided via any of the ways to do so."
+		if True:  # get token
+			if token is None:
+				token = os.environ.get("TOKEN")
 
-			note = """
+			if token is None:
+				token = get_token(default="") or None
+
+			if token is None:
+				msg = "No token provided via any of the ways to do so."
+
+				note = """
 Please provide a discord token via either one of:
 1. First positional argument to this command.
 2. Environment variable `TOKEN`
 3. A file named `TOKEN.txt` in the current working directory or its parent directory.
 """[1:-1]
 
-			err = ValueError(msg)
-			err.add_note(note)
-			raise err
+				"raise NoToken"
 
-	try:
-		(
-			c
-			| App(
-				TOKEN=token,
-			)
-		).run()
-	except error.RbDisplayError as e:
-		rich.print(e, file=sys.stderr)
+				raise NoTokenProvidedError(msg).add_note(note)
 
-		# as the docstring of error.RbDisplayError.exitcode states, if exitcode is set to 0, it means "try" to continue program execution, but at this point no way to continue, if this was in an event handler of some sorts then maybe, but here? nah. In such cases convert 0 to a 1
-		sys.exit(e.exitcode or 1)
+		try:
+			(c | make_app()).run()
+		except error.RbDisplayError as e:
+			rich.print(e, file=sys.stderr)
+
+			# as the docstring of error.RbDisplayError.exitcode states, if exitcode is set to 0, it means "try" to continue program execution, but at this point no way to continue, if this was in an event handler of some sorts then maybe, but here? nah. In such cases convert 0 to a 1
+			sys.exit(e.exitcode or 1)
 
 
 if True:  # helper functions

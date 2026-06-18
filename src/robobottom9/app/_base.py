@@ -1,4 +1,3 @@
-import os
 import pathlib as p
 import tempfile
 
@@ -50,6 +49,8 @@ class App(BM_Frozen):
 				f"DATABASE_DIR is not a [red b]valid[/] path to an [red b]existing[/], [red b]rwx[/] directory: [red b u]{_esc(str(self.DATABASE_DIR))}[/]"
 			)
 			raise AppConfigurationError(msg)
+
+		return self
 
 	def run(self) -> None:
 		pass

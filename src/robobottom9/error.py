@@ -1,5 +1,6 @@
 from dataclasses import dataclass as _dataclass
 from dataclasses import field as _field
+from typing import Self as _Self
 
 from rich.markup import escape as _esc
 from rich.markup import render as _render
@@ -8,6 +9,20 @@ from rich.text import Text as _Text
 
 class RbError(Exception):
 	"""Base class for all custom errors raised by this project."""
+
+	def add_note(self, note: str) -> _Self:
+		"""Add a note to the error message.
+
+		Args:
+			note: The note to add to the error message.
+
+		Returns:
+			self: The error instance with the added note.
+		"""
+
+		super().add_note(note)
+
+		return self
 
 
 @_dataclass
@@ -24,4 +39,4 @@ class RbDisplayError(RbError):
 		if isinstance(self.text, str):
 			self.text = _Text(self.text)
 
-		return _render(f"[red b]{_esc(self.__class__.__name__)}:[/] ") + self.text
+		return _render(f"[red b]{_esc(self.__class__.__name__)}[/]: ") + self.text
