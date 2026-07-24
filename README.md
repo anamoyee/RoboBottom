@@ -26,7 +26,7 @@ A <code>db</code> folder is created in the current directory which holds all rem
 </details>
 <details>
 <summary><b>Non-Windows</b></summary>
-it tries to go back two directories and create a <code>RoboBottomDB</code> folder there.
+it tries to go one directory back (..) and create a <code>RoboBottomDB</code> folder there.
 </details>
 (Uh... and actually that's not really a database, it's just a 'shelf' aka a python dictionary that persists between relaunches, made with `shelve` module and that folder is where the shelve files are stored)
 

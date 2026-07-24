@@ -135,12 +135,12 @@ FAKE_PIPE = '¦'
 BACKSLASH = '\\'
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # noqa: PTH120, PTH100
 try:
-  SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../../RoboBottomDB')
+  SHELF_DIRECTORY = p.Path('./db') if os.name == 'nt' else p.Path('./../RoboBottomDB')
   SHELF_DIRECTORY.mkdir(
     exist_ok=True, parents=True
   )  # When hosting on termux on my phone make the reminders global for all versions that have this line (v1.0.3 and higher)
 except PermissionError:
-  SHELF_DIRECTORY = p.Path('../RoboBottomDB')
+  SHELF_DIRECTORY = p.Path('../RoboBottomDB') # 25-07-2026 01:42, this is left here after i changed ../.. above to ../, and i DO NOT want to touch anything else, therefore i'm leaving this useless branch in case of any unforseen sideeffects if i removed it..., my train's leaving in 8hrs and here i am fixing both the server and robobottom, because i decided to move the directory into the ~/srv structure, to clean up home dir
   SHELF_DIRECTORY.mkdir(exist_ok=True, parents=True)
 
 # REGEX_ONLY_DELAY: str = timestr.pattern.replace('^', '').replace('$', '') #r'^(?:(?:(?:[1-9]\d*\.\d+)|(?:\.?\d+))[a-zA-Z]+)+'
